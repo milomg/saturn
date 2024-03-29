@@ -1,11 +1,7 @@
 import { tauri } from '@tauri-apps/api'
+import { WebAudioTinySynth } from './tinysynth'
 
-import * as MIDI from 'midicube'
-import { convertFileSrc } from '@tauri-apps/api/tauri'
-
-;(window as any).MIDI = MIDI
-
-const loadedInstruments = new Set<string>()
+const synth = new WebAudioTinySynth({})
 
 export interface MidiNote {
   sync: boolean
@@ -16,38 +12,18 @@ export interface MidiNote {
   volume: number
 }
 
-function loadInstrument(instrument: string): Promise<boolean> {
-  const soundfontUrl = convertFileSrc('', 'midi')
-
-  return new Promise((resolve) => {
-    MIDI.loadPlugin({
-      instrument,
-      soundfontUrl,
-      targetFormat: 'mp3',
-      onerror: () => resolve(false),
-      onsuccess: () => {
-        loadedInstruments.add(instrument)
-
-        resolve(true)
-      },
-    })
-  })
-}
-
+let ch = 0
 export async function playNote(note: MidiNote) {
   const wake = async () => await tauri.invoke('wake_sync')
 
-  if (!loadedInstruments.has(note.name)) {
-    if (!(await loadInstrument(note.name))) {
-      return await wake()
-    }
-  }
+  await synth.ready()
 
   if (note.duration > 0) {
-    MIDI.setVolume(0, note.volume)
-    MIDI.programChange(0, note.instrument)
-    MIDI.noteOn(0, note.note, 127, 0)
-    MIDI.noteOff(0, note.note, note.duration)
+    synth.setChVol(ch, note.volume, 0)
+    synth.setProgram(ch, note.instrument)
+    synth.noteOn(ch, note.note, 127, 0)
+    synth.noteOff(ch, note.note, note.duration)
+    ch = (ch + 1) % 16
   }
 
   if (note.sync) {
