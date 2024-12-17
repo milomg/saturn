@@ -12,6 +12,7 @@ use titan::execution::executor::{DebugFrame, ExecutorMode};
 use titan::execution::trackers::history::HistoryTracker;
 use titan::execution::trackers::Tracker;
 use titan::unit::instruction::InstructionDecoder;
+use titan::unit::register::RegisterName;
 use titan::unit::suggestions::MemoryErrorReason;
 use crate::device::ExecutionState;
 
@@ -27,7 +28,7 @@ pub enum ResumeMode {
 
 fn format_error<Mem: Memory>(error: titan::cpu::error::Error, state: &State<Mem>) -> String {
     let memory = |reason: MemoryErrorReason| {
-        let pc = state.registers.pc.wrapping_sub(4);
+        let pc = state.registers.pc;
 
         let description = state.memory.get_u32(pc).ok()
             .and_then(|value| InstructionDecoder::decode(pc, value))
@@ -41,7 +42,7 @@ fn format_error<Mem: Memory>(error: titan::cpu::error::Error, state: &State<Mem>
     };
 
     match error {
-        MemoryAlign(_) => memory(MemoryErrorReason::Alignment),
+        MemoryAlign(_, _) => memory(MemoryErrorReason::Alignment),
         MemoryUnmapped(_) => memory(MemoryErrorReason::Unmapped),
         CpuTrap => {
             let pc = state.registers.pc.wrapping_sub(4);
@@ -64,7 +65,6 @@ impl ResumeMode {
     fn from_executor<Mem: Memory>(value: ExecutorMode, state: &State<Mem>) -> Self {
         match value {
             ExecutorMode::Running => ResumeMode::Running,
-            ExecutorMode::Recovered => ResumeMode::Breakpoint,
             ExecutorMode::Invalid(error) => ResumeMode::Invalid {
                 message: format_error(error, state)
             },
@@ -95,8 +95,8 @@ impl From<Registers> for RegistersResult {
 
 #[derive(Serialize)]
 pub struct ResumeResult {
-    mode: ResumeMode,
-    registers: RegistersResult
+    pub mode: ResumeMode,
+    pub registers: RegistersResult
 }
 
 impl ResumeResult {
@@ -149,13 +149,49 @@ pub trait ExecutionRewindable {
 
 pub trait RewindableDevice: ExecutionDevice + ExecutionRewindable { }
 
+#[derive(Debug, Clone)]
+pub struct BatchOptions {
+    pub count: usize,
+    // if true, the cancelled flag for syscall delegates will be cleared
+    pub first_batch: bool,
+    // if false, mode (pausing) will not stop execution
+    // handy if we want to start in the breakpoint mode (and we only want to run 1 instruction anyway)
+    pub allow_interrupt: bool,
+    // If this variable is true, the mode will be forced to breakpoint at the end of the batch.
+    // The mode will only be changed if the mode is Running at the end of the batch.
+    // Useful for stepping over syscalls, since syscalls will set the mode to Running when finished.
+    pub break_at_end: bool,
+}
+
+pub struct ResumeOptions {
+    pub batch: Option<BatchOptions>,
+    pub breakpoints: Option<Vec<u32>>,
+    pub display: Option<FlushDisplayBody>,
+    // if set_running is true, set state to "Running" and clear cancellation
+    // useful for looping batches, like in the WASM backend
+    pub change_state: Option<ExecutorMode>
+}
+
+#[derive(Copy, Clone, Debug)]
+pub enum ReadDisplayTarget {
+    Address(u32),
+    Register(RegisterName),
+}
+
+impl ReadDisplayTarget {
+    pub fn to_address(self, registers: &Registers) -> u32 {
+        match self {
+            ReadDisplayTarget::Address(address) => address,
+            ReadDisplayTarget::Register(register) => registers.get(register)
+        }
+    }
+}
+
 #[async_trait]
 pub trait ExecutionDevice: Send + Sync {
     async fn resume(
         &self,
-        count: Option<usize>,
-        breakpoints: Option<Vec<u32>>,
-        display: Option<FlushDisplayBody>
+        options: ResumeOptions
     ) -> Result<ResumeResult, ()>;
 
     fn pause(&self);
@@ -163,7 +199,7 @@ pub trait ExecutionDevice: Send + Sync {
     fn set_breakpoints(&self, breakpoints: HashSet<u32>);
 
     fn read_bytes(&self, address: u32, count: u32) -> Option<Vec<Option<u8>>>;
-    fn read_display(&self, address: u32, width: u32, height: u32) -> Option<Vec<u8>>;
+    fn read_display(&self, target: ReadDisplayTarget, width: u32, height: u32) -> Option<Vec<u8>>;
 
     fn write_bytes(&self, address: u32, bytes: Vec<u8>);
     fn write_register(&self, register: u32, value: u32);
@@ -177,49 +213,64 @@ pub trait ExecutionDevice: Send + Sync {
 impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for ExecutionState<Mem, Track> {
     async fn resume(
         &self,
-        count: Option<usize>,
-        breakpoints: Option<Vec<u32>>,
-        display: Option<FlushDisplayBody>
+        options: ResumeOptions
     ) -> Result<ResumeResult, ()> {
         let debugger = self.debugger.clone();
         let state = self.delegate.clone();
         let finished_pcs = self.finished_pcs.clone();
 
-        if let Some(breakpoints) = breakpoints {
+        if let Some(breakpoints) = options.breakpoints {
             let breakpoints_set = HashSet::from_iter(breakpoints.iter().copied());
 
             debugger.set_breakpoints(breakpoints_set);
         }
+        
+        let is_breakpoint = debugger.is_breakpoint();
 
         let debugger_clone = debugger.clone();
 
+        if let Some(mode) = options.change_state {
+            debugger.override_mode(mode);
+        }
+
         // Ensure the cancel token hasn't been set previously.
-        state.lock().unwrap().renew();
+        if options.batch.as_ref().map(|batch| batch.first_batch).unwrap_or(true) {
+            state.lock().unwrap().clear_cancelled();
+        }
 
         let delegate = SyscallDelegate::new(state);
 
         let (frame, result) = {
-            if let Some(count) = count {
-                // Taylor: Why did I split the last iteration out?
-                for _ in 0..count - 1 {
-                    delegate.cycle(&debugger).await;
-                }
+            if let Some(batch) = &options.batch {
+                let (frame, result) = delegate.run_batch(
+                    &debugger,
+                    batch.count,
+                    is_breakpoint && batch.first_batch,
+                    batch.allow_interrupt
+                ).await
+                    .unwrap_or((debugger.frame(), None));
 
-                if count > 0 {
-                    delegate.cycle(&debugger).await
+                let frame = if frame.mode == ExecutorMode::Running && batch.break_at_end {
+                    debugger.override_mode(ExecutorMode::Breakpoint);
+
+                    // re-fetch the new frame, post override
+                    // too tired to fetch it myself
+                    debugger.frame()
                 } else {
-                    return Err(());
-                }
+                    frame
+                };
+                
+                (frame, result)
             } else {
-                delegate.run(&debugger).await
+                delegate.run(&debugger, is_breakpoint).await
             }
         };
 
-        if let Some(display) = display {
+        if let Some(display) = &options.display {
             let mut lock = display.lock().unwrap();
 
-            debugger_clone.with_memory(|memory| {
-                lock.flush(memory)
+            debugger_clone.with_state(|state| {
+                lock.flush(state)
             })
         }
 
@@ -250,9 +301,11 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
         Some(value)
     }
 
-    fn read_display(&self, address: u32, width: u32, height: u32) -> Option<Vec<u8>> {
-        self.debugger.with_memory(|memory| {
-            read_display(address, width, height, memory)
+    fn read_display(&self, target: ReadDisplayTarget, width: u32, height: u32) -> Option<Vec<u8>> {
+        self.debugger.with_state(|state| {
+            let address = target.to_address(&state.registers);
+            
+            read_display(address, width, height, &mut state.memory)
         })
     }
 
@@ -277,7 +330,9 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
     }
 
     fn wake_sync(&self) {
-        self.delegate.lock().unwrap().sync_wake.notify_one();
+        if let Some(sender) = self.delegate.lock().unwrap().sync_wake.take() {
+            sender.send(()).ok();
+        }
     }
 
     fn post_key(&self, key: char, up: bool) {

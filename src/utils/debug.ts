@@ -17,6 +17,7 @@ import { tab, settings } from '../state/state'
 import { format } from 'date-fns'
 import { PromptType, saveCurrentTab } from './events'
 import { getBreakpoints } from './breakpoints'
+import { computed, toRaw } from 'vue'
 
 export async function setBreakpoint(line: number, remove: boolean) {
   const currentTab = tab()
@@ -152,7 +153,24 @@ export async function build() {
   postBuildMessage(result)
 }
 
+// Some global state checks to avoid people running resume() via shortcuts.
+export const allowRewind = computed(
+  () =>
+    !consoleData.execution || (consoleData.mode !== ExecutionModeType.Running)
+)
+
+export const allowResume = computed(
+  () =>
+    !consoleData.execution ||
+    (consoleData.mode !== ExecutionModeType.Invalid &&
+      consoleData.mode !== ExecutionModeType.Running)
+)
+
 export async function resume() {
+  if (!allowResume.value) {
+    return
+  }
+
   clearDebug()
 
   const current = tab()
@@ -175,10 +193,21 @@ export async function resume() {
   consoleData.showConsole = true
   consoleData.mode = ExecutionModeType.Running
 
+  const assemblerResult = await consoleData.execution.configure()
+
+  if (assemblerResult) {
+    postBuildMessage(assemblerResult)
+
+    if (assemblerResult.status === 'Error') {
+      closeExecution()
+
+      return
+    }
+  }
+
   const result = await consoleData.execution.resume(
     null,
-    usedBreakpoints,
-    (result) => postBuildMessage(result)
+    toRaw(usedBreakpoints)
   )
 
   if (result) {
@@ -206,7 +235,9 @@ export async function stepCount(skip: number) {
   clearDebug()
   consoleData.mode = ExecutionModeType.Running
 
-  const result = await consoleData.execution.resume(skip, null, () => {})
+  await consoleData.execution.configure()
+
+  const result = await consoleData.execution.resume(skip, null)
 
   consoleData.showConsole = true
 
@@ -216,6 +247,10 @@ export async function stepCount(skip: number) {
 }
 
 export async function step() {
+  if (!allowResume.value) {
+    return
+  }
+
   if (!consoleData.execution) {
     return
   }
@@ -240,6 +275,10 @@ export async function step() {
 }
 
 export async function rewind() {
+  if (!allowRewind.value) {
+    return
+  }
+
   if (!consoleData.execution || !consoleData.execution.timeTravel) {
     return
   }

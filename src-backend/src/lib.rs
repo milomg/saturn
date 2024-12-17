@@ -8,3 +8,5 @@ pub mod decode;
 pub mod build;
 pub mod hex_format;
 pub mod regions;
+pub mod midi;
+pub mod shortcuts;

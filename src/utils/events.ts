@@ -27,6 +27,7 @@ import {
 } from '../state/state'
 import { appWindow } from '@tauri-apps/api/window'
 import { watch } from 'vue'
+import { splitLines } from './split-lines'
 import { MidiNote, playNote } from './midi'
 import { exportBinaryContents } from './query/serialize-files'
 
@@ -103,21 +104,7 @@ export async function saveCurrentTab(
   }
 }
 
-interface PrintPayload {
-  text: string
-  error: boolean
-}
-
 export async function setupEvents() {
-  await listen('print', (event) => {
-    let payload = event.payload as PrintPayload
-
-    pushConsole(
-      payload.text,
-      payload.error ? ConsoleType.Stderr : ConsoleType.Stdout
-    )
-  })
-
   await listen('new-tab', () => {
     createTab('Untitled', '')
   })
@@ -242,10 +229,6 @@ export async function setupEvents() {
     showSettings.value = !showSettings.value
   })
 
-  await listen('play-midi', async (event) => {
-    await playNote(event.payload as MidiNote)
-  })
-
   let events = new Map<string, number>() // uuid to number
   watch(
     () => consoleData.console,
@@ -300,9 +283,16 @@ export async function setupEvents() {
       return
     }
 
+    const current = tab()
+
     for (const tab of tabsState.tabs) {
       if (tab.path === modification.path) {
-        editor.value.replaceAll(modification.data)
+        if (current?.uuid === tab.uuid) {
+          editor.value.replaceAll(modification.data)
+        } else {
+          tab.lines = splitLines(modification.data)
+        }
+
         tab.marked = false
       }
     }
