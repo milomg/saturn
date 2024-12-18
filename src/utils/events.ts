@@ -27,9 +27,12 @@ import {
 } from '../state/state'
 import { appWindow } from '@tauri-apps/api/window'
 import { watch } from 'vue'
-import { splitLines } from './split-lines'
 import { MidiNote, playNote } from './midi'
 import { exportBinaryContents } from './query/serialize-files'
+
+function splitLines(text: string): string[] {
+  return text.split(/\r?\n/)
+}
 
 export enum PromptType {
   NeverPrompt,
