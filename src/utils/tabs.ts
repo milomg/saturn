@@ -125,7 +125,7 @@ const restoreKey = 'saturn:tabs-state'
 const backupKeyPrefix = 'saturn:tab-backup'
 const backupNameKey = 'saturn:backup-keys'
 const tabsVersion = 1
-const maxBackupLength = 100000
+const maxBackupLength = 200000
 
 function backupKey(uuid: string): string {
   return `${backupKeyPrefix}:${uuid}`
