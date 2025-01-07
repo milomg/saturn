@@ -49,7 +49,11 @@ export async function playNote(note: MidiNote) {
     !(await loadedInstruments.get(note.name))
   ) {
     loadInstrument(note.name)
-    return await wake()
+    if (note.sync) {
+      await loadedInstruments.get(note.name)
+    } else {
+      return await wake()
+    }
   }
 
   if (note.duration > 0) {
