@@ -58,6 +58,9 @@ export const darkTheme = EditorView.theme(
       borderLeftColor: cursor,
       borderLeftWidth: '2px',
     },
+    '.cm-gutters': {
+      backgroundColor: 'inherit',
+    }
   },
   { dark: true },
 )
@@ -76,6 +79,9 @@ export const lightTheme = EditorView.theme(
       borderLeftColor: cursor,
       borderLeftWidth: '2px',
     },
+    '.cm-gutters': {
+      backgroundColor: 'inherit',
+    }
   },
   { dark: false },
 )

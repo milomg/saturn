@@ -185,9 +185,9 @@ function takeSpace(input: StringStream): string {
 
 function takeStringBody(input: StringStream, quote: string): void {
   while (true) {
-    const c = input.next()!
+    const c = input.next()
 
-    if (c == quote) {
+    if (!c || c == quote) {
       break
     } else if (c == '\\') {
       input.next()
