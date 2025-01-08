@@ -60,7 +60,33 @@ export const darkTheme = EditorView.theme(
     },
     '.cm-gutters': {
       backgroundColor: 'inherit',
-    }
+    },
+    '.cm-completionDetail': {
+      marginLeft: 'auto',
+      color: 'rgb(115 115 115)' // text-neutral-400
+    },
+    '.cm-completionLabel': {
+      marginRight: '1.5rem',
+    },
+    '.cm-tooltip-autocomplete': {
+      borderRadius: '.5rem',
+      border: '1px solid #333',
+      backgroundColor: 'rgb(23 23 23)', // bg-neutral-900
+    },
+    '.cm-tooltip.cm-tooltip-autocomplete > ul': {
+      padding: '.5rem',
+    },
+    '.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+     backgroundColor: 'rgb(64 64 64)', // bg-neutral-700
+    },
+    '.cm-tooltip-autocomplete > ul > li': {
+      padding: '.5rem 0px',
+      borderRadius: '.25rem',
+      height: '1.5rem',
+      display: 'flex',
+      alignItems: 'center',
+      width: '100%',
+    },
   },
   { dark: true },
 )
