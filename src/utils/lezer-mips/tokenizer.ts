@@ -92,7 +92,7 @@ const knownInstructions = new Set([
   'bnez',
 ])
 
-export let specializeIdent = (x) => {
+export let specializeIdent = (x: string) => {
   if (x.endsWith(':')) return Label
   if (knownInstructions.has(x)) {
     return Op
