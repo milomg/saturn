@@ -322,7 +322,7 @@ const sl = StreamLanguage.define({
   },
   token(stream, state) {
     const item = readItem(stream, state.initial)
-    if (!item) {
+    if (item == undefined) {
       return null
     }
     state.initial = item === TokenType.Label
