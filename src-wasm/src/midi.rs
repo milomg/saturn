@@ -10,12 +10,12 @@ pub struct WasmMidi {
 }
 
 impl MidiHandler for WasmMidi {
-    fn play(&mut self, request: &MidiRequest, _sync: bool) {
+    fn play(&mut self, request: &MidiRequest, sync: bool) {
         let Some(name) = to_instrument(request.instrument as usize) else {
             return;
         };
         self.events.send_midi_play(MidiNote {
-            sync: _sync,
+            sync,
             name: name.to_owned(),
             instrument: request.instrument as u64,
             note: request.pitch as u64,
