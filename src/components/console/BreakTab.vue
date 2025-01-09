@@ -1,11 +1,16 @@
 <template>
-  <div class="text-sm flex flex-col grow overflow-hidden content-start overflow-y-scroll">
+  <div
+    class="text-sm flex flex-col grow overflow-hidden content-start overflow-y-scroll"
+  >
     <div class="text-2xl font-bold w-full px-8 py-4">
       {{ consoleData.mode ?? 'Debug' }}
     </div>
 
     <div class="flex">
-      <div v-if="!state.instructions && !state.stack" class="px-8 dark:text-neutral-500 text-neutral-800">
+      <div
+        v-if="!state.instructions && !state.stack"
+        class="px-8 dark:text-neutral-500 text-neutral-800"
+      >
         To view debug information, set breakpoints or pause during execution.
       </div>
 
@@ -20,7 +25,8 @@
               title="Step One"
               :class="{
                 'dark:text-gray-300 text-gray-800 cursor-default': !allowResume,
-                'dark:text-sky-300 text-sky-800 dark:hover:bg-slate-800 hover:bg-slate-400': allowResume,
+                'dark:text-sky-300 text-sky-800 dark:hover:bg-slate-800 hover:bg-slate-400':
+                  allowResume,
               }"
               :disabled="!allowResume"
             >
@@ -28,21 +34,33 @@
             </button>
           </div>
 
-          <div class="font-mono my-1" v-for="(instruction, index) in state.instructions.instructions" :key="index">
+          <div
+            class="font-mono my-1"
+            v-for="(instruction, index) in state.instructions.instructions"
+            :key="index"
+          >
             <div
               class="bg-blue-500 rounded-full w-3 h-3 mr-2 inline-block"
-              :class="{'opacity-0': state.instructions.currentIndex !== index}"
+              :class="{
+                'opacity-0': state.instructions.currentIndex !== index,
+              }"
             />
 
             <span class="dark:text-sky-400 text-sky-600 font-bold">
               {{ instruction?.name || 'unk' }}
             </span>
 
-            <span v-for="(parameter, index) in instruction?.parameters ?? []" :key="index">
+            <span
+              v-for="(parameter, index) in instruction?.parameters ?? []"
+              :key="index"
+            >
               <span v-if="index !== 0">,&nbsp;</span>
               <span v-else>&nbsp;</span>
 
-              <span v-if="parameter.type === 'Register'" :class="[registers[parameter.value].color]">
+              <span
+                v-if="parameter.type === 'Register'"
+                :class="[registers[parameter.value].color]"
+              >
                 {{ registers[parameter.value].name }}
               </span>
 
@@ -55,19 +73,24 @@
               </span>
 
               <span v-if="parameter.type === 'Offset'">
-                {{ parameter.value.offset }}(<span :class="[registers[parameter.value.register].color]">{{ registers[parameter.value.register].name }}</span>)
+                {{ parameter.value.offset }}(<span
+                  :class="[registers[parameter.value.register].color]"
+                  >{{ registers[parameter.value.register].name }}</span
+                >)
               </span>
             </span>
           </div>
 
-          <div class="flex items-center flex-wrap mt-4 border-t border-gray-700 p-2">
+          <div
+            class="flex items-center flex-wrap mt-4 border-t border-gray-700 p-2"
+          >
             <div v-for="register in registerParameters">
               <RegisterItem
                 :name="registers[register].name"
                 :value="consoleData.registers?.line[register]"
                 :classes="registers[register].color"
                 :editable="true"
-                @set="value => setRegister(register, value)"
+                @set="(value) => setRegister(register, value)"
               />
             </div>
           </div>
@@ -75,34 +98,35 @@
       </div>
 
       <div class="px-2 py-4 ml-auto mr-8" v-if="state.stack">
-        <span class="text-lg font-semibold">
-          Stack
-        </span>
+        <span class="text-lg font-semibold"> Stack </span>
 
-        <div class="flex items-center dark:text-neutral-500 text-neutral-800 border-b border-gray-700 p-2">
-          <div class="w-10">
+        <div
+          class="flex items-center dark:text-neutral-500 text-neutral-800 border-b border-gray-700 p-2"
+        >
+          <div class="w-10"></div>
 
-          </div>
+          <div class="w-28">Address</div>
 
-          <div class="w-28">
-            Address
-          </div>
-
-          <div class="w-32">
-            Value
-          </div>
+          <div class="w-32">Value</div>
         </div>
 
-        <div v-for="value in state.stack.elements" class="flex items-center font-mono my-1">
+        <div
+          v-for="value in state.stack.elements"
+          class="flex items-center font-mono my-1"
+        >
           <div class="w-10 text-xs dark:text-purple-300 text-purple-700">
             {{ value.address === state.stack?.sp ? '$sp' : '' }}
           </div>
 
-          <div class="w-28 px-2 py-1 text-neutral-400 dark:hover:bg-neutral-800 hover:bg-neutral-300 rounded">
+          <div
+            class="w-28 px-2 py-1 text-neutral-400 dark:hover:bg-neutral-800 hover:bg-neutral-300 rounded"
+          >
             0x{{ value.address.toString(16).padStart(8, '0') }}
           </div>
 
-          <div class="w-32 px-2 py-1 select-all dark:hover:bg-neutral-800 hover:bg-neutral-300 rounded">
+          <div
+            class="w-32 px-2 py-1 select-all dark:hover:bg-neutral-800 hover:bg-neutral-300 rounded"
+          >
             0x{{ value.value.toString(16).padStart(8, '0') }}
           </div>
         </div>
@@ -118,7 +142,8 @@ import { computed, onMounted, reactive, watch } from 'vue'
 import {
   Breakpoints,
   ExecutionModeType,
-  InstructionDetails, MipsExecution
+  InstructionDetails,
+  MipsExecution,
 } from '../../utils/mips/mips'
 import { setRegister, stepCount } from '../../utils/debug'
 import { ChevronRightIcon } from '@heroicons/vue/24/solid'
@@ -128,7 +153,7 @@ const allowResume = computed(
   () =>
     !consoleData.execution ||
     (consoleData.mode !== ExecutionModeType.Invalid &&
-      consoleData.mode !== ExecutionModeType.Running)
+      consoleData.mode !== ExecutionModeType.Running),
 )
 
 const systemColor = 'dark:text-purple-300 text-purple-700'
@@ -182,7 +207,7 @@ async function stepOne() {
 
 const state = reactive({
   stack: null as StackInfo | null,
-  instructions: null as CurrentInstructions | null
+  instructions: null as CurrentInstructions | null,
 })
 
 const registerParameters = computed(() => {
@@ -191,17 +216,24 @@ const registerParameters = computed(() => {
   }
 
   // Not worries about optimization here, we want unique + sorted.
-  return [...new Set(state.instructions.instructions
-    .flatMap(x => (x?.parameters ?? [])
-      .map(y => {
-        switch (y.type) {
-          case 'Register': return y.value
-          case 'Offset': return y.value.register
-          default: return null
-        }
-      })
-      .filter((x): x is number => x !== null)))]
-    .sort()
+  return [
+    ...new Set(
+      state.instructions.instructions.flatMap((x) =>
+        (x?.parameters ?? [])
+          .map((y) => {
+            switch (y.type) {
+              case 'Register':
+                return y.value
+              case 'Offset':
+                return y.value.register
+              default:
+                return null
+            }
+          })
+          .filter((x): x is number => x !== null),
+      ),
+    ),
+  ].sort()
 })
 
 interface InstructionGroup {
@@ -210,7 +242,10 @@ interface InstructionGroup {
   index: number
 }
 
-function instructionGroup(breakpoints: Breakpoints | null, pc: number): InstructionGroup {
+function instructionGroup(
+  breakpoints: Breakpoints | null,
+  pc: number,
+): InstructionGroup {
   const failed = { start: pc, count: 1, index: 0 }
 
   if (!breakpoints) {
@@ -233,7 +268,10 @@ function instructionGroup(breakpoints: Breakpoints | null, pc: number): Instruct
   }
 }
 
-async function instructionAtAddress(state: MipsExecution, address: number): Promise<InstructionDetails | null> {
+async function instructionAtAddress(
+  state: MipsExecution,
+  address: number,
+): Promise<InstructionDetails | null> {
   const data = await state.memoryAt(address, 4)
 
   if (data === null) {
@@ -258,22 +296,25 @@ async function currentInstructions(): Promise<CurrentInstructions | null> {
   const pc = consoleData.registers.pc
   const group = instructionGroup(consoleData.execution.breakpoints, pc)
 
-  const instructions = (await Promise.all(
-    [...Array(group.count).keys()]
-      .map(index => instructionAtAddress(state, group.start + 4 * index))
-  ))
+  const instructions = await Promise.all(
+    [...Array(group.count).keys()].map((index) =>
+      instructionAtAddress(state, group.start + 4 * index),
+    ),
+  )
 
   return {
     instructions,
-    currentIndex: group.index
+    currentIndex: group.index,
   }
 }
 
 function combine(data: (number | null)[], index: number = 0): number {
-  return (data[index] ?? 0)
-    + (data[index + 1] ?? 0) * 256
-    + (data[index + 2] ?? 0) * 256 * 256
-    + (data[index + 3] ?? 0) * 256 * 256 * 256
+  return (
+    (data[index] ?? 0) +
+    (data[index + 1] ?? 0) * 256 +
+    (data[index + 2] ?? 0) * 256 * 256 +
+    (data[index + 3] ?? 0) * 256 * 256 * 256
+  )
 }
 
 interface StackInfo {
@@ -315,10 +356,7 @@ async function loadDetails() {
   state.stack = await stackInfo()
 }
 
-watch(
-  () => [consoleData.registers, consoleData.execution],
-  loadDetails
-)
+watch(() => [consoleData.registers, consoleData.execution], loadDetails)
 
 onMounted(loadDetails)
 </script>

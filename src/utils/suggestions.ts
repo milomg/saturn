@@ -33,7 +33,7 @@ export type SuggestionsResult = SuggestionsInterface & {
 
 export function useSuggestions(
   language: () => Language,
-  storage: () => SuggestionsStorage | undefined
+  storage: () => SuggestionsStorage | undefined,
 ): SuggestionsResult {
   const suggestions = reactive({
     index: 0,

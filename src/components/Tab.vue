@@ -6,7 +6,10 @@
       'border-transparent': !props.selected,
     }"
   >
-    <span class="max-w-[260px] truncate" :class="{'text-red-400': props.removed}">
+    <span
+      class="max-w-[260px] truncate"
+      :class="{ 'text-red-400': props.removed }"
+    >
       {{ props.title }}
     </span>
 
@@ -43,7 +46,7 @@ const props = withDefaults(
     removed: false,
     deletable: false,
     marked: false,
-  }
+  },
 )
 
 const emit = defineEmits(['delete'])

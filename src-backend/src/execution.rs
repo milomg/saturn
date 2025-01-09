@@ -1,20 +1,20 @@
-use crate::display::{FlushDisplayBody, read_display};
+use crate::device::ExecutionState;
+use crate::display::{read_display, FlushDisplayBody};
 use crate::syscall::{SyscallDelegate, SyscallResult};
+use async_trait::async_trait;
 use serde::Serialize;
 use std::collections::HashSet;
-use async_trait::async_trait;
 use titan::cpu::error::Error::{CpuTrap, MemoryAlign, MemoryUnmapped};
-use titan::cpu::{Memory, State};
 use titan::cpu::memory::section::{ListenResponder, SectionMemory};
 use titan::cpu::memory::watched::WatchedMemory;
 use titan::cpu::state::Registers;
+use titan::cpu::{Memory, State};
 use titan::execution::executor::{DebugFrame, ExecutorMode};
 use titan::execution::trackers::history::HistoryTracker;
 use titan::execution::trackers::Tracker;
 use titan::unit::instruction::InstructionDecoder;
 use titan::unit::register::RegisterName;
 use titan::unit::suggestions::MemoryErrorReason;
-use crate::device::ExecutionState;
 
 #[derive(Serialize)]
 #[serde(tag = "type")]
@@ -30,7 +30,10 @@ fn format_error<Mem: Memory>(error: titan::cpu::error::Error, state: &State<Mem>
     let memory = |reason: MemoryErrorReason| {
         let pc = state.registers.pc;
 
-        let description = state.memory.get_u32(pc).ok()
+        let description = state
+            .memory
+            .get_u32(pc)
+            .ok()
             .and_then(|value| InstructionDecoder::decode(pc, value))
             .and_then(|instruction| instruction.describe_memory_error(reason, &state.registers));
 
@@ -47,7 +50,10 @@ fn format_error<Mem: Memory>(error: titan::cpu::error::Error, state: &State<Mem>
         CpuTrap => {
             let pc = state.registers.pc.wrapping_sub(4);
 
-            let description = state.memory.get_u32(pc).ok()
+            let description = state
+                .memory
+                .get_u32(pc)
+                .ok()
                 .and_then(|value| InstructionDecoder::decode(pc, value))
                 .and_then(|instruction| instruction.describe_trap_error(&state.registers));
 
@@ -57,7 +63,7 @@ fn format_error<Mem: Memory>(error: titan::cpu::error::Error, state: &State<Mem>
                 error.to_string()
             }
         }
-        _ => error.to_string()
+        _ => error.to_string(),
     }
 }
 
@@ -66,7 +72,7 @@ impl ResumeMode {
         match value {
             ExecutorMode::Running => ResumeMode::Running,
             ExecutorMode::Invalid(error) => ResumeMode::Invalid {
-                message: format_error(error, state)
+                message: format_error(error, state),
             },
             ExecutorMode::Paused => ResumeMode::Paused,
             ExecutorMode::Breakpoint => ResumeMode::Breakpoint,
@@ -96,7 +102,7 @@ impl From<Registers> for RegistersResult {
 #[derive(Serialize)]
 pub struct ResumeResult {
     pub mode: ResumeMode,
-    pub registers: RegistersResult
+    pub registers: RegistersResult,
 }
 
 impl ResumeResult {
@@ -104,31 +110,41 @@ impl ResumeResult {
         frame: DebugFrame,
         finished_pcs: &[u32],
         result: Option<SyscallResult>,
-        state: &State<Mem>
+        state: &State<Mem>,
     ) -> ResumeResult {
         let mode = match result {
             Some(SyscallResult::Failure(message)) => ResumeMode::Invalid { message },
             Some(SyscallResult::Terminated(code)) => ResumeMode::Finished {
-                pc: frame.registers.pc, code: Some(code)
+                pc: frame.registers.pc,
+                code: Some(code),
             },
             Some(SyscallResult::Aborted) => ResumeMode::Paused,
             Some(SyscallResult::Exception(error)) => ResumeMode::Invalid {
-                message: format_error(error, state)
+                message: format_error(error, state),
             },
             Some(SyscallResult::Unimplemented(code)) => ResumeMode::Invalid {
-                message: format!("Unimplemented syscall {}, file a bug or make a \
-                contribution at https://github.com/1whatleytay/saturn.", code)
+                message: format!(
+                    "Unimplemented syscall {}, file a bug or make a \
+                contribution at https://github.com/1whatleytay/saturn.",
+                    code
+                ),
             },
             Some(SyscallResult::Unknown(code)) => ResumeMode::Invalid {
-                message: format!("Unrecognized syscall {}, select a syscall by loading \
+                message: format!(
+                    "Unrecognized syscall {}, select a syscall by loading \
                 a value into $v0.\n > li $v0, new_value\n\
                 You can make a feature request or make a contribution at \
-                https://github.com/1whatleytay/saturn.", code)
+                https://github.com/1whatleytay/saturn.",
+                    code
+                ),
             },
             _ => {
                 // This is probably okay...
                 if finished_pcs.contains(&frame.registers.pc) {
-                    ResumeMode::Finished { pc: frame.registers.pc, code: None }
+                    ResumeMode::Finished {
+                        pc: frame.registers.pc,
+                        code: None,
+                    }
                 } else {
                     ResumeMode::from_executor(frame.mode, state)
                 }
@@ -147,7 +163,7 @@ pub trait ExecutionRewindable {
     fn rewind(&self, count: u32) -> ResumeResult;
 }
 
-pub trait RewindableDevice: ExecutionDevice + ExecutionRewindable { }
+pub trait RewindableDevice: ExecutionDevice + ExecutionRewindable {}
 
 #[derive(Debug, Clone)]
 pub struct BatchOptions {
@@ -169,7 +185,7 @@ pub struct ResumeOptions {
     pub display: Option<FlushDisplayBody>,
     // if set_running is true, set state to "Running" and clear cancellation
     // useful for looping batches, like in the WASM backend
-    pub change_state: Option<ExecutorMode>
+    pub change_state: Option<ExecutorMode>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -182,17 +198,14 @@ impl ReadDisplayTarget {
     pub fn to_address(self, registers: &Registers) -> u32 {
         match self {
             ReadDisplayTarget::Address(address) => address,
-            ReadDisplayTarget::Register(register) => registers.get(register)
+            ReadDisplayTarget::Register(register) => registers.get(register),
         }
     }
 }
 
 #[async_trait]
 pub trait ExecutionDevice: Send + Sync {
-    async fn resume(
-        &self,
-        options: ResumeOptions
-    ) -> Result<ResumeResult, ()>;
+    async fn resume(&self, options: ResumeOptions) -> Result<ResumeResult, ()>;
 
     fn pause(&self);
 
@@ -210,11 +223,10 @@ pub trait ExecutionDevice: Send + Sync {
 }
 
 #[async_trait]
-impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for ExecutionState<Mem, Track> {
-    async fn resume(
-        &self,
-        options: ResumeOptions
-    ) -> Result<ResumeResult, ()> {
+impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice
+    for ExecutionState<Mem, Track>
+{
+    async fn resume(&self, options: ResumeOptions) -> Result<ResumeResult, ()> {
         let debugger = self.debugger.clone();
         let state = self.delegate.clone();
         let finished_pcs = self.finished_pcs.clone();
@@ -224,7 +236,7 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
 
             debugger.set_breakpoints(breakpoints_set);
         }
-        
+
         let is_breakpoint = debugger.is_breakpoint();
 
         let debugger_clone = debugger.clone();
@@ -234,7 +246,12 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
         }
 
         // Ensure the cancel token hasn't been set previously.
-        if options.batch.as_ref().map(|batch| batch.first_batch).unwrap_or(true) {
+        if options
+            .batch
+            .as_ref()
+            .map(|batch| batch.first_batch)
+            .unwrap_or(true)
+        {
             state.lock().unwrap().clear_cancelled();
         }
 
@@ -242,12 +259,14 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
 
         let (frame, result) = {
             if let Some(batch) = &options.batch {
-                let (frame, result) = delegate.run_batch(
-                    &debugger,
-                    batch.count,
-                    is_breakpoint && batch.first_batch,
-                    batch.allow_interrupt
-                ).await
+                let (frame, result) = delegate
+                    .run_batch(
+                        &debugger,
+                        batch.count,
+                        is_breakpoint && batch.first_batch,
+                        batch.allow_interrupt,
+                    )
+                    .await
                     .unwrap_or((debugger.frame(), None));
 
                 let frame = if frame.mode == ExecutorMode::Running && batch.break_at_end {
@@ -259,7 +278,7 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
                 } else {
                     frame
                 };
-                
+
                 (frame, result)
             } else {
                 delegate.run(&debugger, is_breakpoint).await
@@ -269,13 +288,16 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
         if let Some(display) = &options.display {
             let mut lock = display.lock().unwrap();
 
-            debugger_clone.with_state(|state| {
-                lock.flush(state)
-            })
+            debugger_clone.with_state(|state| lock.flush(state))
         }
 
         debugger.with_state(|state| {
-            Ok(ResumeResult::from_frame(frame, &finished_pcs, result, state))
+            Ok(ResumeResult::from_frame(
+                frame,
+                &finished_pcs,
+                result,
+                state,
+            ))
         })
     }
 
@@ -294,9 +316,9 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
             .and_then(|value| value.checked_sub(1))
             .unwrap_or(u32::MAX);
 
-        let value: Vec<Option<u8>> = self.debugger.with_memory(|memory| {
-            (address..=end).map(|a| memory.get(a).ok()).collect()
-        });
+        let value: Vec<Option<u8>> = self
+            .debugger
+            .with_memory(|memory| (address..=end).map(|a| memory.get(a).ok()).collect());
 
         Some(value)
     }
@@ -304,7 +326,7 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
     fn read_display(&self, target: ReadDisplayTarget, width: u32, height: u32) -> Option<Vec<u8>> {
         self.debugger.with_state(|state| {
             let address = target.to_address(&state.registers);
-            
+
             read_display(address, width, height, &mut state.memory)
         })
     }
@@ -318,14 +340,12 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
     }
 
     fn write_register(&self, register: u32, value: u32) {
-        self.debugger.with_state(|state| {
-            match register {
-                0..=31 => state.registers.line[register as usize] = value,
-                32 => state.registers.hi = value,
-                33 => state.registers.lo = value,
-                34 => state.registers.pc = value,
-                _ => {}
-            }
+        self.debugger.with_state(|state| match register {
+            0..=31 => state.registers.line[register as usize] = value,
+            32 => state.registers.hi = value,
+            33 => state.registers.lo = value,
+            34 => state.registers.pc = value,
+            _ => {}
         })
     }
 
@@ -340,11 +360,17 @@ impl<Mem: Memory + Send, Track: Tracker<Mem> + Send> ExecutionDevice for Executi
     }
 
     fn post_input(&self, text: String) {
-        self.delegate.lock().unwrap().input_buffer.send(text.into_bytes())
+        self.delegate
+            .lock()
+            .unwrap()
+            .input_buffer
+            .send(text.into_bytes())
     }
 }
 
-impl<Listen: ListenResponder, Track: Tracker<SectionMemory<Listen>>> ExecutionRewindable for ExecutionState<SectionMemory<Listen>, Track> {
+impl<Listen: ListenResponder, Track: Tracker<SectionMemory<Listen>>> ExecutionRewindable
+    for ExecutionState<SectionMemory<Listen>, Track>
+{
     fn last_pc(&self) -> Option<u32> {
         None
     }
@@ -352,32 +378,26 @@ impl<Listen: ListenResponder, Track: Tracker<SectionMemory<Listen>>> ExecutionRe
     fn rewind(&self, _: u32) -> ResumeResult {
         let frame = self.debugger.frame();
 
-        self.debugger.with_state(|state| {
-            ResumeResult::from_frame(frame, &[], None, state)
-        })
+        self.debugger
+            .with_state(|state| ResumeResult::from_frame(frame, &[], None, state))
     }
 }
 
 impl<Mem: Memory> ExecutionRewindable for ExecutionState<WatchedMemory<Mem>, HistoryTracker> {
     fn last_pc(&self) -> Option<u32> {
-        self.debugger.with_tracker(|tracker| {
-            tracker.last()
-                .as_ref()
-                .map(|entry| {
-                    entry.registers.pc
-                })
-        })
+        self.debugger
+            .with_tracker(|tracker| tracker.last().as_ref().map(|entry| entry.registers.pc))
     }
 
     fn rewind(&self, count: u32) -> ResumeResult {
-        for _ in 0 .. count {
+        for _ in 0..count {
             let entry = self.debugger.with_tracker(|tracker| tracker.pop());
             let Some(entry) = entry else {
                 let frame = self.debugger.frame();
 
-                return self.debugger.with_state(|state| {
-                    ResumeResult::from_frame(frame, &[], None, state)
-                })
+                return self
+                    .debugger
+                    .with_state(|state| ResumeResult::from_frame(frame, &[], None, state));
             };
 
             self.debugger.pause();
@@ -389,11 +409,13 @@ impl<Mem: Memory> ExecutionRewindable for ExecutionState<WatchedMemory<Mem>, His
 
         let frame = self.debugger.frame();
 
-        self.debugger.with_state(|state| {
-            ResumeResult::from_frame(frame, &[], None, state)
-        })
+        self.debugger
+            .with_state(|state| ResumeResult::from_frame(frame, &[], None, state))
     }
 }
 
-impl<Listen: ListenResponder + Send, Track: Tracker<SectionMemory<Listen>> + Send> RewindableDevice for ExecutionState<SectionMemory<Listen>, Track> { }
-impl<Mem: Memory + Send> RewindableDevice for ExecutionState<WatchedMemory<Mem>, HistoryTracker> { }
+impl<Listen: ListenResponder + Send, Track: Tracker<SectionMemory<Listen>> + Send> RewindableDevice
+    for ExecutionState<SectionMemory<Listen>, Track>
+{
+}
+impl<Mem: Memory + Send> RewindableDevice for ExecutionState<WatchedMemory<Mem>, HistoryTracker> {}

@@ -1,24 +1,28 @@
+use crate::midi::ForwardMidi;
+use crate::state::DebuggerBody;
+use crate::time::TokioTimeHandler;
+use saturn_backend::build::{
+    assemble_text, configure_keyboard, create_elf_state, get_binary_finished_pcs,
+    get_elf_finished_pcs, AssemblerResult, DisassembleResult, PrintPayload,
+    TIME_TRAVEL_HISTORY_SIZE,
+};
+use saturn_backend::device::{setup_state, state_from_binary, ExecutionState};
+use saturn_backend::execution::RewindableDevice;
+use saturn_backend::keyboard::KeyboardState;
+use saturn_backend::regions::{AssembleRegionsOptions, AssembledRegions};
+use saturn_backend::syscall::{ConsoleHandler, MidiHandler, SyscallState, TimeHandler};
 use std::io::Cursor;
 use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard};
 use tauri::{Manager, Wry};
-use titan::cpu::Memory;
 use titan::cpu::memory::section::{ListenResponder, SectionMemory};
 use titan::cpu::memory::watched::WatchedMemory;
+use titan::cpu::Memory;
 use titan::elf::Elf;
-use titan::execution::Executor;
 use titan::execution::trackers::empty::EmptyTracker;
 use titan::execution::trackers::history::HistoryTracker;
 use titan::execution::trackers::Tracker;
-use saturn_backend::build::{assemble_text, AssemblerResult, configure_keyboard, create_elf_state, DisassembleResult, get_binary_finished_pcs, get_elf_finished_pcs, PrintPayload, TIME_TRAVEL_HISTORY_SIZE};
-use saturn_backend::device::{ExecutionState, setup_state, state_from_binary};
-use saturn_backend::execution::RewindableDevice;
-use saturn_backend::keyboard::KeyboardState;
-use saturn_backend::regions::{AssembledRegions, AssembleRegionsOptions};
-use saturn_backend::syscall::{ConsoleHandler, MidiHandler, SyscallState, TimeHandler};
-use crate::midi::ForwardMidi;
-use crate::state::DebuggerBody;
-use crate::time::TokioTimeHandler;
+use titan::execution::Executor;
 
 struct ForwardPrinter {
     app: tauri::AppHandle<Wry>,
@@ -36,7 +40,10 @@ fn forward_print(app: tauri::AppHandle<Wry>) -> Box<dyn ConsoleHandler + Send + 
     Box::new(ForwardPrinter { app })
 }
 
-pub fn swap<Listen: ListenResponder + Send + 'static, Track: Tracker<SectionMemory<Listen>> + Send + 'static>(
+pub fn swap<
+    Listen: ListenResponder + Send + 'static,
+    Track: Tracker<SectionMemory<Listen>> + Send + 'static,
+>(
     mut pointer: MutexGuard<Option<Arc<dyn RewindableDevice>>>,
     debugger: Executor<SectionMemory<Listen>, Track>,
     finished_pcs: Vec<u32>,
@@ -51,7 +58,12 @@ pub fn swap<Listen: ListenResponder + Send + 'static, Track: Tracker<SectionMemo
     }
 
     let wrapped = Arc::new(debugger);
-    let delegate = Arc::new(Mutex::new(SyscallState::new(console, midi, time, current_directory)));
+    let delegate = Arc::new(Mutex::new(SyscallState::new(
+        console,
+        midi,
+        time,
+        current_directory,
+    )));
 
     // Drop should cancel the last process and kill the other thread.
     *pointer = Some(Arc::new(ExecutionState {
@@ -77,7 +89,12 @@ pub fn swap_watched<Mem: Memory + Send + 'static>(
     }
 
     let wrapped = Arc::new(debugger);
-    let delegate = Arc::new(Mutex::new(SyscallState::new(console, midi, time, current_directory)));
+    let delegate = Arc::new(Mutex::new(SyscallState::new(
+        console,
+        midi,
+        time,
+        current_directory,
+    )));
 
     // Drop should cancel the last process and kill the other thread.
     *pointer = Some(Arc::new(ExecutionState {
@@ -96,10 +113,12 @@ pub fn configure_elf(
     state: tauri::State<'_, DebuggerBody>,
     app_handle: tauri::AppHandle<Wry>,
 ) -> bool {
-    let Ok(elf) = Elf::read(&mut Cursor::new(bytes)) else { return false };
+    let Ok(elf) = Elf::read(&mut Cursor::new(bytes)) else {
+        return false;
+    };
 
     let finished_pcs = get_elf_finished_pcs(&elf);
-    
+
     let console = forward_print(app_handle.clone());
     let midi = Box::new(ForwardMidi::new(app_handle));
     let time = Arc::new(TokioTimeHandler::new());
@@ -108,9 +127,11 @@ pub fn configure_elf(
     let mut memory = SectionMemory::new();
     let keyboard = configure_keyboard(&mut memory);
 
-    let current_directory = path
-        .and_then(|x| Path::new(&x).parent()
-            .map(|x| x.to_string_lossy().to_string()));
+    let current_directory = path.and_then(|x| {
+        Path::new(&x)
+            .parent()
+            .map(|x| x.to_string_lossy().to_string())
+    });
 
     if time_travel {
         let memory = WatchedMemory::new(memory);
@@ -134,7 +155,7 @@ pub fn configure_elf(
 
         swap(
             state.lock().unwrap(),
-            Executor::new(cpu_state, EmptyTracker { }),
+            Executor::new(cpu_state, EmptyTracker {}),
             finished_pcs,
             keyboard,
             console,
@@ -171,9 +192,11 @@ pub fn configure_asm(
     let mut memory = SectionMemory::new();
     let keyboard = configure_keyboard(&mut memory);
 
-    let current_directory = path
-        .and_then(|x| Path::new(&x).parent()
-            .map(|x| x.to_string_lossy().to_string()));
+    let current_directory = path.and_then(|x| {
+        Path::new(&x)
+            .parent()
+            .map(|x| x.to_string_lossy().to_string())
+    });
 
     if time_travel {
         let memory = WatchedMemory::new(memory);
@@ -197,7 +220,7 @@ pub fn configure_asm(
 
         swap(
             state.lock().unwrap(),
-            Executor::new(cpu_state, EmptyTracker { }),
+            Executor::new(cpu_state, EmptyTracker {}),
             finished_pcs,
             keyboard,
             console,
@@ -221,7 +244,11 @@ pub fn assemble_binary(text: &str, path: Option<&str>) -> (Option<Vec<u8>>, Asse
 }
 
 #[tauri::command]
-pub fn assemble_regions(text: &str, path: Option<&str>, options: AssembleRegionsOptions) -> (Option<AssembledRegions>, AssemblerResult) {
+pub fn assemble_regions(
+    text: &str,
+    path: Option<&str>,
+    options: AssembleRegionsOptions,
+) -> (Option<AssembledRegions>, AssemblerResult) {
     saturn_backend::regions::assemble_regions(text, path, options)
 }
 
@@ -229,4 +256,3 @@ pub fn assemble_regions(text: &str, path: Option<&str>, options: AssembleRegions
 pub fn disassemble(named: Option<&str>, bytes: Vec<u8>) -> DisassembleResult {
     saturn_backend::build::disassemble(named, bytes)
 }
-

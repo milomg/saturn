@@ -10,7 +10,9 @@
       <div
         v-for="match in matches.matches"
         class="bg-yellow-500 h-6 bg-opacity-30 absolute"
-        :class="{ 'bg-opacity-50 bg-orange-500': match === find.state.lastMatch }"
+        :class="{
+          'bg-opacity-50 bg-orange-500': match === find.state.lastMatch,
+        }"
         :style="{
           left: `${match.offset}px`,
           width: `${match.size}px`,
@@ -31,7 +33,7 @@ const props = withDefaults(
     start: number
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 
 const findIndices = computed(() => {

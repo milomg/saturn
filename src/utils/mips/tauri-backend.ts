@@ -2,11 +2,20 @@ import {
   AssembledRegions,
   AssemblerResult,
   BinaryResult,
-  BitmapConfig, Breakpoint, Breakpoints, DisassembleResult, ExecutionProfile, ExecutionResult,
+  BitmapConfig,
+  Breakpoint,
+  Breakpoints,
+  DisassembleResult,
+  ExecutionProfile,
+  ExecutionResult,
   HexBinaryResult,
   InstructionDetails,
   InstructionLine,
-  LastDisplay, MipsBackend, MipsCallbacks, MipsExecution, Shortcut
+  LastDisplay,
+  MipsBackend,
+  MipsCallbacks,
+  MipsExecution,
+  Shortcut,
 } from './mips'
 import { ExportRegionsOptions } from '../settings'
 
@@ -40,24 +49,24 @@ export class TauriExecution implements MipsExecution {
         const result = await tauri.invoke('configure_elf', {
           bytes,
           path: this.path,
-          timeTravel: this.timeTravel
+          timeTravel: this.timeTravel,
         })
 
         return result
           ? { status: 'Success', breakpoints: [] }
           : {
-            status: 'Error',
-            message: 'Configured ELF was not valid',
-            body: null,
-            marker: null,
-          }
+              status: 'Error',
+              message: 'Configured ELF was not valid',
+              body: null,
+              marker: null,
+            }
       }
 
       case 'asm': {
         const result = (await tauri.invoke('configure_asm', {
           text: this.text,
           path: this.path,
-          timeTravel: this.timeTravel
+          timeTravel: this.timeTravel,
         })) as AssemblerResult
 
         if (result.status === 'Success') {
@@ -85,7 +94,7 @@ export class TauriExecution implements MipsExecution {
 
   public async resume(
     count: number | null,
-    breakpoints: number[] | null
+    breakpoints: number[] | null,
   ): Promise<ExecutionResult | null> {
     if (!this.configured) {
       console.error('Not configured yet, cannot resume.')
@@ -94,7 +103,7 @@ export class TauriExecution implements MipsExecution {
     }
 
     const mappedBreakpoints = breakpoints
-      ? this.breakpoints?.mapLines(breakpoints) ?? []
+      ? (this.breakpoints?.mapLines(breakpoints) ?? [])
       : []
 
     const result = await tauri.invoke('resume', {
@@ -144,7 +153,7 @@ export class TauriExecution implements MipsExecution {
 
   public async memoryAt(
     address: number,
-    count: number
+    count: number,
   ): Promise<(number | null)[] | null> {
     const result = await tauri.invoke('read_bytes', { address, count })
 
@@ -170,7 +179,7 @@ export class TauriExecution implements MipsExecution {
       width: width.toString(),
       height: height.toString(),
       address: address.toString(),
-      ...(register != null ? { register: register.toString() } : {})
+      ...(register != null ? { register: register.toString() } : {}),
     }
 
     const result = await fetch(this.protocol, {
@@ -186,12 +195,12 @@ export class TauriExecution implements MipsExecution {
     public text: string,
     public path: string | null,
     public timeTravel: boolean,
-    public profile: ExecutionProfile
+    public profile: ExecutionProfile,
   ) {
     switch (profile.kind) {
       case 'elf': {
         const breakpoints = Object.entries(profile.breakpoints).map(
-          ([pc, line]) => ({ line, pcs: [parseInt(pc)] } as Breakpoint)
+          ([pc, line]) => ({ line, pcs: [parseInt(pc)] }) as Breakpoint,
         )
 
         this.breakpoints = new Breakpoints(breakpoints)

@@ -16,7 +16,7 @@ export function setupWindow() {
       event.preventDefault()
     }
 
-    invoke('is_debug').then(debug => {
+    invoke('is_debug').then((debug) => {
       if (!debug) {
         window.addEventListener('contextmenu', handler)
       }

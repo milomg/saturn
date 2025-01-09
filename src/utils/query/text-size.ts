@@ -43,13 +43,16 @@ export class SizeCalculator {
     } while (start + 1 < end)
 
     const offset = Math.round(
-      (position + this.push - startOffset) / leadingSize
+      (position + this.push - startOffset) / leadingSize,
     )
 
     return start + Math.min(offset, 1)
   }
 
-  constructor(classes: string, public push: number = 2) {
+  constructor(
+    classes: string,
+    public push: number = 2,
+  ) {
     this.element = document.createElement('div')
 
     this.element.className = classes
@@ -60,9 +63,9 @@ export class SizeCalculator {
 
 export const regular = new SizeCalculator(
   'h-6 text-sm font-mono absolute top-0 -z-10 whitespace-pre',
-  0
+  0,
 )
 export const tiny = new SizeCalculator(
   'h-4 text-xs font-mono absolute top-0 -z-10 whitespace-pre',
-  0
+  0,
 )

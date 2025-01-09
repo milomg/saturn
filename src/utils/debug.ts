@@ -4,13 +4,13 @@ import {
   ConsoleType,
   DebugTab,
   openConsole,
-  pushConsole
+  pushConsole,
 } from '../state/console-data'
 import { backend } from '../state/backend'
 import {
   AssemblerResult,
   ExecutionModeType,
-  ExecutionResult
+  ExecutionResult,
 } from './mips/mips'
 import { tab, settings } from '../state/state'
 
@@ -27,7 +27,7 @@ export async function setBreakpoint(line: number, remove: boolean) {
 
   if (remove) {
     currentTab.breakpoints = currentTab.breakpoints.filter(
-      (point) => point !== line
+      (point) => point !== line,
     )
   } else if (!currentTab.breakpoints.includes(line)) {
     currentTab.breakpoints.push(line)
@@ -43,7 +43,10 @@ async function postDebugInformationWithPcHint(result: ExecutionResult) {
 
   const execution = consoleData.execution
 
-  if (execution && !(execution.breakpoints?.pcToGroup.has(result.registers.pc) ?? true)) {
+  if (
+    execution &&
+    !(execution.breakpoints?.pcToGroup.has(result.registers.pc) ?? true)
+  ) {
     consoleData.hintPc = await execution.lastPc()
   }
 }
@@ -64,12 +67,12 @@ function postDebugInformation(result: ExecutionResult) {
       if (result.mode.code !== null) {
         pushConsole(
           `Execution finished with code ${result.mode.code} at pc 0x${address}`,
-          ConsoleType.Success
+          ConsoleType.Success,
         )
       } else {
         pushConsole(
           `Execution finished at pc 0x${address}`,
-          ConsoleType.Success
+          ConsoleType.Success,
         )
       }
 
@@ -117,7 +120,7 @@ export function postBuildMessage(result: AssemblerResult): boolean {
       openConsole()
       pushConsole(
         `Build failed: ${result.message}${marker}${trailing}`,
-        ConsoleType.Error
+        ConsoleType.Error,
       )
 
       return false
@@ -131,7 +134,7 @@ export function postBuildMessage(result: AssemblerResult): boolean {
       openConsole()
       pushConsole(
         `Build succeeded at ${format(Date.now(), 'MMMM d, pp')}`,
-        ConsoleType.Success
+        ConsoleType.Success,
       )
 
       return true
@@ -143,9 +146,10 @@ export async function build() {
 
   const current = tab()
 
-  const {
-    result
-  } = await backend.assembleWithBinary(collectLines(current?.lines ?? []), current?.path ?? null)
+  const { result } = await backend.assembleWithBinary(
+    collectLines(current?.lines ?? []),
+    current?.path ?? null,
+  )
 
   // if (binary !== null) {
   //   try {
@@ -163,14 +167,14 @@ export async function build() {
 // Some global state checks to avoid people running resume() via shortcuts.
 export const allowRewind = computed(
   () =>
-    !consoleData.execution || (consoleData.mode !== ExecutionModeType.Running)
+    !consoleData.execution || consoleData.mode !== ExecutionModeType.Running,
 )
 
 export const allowResume = computed(
   () =>
     !consoleData.execution ||
     (consoleData.mode !== ExecutionModeType.Invalid &&
-      consoleData.mode !== ExecutionModeType.Running)
+      consoleData.mode !== ExecutionModeType.Running),
 )
 
 export async function resume() {
@@ -194,7 +198,12 @@ export async function resume() {
 
     await saveCurrentTab(PromptType.NeverPrompt)
 
-    consoleData.execution = await backend.createExecution(text, path, settings.execution.timeTravel, current.profile)
+    consoleData.execution = await backend.createExecution(
+      text,
+      path,
+      settings.execution.timeTravel,
+      current.profile,
+    )
   }
 
   consoleData.showConsole = true
@@ -214,7 +223,7 @@ export async function resume() {
 
   const result = await consoleData.execution.resume(
     null,
-    toRaw(usedBreakpoints)
+    toRaw(usedBreakpoints),
   )
 
   if (result) {

@@ -170,30 +170,30 @@ export interface PlatformShortcutsData {
 }
 
 export type MessageData =
-  AssembleRegionsData |
-  AssembleTextData |
-  AssembleBinaryData |
-  DecodeInstructionData |
-  DisassembleData |
-  DetailedDisassembleData |
-  ConfigureDisplayData |
-  LastDisplayData |
-  ConfigureElfData |
-  ConfigureAsmData |
-  ResumeData |
-  StopData |
-  PauseData |
-  LastPcData |
-  ReadBytesData |
-  WriteBytesData |
-  SetRegisterData |
-  SetBreakpointsData |
-  PostInputData |
-  PostKeyData |
-  WakeSyncData |
-  RewindData |
-  ReadDisplayData |
-  PlatformShortcutsData
+  | AssembleRegionsData
+  | AssembleTextData
+  | AssembleBinaryData
+  | DecodeInstructionData
+  | DisassembleData
+  | DetailedDisassembleData
+  | ConfigureDisplayData
+  | LastDisplayData
+  | ConfigureElfData
+  | ConfigureAsmData
+  | ResumeData
+  | StopData
+  | PauseData
+  | LastPcData
+  | ReadBytesData
+  | WriteBytesData
+  | SetRegisterData
+  | SetBreakpointsData
+  | PostInputData
+  | PostKeyData
+  | WakeSyncData
+  | RewindData
+  | ReadDisplayData
+  | PlatformShortcutsData
 
 export enum MessageEventOp {
   ConsoleWrite,
@@ -217,9 +217,9 @@ export interface MessageEventMidiPlay {
 }
 
 export type MessageEventData =
-  MessageEventConsoleWrite |
-  MessageEventMidiPlay |
-  MessageEventReady
+  | MessageEventConsoleWrite
+  | MessageEventMidiPlay
+  | MessageEventReady
 
 export interface Message {
   id: number
@@ -249,6 +249,7 @@ export interface MessageResponseFailure {
   error: unknown
 }
 
-export type MessageResponse = MessageResponseSuccess
+export type MessageResponse =
+  | MessageResponseSuccess
   | MessageResponseFailure
   | MessageResponseEvent

@@ -24,6 +24,6 @@ const props = withDefaults(
     highlight: Highlights
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 </script>

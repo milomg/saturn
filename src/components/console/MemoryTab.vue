@@ -59,7 +59,9 @@
           :key="index"
           class="flex font-mono"
         >
-          <div class="w-32 px-2 py-1 dark:text-neutral-500 text-neutral-800 shrink-0">
+          <div
+            class="w-32 px-2 py-1 dark:text-neutral-500 text-neutral-800 shrink-0"
+          >
             {{ row.header }}
           </div>
 
@@ -69,20 +71,25 @@
             :hex="true"
             :model-value="item"
             :bytes="unitSize"
-            @update:model-value="value => setAddress(row.address, index, value, settings.memory.mode)"
+            @update:model-value="
+              (value) =>
+                setAddress(row.address, index, value, settings.memory.mode)
+            "
             classes="bg-transparent dark:bg-neutral-900 dark:hover:bg-neutral-700 hover:bg-neutral-300 w-28 flex items-center px-2 py-1 shrink-0 select-all"
           />
         </div>
       </div>
       <div v-else>
-        <div
-          class="flex font-mono"
-        >
-          <div class="w-32 px-2 py-1 dark:text-neutral-500 text-neutral-800 shrink-0">
+        <div class="flex font-mono">
+          <div
+            class="w-32 px-2 py-1 dark:text-neutral-500 text-neutral-800 shrink-0"
+          >
             {{ settings.memory.address }}
           </div>
 
-          <div class="font-sans text-neutral-400 flex items-center px-2 py-1 shrink-0 select-all">
+          <div
+            class="font-sans text-neutral-400 flex items-center px-2 py-1 shrink-0 select-all"
+          >
             To view memory, set breakpoints or pause during execution.
           </div>
         </div>
@@ -129,7 +136,12 @@ function setMode(event: Event) {
   } catch {}
 }
 
-function setAddress(start: number, index: number, to: number, mode: AddressingMode) {
+function setAddress(
+  start: number,
+  index: number,
+  to: number,
+  mode: AddressingMode,
+) {
   if (!consoleData.execution) {
     return
   }
@@ -160,7 +172,7 @@ function shift(bytes: number[]): number {
   for (const byte of bytes.reverse()) {
     // Why not (result << 8) | byte?
     // | and << give signed integers as the result, which isn't what I'm looking for.
-    result = (result * 256) + byte
+    result = result * 256 + byte
   }
 
   return result
@@ -218,7 +230,7 @@ const table = computed((): MemoryTable => {
   if (memory.data === null || address === null) {
     return {
       header,
-      rows: null
+      rows: null,
     }
   }
 

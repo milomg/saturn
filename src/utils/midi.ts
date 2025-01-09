@@ -3,7 +3,6 @@ import { tauri } from '@tauri-apps/api'
 import * as MIDI from 'midicube'
 import { convertFileSrc } from '@tauri-apps/api/tauri'
 import { backend } from '../state/backend'
-
 ;(window as any).MIDI = MIDI
 
 const loadedInstruments = new Map<string, Promise<boolean>>()

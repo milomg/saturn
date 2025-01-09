@@ -5,7 +5,7 @@ use std::sync::{Mutex, MutexGuard};
 type Listener<T> = Box<dyn Fn(&T, &T) + Send + Sync>;
 
 pub struct WatchLock<'a, T> {
-    inner: MutexGuard<'a, WatchInner<T>>
+    inner: MutexGuard<'a, WatchInner<T>>,
 }
 
 impl<'a, T> Deref for WatchLock<'a, T> {
@@ -17,7 +17,7 @@ impl<'a, T> Deref for WatchLock<'a, T> {
 }
 
 pub struct WatchLockSilent<'a, T> {
-    inner: MutexGuard<'a, WatchInner<T>>
+    inner: MutexGuard<'a, WatchInner<T>>,
 }
 
 impl<'a, T> Deref for WatchLockSilent<'a, T> {
@@ -35,7 +35,7 @@ impl<'a, T> DerefMut for WatchLockSilent<'a, T> {
 }
 
 pub struct WatchLockMut<'a, T> {
-    inner: MutexGuard<'a, WatchInner<T>>
+    inner: MutexGuard<'a, WatchInner<T>>,
 }
 
 impl<'a, T> Deref for WatchLockMut<'a, T> {
@@ -63,11 +63,11 @@ impl<'a, T> Drop for WatchLockMut<'a, T> {
 pub struct WatchInner<T> {
     listeners: Vec<Listener<T>>,
     last: T,
-    content: T
+    content: T,
 }
 
 pub struct Watch<T: Clone> {
-    inner: Mutex<WatchInner<T>>
+    inner: Mutex<WatchInner<T>>,
 }
 
 impl<T: Clone> Watch<T> {
@@ -76,14 +76,14 @@ impl<T: Clone> Watch<T> {
             inner: Mutex::new(WatchInner {
                 listeners: vec![],
                 last: content.clone(),
-                content
-            })
+                content,
+            }),
         }
     }
 
     pub fn get(&self) -> WatchLock<T> {
         WatchLock {
-            inner: self.inner.lock().unwrap()
+            inner: self.inner.lock().unwrap(),
         }
     }
 
@@ -96,11 +96,15 @@ impl<T: Clone> Watch<T> {
 
     pub fn get_silent(&self) -> WatchLockSilent<T> {
         WatchLockSilent {
-            inner: self.inner.lock().unwrap()
+            inner: self.inner.lock().unwrap(),
         }
     }
 
     pub fn listen<F: Fn(&T, &T) + Send + Sync + 'static>(&self, listener: F) {
-        self.inner.lock().unwrap().listeners.push(Box::new(listener));
+        self.inner
+            .lock()
+            .unwrap()
+            .listeners
+            .push(Box::new(listener));
     }
 }
