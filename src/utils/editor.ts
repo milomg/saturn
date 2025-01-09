@@ -178,8 +178,6 @@ export class Editor {
     body()
 
     this.redoOperations = []
-
-    this.onDirty(line, count, this.data.slice(line, line + insert))
   }
 
   public mutateLine(line: number, body: () => void) {
@@ -205,7 +203,6 @@ export class Editor {
       frame.replaced,
       ...frame.deleted
     )
-    this.onDirty(frame.index, frame.replaced, frame.deleted)
 
     return {
       index: frame.index,
@@ -516,7 +513,6 @@ export class Editor {
   constructor(
     public data: LineData,
     public cursor: SelectionIndex,
-    public onDirty: DirtyHandler = () => {},
     public writable?: (
       start: number,
       deleted: number,

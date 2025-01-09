@@ -293,7 +293,7 @@ export async function setupEvents() {
         if (current?.uuid === tab.uuid) {
           editor.value.replaceAll(modification.data)
         } else {
-          tab.lines = splitLines(modification.data)
+          tab.doc = modification.data
         }
 
         tab.marked = false

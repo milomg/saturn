@@ -156,7 +156,7 @@ async function exportRegions() {
     return
   }
 
-  const result = await backend.assembleRegions(collectLines(current.lines), current.path, state)
+  const result = await backend.assembleRegions(current.doc, current.path, state)
 
   if (result.regions) {
     switch (result.regions.type) {

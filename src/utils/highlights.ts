@@ -5,6 +5,7 @@ type DefaultMessage = string
 export interface Highlights<Message = DefaultMessage> {
   line: number
   offset: number
+  size: number
   message: Message
 }
 
@@ -35,7 +36,7 @@ export function useHighlights<Message = DefaultMessage>(): HighlightsResult<Mess
     index: number,
     message: UnwrapRef<Message>
   ) {
-    state.highlight = { line, message, offset: index }
+    state.highlight = { line, message, offset: index, size: 0 }
   }
 
   function dismissHighlight() {

@@ -8,10 +8,6 @@
       @click="jumpGoto"
       :highlight="gotoHighlights.state.highlight"
     />
-    <ErrorOverlay
-      v-if="errorHighlights.state.highlight"
-      :highlight="errorHighlights.state.highlight"
-    />
   </div>
 </template>
 
@@ -27,7 +23,6 @@ import {
 } from '../state/state'
 import { isSyncing } from '../utils/tabs'
 import GotoOverlay from './GotoOverlay.vue'
-import ErrorOverlay from './ErrorOverlay.vue'
 
 import { EditorView } from 'codemirror'
 import { darkTheme, editorTheme, lightTheme } from '../utils/lezer-mips'
