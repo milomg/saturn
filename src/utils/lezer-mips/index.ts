@@ -4,6 +4,7 @@ import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
 import { Compartment, StateEffect, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { lang } from './stream-lang'
+import './codemirror.css'
 
 export const clearHighlightedLine = StateEffect.define<null>()
 export const setHighlightedLine = StateEffect.define<number>()
@@ -32,8 +33,6 @@ const highlightedLineState = StateField.define<DecorationSet>({
   provide: (field) => EditorView.decorations.from(field),
 })
 
-const cursor = '#fb923c'
-
 const twHighlightStyle = HighlightStyle.define([
   { tag: [t.variableName], class: 'dark:text-white text-black' },
   { tag: [t.attributeName], class: 'dark:text-amber-400 text-amber-700' },
@@ -45,71 +44,14 @@ const twHighlightStyle = HighlightStyle.define([
   { tag: [t.lineComment], class: 'dark:text-neutral-400 text-neutral-500' },
 ])
 
-export const darkTheme = EditorView.theme(
-  {
-    '.cm-content': {
-      caretColor: cursor,
-    },
+// defined in codemirror.css
+const darkTheme = EditorView.theme({}, { dark: true })
+const lightTheme = EditorView.theme({}, { dark: false })
 
-    '.cm-cursor, .cm-dropCursor': {
-      borderLeftColor: cursor,
-      borderLeftWidth: '2px',
-    },
-    '.cm-gutters': {
-      backgroundColor: 'inherit',
-    },
-    '.cm-completionDetail': {
-      marginLeft: 'auto',
-      color: 'rgb(115 115 115)', // text-neutral-400
-    },
-    '.cm-completionLabel': {
-      marginRight: '1.5rem',
-    },
-    '.cm-tooltip-autocomplete': {
-      borderRadius: '.5rem',
-      border: '1px solid #333',
-      backgroundColor: 'rgb(23 23 23)', // bg-neutral-900
-    },
-    '.cm-tooltip.cm-tooltip-autocomplete > ul': {
-      padding: '.5rem',
-    },
-    '.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-      backgroundColor: 'rgb(64 64 64)', // bg-neutral-700
-    },
-    '.cm-tooltip-autocomplete > ul > li': {
-      padding: '.5rem 0px',
-      borderRadius: '.25rem',
-      height: '1.5rem',
-      display: 'flex',
-      alignItems: 'center',
-      width: '100%',
-    },
-  },
-  { dark: true },
-)
+const editorTheme = new Compartment()
 
-export const lightTheme = EditorView.theme(
-  {
-    '&': {
-      fontSize: '18px',
-    },
-
-    '.cm-content': {
-      caretColor: cursor,
-    },
-
-    '.cm-cursor, .cm-dropCursor': {
-      borderLeftColor: cursor,
-      borderLeftWidth: '2px',
-    },
-    '.cm-gutters': {
-      backgroundColor: 'inherit',
-    },
-  },
-  { dark: false },
-)
-
-export const editorTheme = new Compartment()
+export const setTheme = (theme: boolean) =>
+  editorTheme.reconfigure(theme ? darkTheme : lightTheme)
 
 export function Mips() {
   return [
