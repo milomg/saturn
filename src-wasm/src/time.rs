@@ -1,9 +1,9 @@
-use std::time::Duration;
-use saturn_backend::syscall::TimeHandler;
-use futures::channel::oneshot;
 use async_trait::async_trait;
+use futures::channel::oneshot;
+use saturn_backend::syscall::TimeHandler;
+use std::time::Duration;
 
-pub struct WasmTime { }
+pub struct WasmTime {}
 
 #[async_trait]
 impl TimeHandler for WasmTime {
@@ -18,7 +18,8 @@ impl TimeHandler for WasmTime {
             // Is this going to panic?
             gloo_timers::callback::Timeout::new(duration.as_millis() as u32, move || {
                 sender.send(()).ok();
-            }).forget();
+            })
+            .forget();
         }
 
         receiver.await.ok();

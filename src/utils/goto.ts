@@ -34,11 +34,11 @@ interface GotoCache {
 
 export function useGoto(
   highlights: HighlightsResult<GotoMessage>,
-  storage: StorageResult
+  storage: StorageResult,
 ): GotoInterface {
   function searchStorage(
     text: string,
-    body: MarkedSuggestion[][]
+    body: MarkedSuggestion[][],
   ): SearchStorageResult | null {
     for (const [index, line] of body.entries()) {
       const item = line.find((x) => x.replace == text)

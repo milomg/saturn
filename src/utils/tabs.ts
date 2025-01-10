@@ -110,7 +110,7 @@ export interface TabsInterface {
     named: string,
     content: string,
     path?: string,
-    profile?: ExecutionProfile
+    profile?: ExecutionProfile,
   ): void
   loadElf(named: string, elf: ArrayBuffer): Promise<void>
 }
@@ -187,7 +187,7 @@ export function useTabs(): TabsResult {
           console.error(
             `Could not resume tab ${tab.path ?? 'Untitled'} (${
               tab.uuid
-            }) with error`
+            }) with error`,
           )
           console.error(e)
 
@@ -225,7 +225,7 @@ export function useTabs(): TabsResult {
     }
 
     await accessSync(
-      editor.tabs.map((x) => x.path).filter((x): x is string => x !== null)
+      editor.tabs.map((x) => x.path).filter((x): x is string => x !== null),
     )
   }
 
@@ -325,7 +325,7 @@ export function useTabs(): TabsResult {
 
   const saveModal = useSaveModal(
     (tab) => saveTab(tab, PromptType.PromptWhenNeeded),
-    (tab) => discardTab(tab.uuid)
+    (tab) => discardTab(tab.uuid),
   )
 
   const showSettings = ref(false)
@@ -357,7 +357,7 @@ export function useTabs(): TabsResult {
     content: string,
     path: string | null = null,
     profile: ExecutionProfile | null = defaultAssemblyProfile(),
-    writable: boolean = true
+    writable: boolean = true,
   ) {
     const id = uuid()
 

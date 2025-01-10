@@ -1,8 +1,8 @@
-use std::cmp::min;
-use std::sync::Mutex;
 use futures::channel::mpsc;
 use futures::lock::{Mutex as AsyncMutex, MutexGuard as AsyncMutexGuard};
 use futures::StreamExt;
+use std::cmp::min;
+use std::sync::Mutex;
 
 struct ByteChannelReceiver {
     receiver: mpsc::Receiver<Vec<u8>>, // this might panic in WASM

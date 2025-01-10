@@ -15,11 +15,12 @@ const MipsLanguage = LRLanguage.define({
       foldNodeProp.add({
         LabelGroup: (node) => {
           let first = node.firstChild
-          return first && first.to ? {from: first.to, to: node.to} : null
+          return first && first.to ? { from: first.to, to: node.to } : null
         },
       }),
       indentNodeProp.add({
-        LabelGroup: context => context.column(context.node.from) + context.unit
+        LabelGroup: (context) =>
+          context.column(context.node.from) + context.unit,
       }),
       styleTags({
         Identifier: t.variableName,

@@ -13,7 +13,7 @@ export interface HighlightsInterface<Message = DefaultMessage> {
   setHighlight(
     line: number,
     tokenIndex: number,
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ): void
   dismissHighlight(): void
 }
@@ -27,14 +27,16 @@ export type HighlightsResult<Message = DefaultMessage> =
     state: HighlightsState<Message>
   }
 
-export function useHighlights<Message = DefaultMessage>(): HighlightsResult<Message> {
+export function useHighlights<
+  Message = DefaultMessage,
+>(): HighlightsResult<Message> {
   const state = reactive({
     highlight: null as Highlights<Message> | null,
   })
   function setHighlight(
     line: number,
     index: number,
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ) {
     state.highlight = { line, message, offset: index, size: 0 }
   }

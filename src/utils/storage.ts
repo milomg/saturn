@@ -40,7 +40,10 @@ export function useStorage(
   async function checkSyntax() {
     const current = tab()
 
-    const result = await backend.assembleText(current?.state.doc.toString() ?? '', current?.path ?? null)
+    const result = await backend.assembleText(
+      current?.state.doc.toString() ?? '',
+      current?.path ?? null,
+    )
 
     if (result.status === 'Error' && result.marker) {
       const tokens = storage.highlights[result.marker.line]
@@ -48,7 +51,7 @@ export function useStorage(
       error.setHighlight(
         result.marker.line,
         result.marker.offset,
-        result.message
+        result.message,
       )
     } else {
       error.dismissHighlight()
@@ -69,9 +72,9 @@ export function useStorage(
     const current = tab()
 
     return new Editor(
-      current?.state.doc.toString().split("\n") ?? ['Nothing yet.'],
+      current?.state.doc.toString().split('\n') ?? ['Nothing yet.'],
       { line: 0, index: 0 },
-      current?.writable ?? false ? undefined : () => false // weird
+      (current?.writable ?? false) ? undefined : () => false, // weird
     )
   }
 
@@ -84,17 +87,15 @@ export function useStorage(
     // storage.editor = createEditor()
     storage.highlights = [] // needs highlighting here
 
-
     dispatchCheckSyntax()
 
     error.dismissHighlight()
-
   }
 
   watch(
     () => tab()?.doc,
     (tab) => highlightAll(),
-    {immediate: true}
+    { immediate: true },
   )
 
   return {

@@ -21,7 +21,11 @@
             classes="text-xs w-32"
           />
 
-          <span class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"> Units </span>
+          <span
+            class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"
+          >
+            Units
+          </span>
 
           <NumberField
             v-model="settings.bitmap.unitWidth"
@@ -41,7 +45,11 @@
             classes="text-xs w-32"
           />
 
-          <span class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"> Units </span>
+          <span
+            class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"
+          >
+            Units
+          </span>
 
           <NumberField
             v-model="settings.bitmap.unitHeight"
@@ -64,8 +72,10 @@
           <button
             class="rounded px-2 py-1 border border-neutral-700 font-bold text-xs ml-4 dark:active:bg-slate-700 active:bg-slate-400"
             :class="{
-              'dark:bg-slate-800 bg-slate-300': settings.bitmap.register !== undefined,
-              'dark:hover:bg-neutral-800': settings.bitmap.register === undefined,
+              'dark:bg-slate-800 bg-slate-300':
+                settings.bitmap.register !== undefined,
+              'dark:hover:bg-neutral-800':
+                settings.bitmap.register === undefined,
             }"
             @click="selectGp"
           >
@@ -74,7 +84,10 @@
         </div>
       </div>
 
-      <div v-if="state.keyboardLive" class="text-gray-500 mt-4 flex items-center">
+      <div
+        v-if="state.keyboardLive"
+        class="text-gray-500 mt-4 flex items-center"
+      >
         <ArrowRightIcon class="w-4 h-4 mr-2" />
 
         Press keys now to create keyboard events.
@@ -102,8 +115,8 @@
               href="https://github.com/1whatleytay/saturn"
               class="underline hover:text-gray-300"
             >
-              https://github.com/1whatleytay/saturn
-            </a>.
+              https://github.com/1whatleytay/saturn </a
+            >.
           </div>
         </div>
       </div>
@@ -165,7 +178,7 @@ const state = reactive({
   interval: null as number | null,
   small: false as boolean,
   useProtocol: true,
-  keyboardLive: false
+  keyboardLive: false,
 })
 
 function memoryCheck(value: number): string | null {
@@ -298,7 +311,7 @@ watch(() => consoleData.execution, checkConnected)
 
 async function renderFrameFallback(
   context: CanvasRenderingContext2D,
-  execution: MipsExecution
+  execution: MipsExecution,
 ) {
   const { width, height, address } = config.value
 
@@ -330,7 +343,7 @@ function renderOrdered(
   context: CanvasRenderingContext2D,
   width: number,
   height: number,
-  memory: Uint8Array
+  memory: Uint8Array,
 ) {
   const data = context.createImageData(width, height)
 
@@ -345,7 +358,12 @@ async function renderFrameProtocol(context: CanvasRenderingContext2D) {
   const { width, height, address, register } = config.value
 
   if (consoleData.execution) {
-    const memory = await consoleData.execution.readDisplay(width, height, address, register)
+    const memory = await consoleData.execution.readDisplay(
+      width,
+      height,
+      address,
+      register,
+    )
 
     if (memory) {
       renderOrdered(context, width, height, memory)
@@ -361,12 +379,7 @@ async function renderLastDisplay(context: CanvasRenderingContext2D) {
     return
   }
 
-  renderOrdered(
-    context,
-    last.width,
-    last.height,
-    Uint8Array.from(last.data)
-  )
+  renderOrdered(context, last.width, last.height, Uint8Array.from(last.data))
 }
 
 let inflight = false

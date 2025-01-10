@@ -10,16 +10,19 @@ First, please install the following tools:
 - [Yarn (Classic)](https://yarnpkg.com)
 
 Before development, install dependencies using
+
 ```
 yarn install
 ```
 
 To run for development, use
+
 ```shell
 yarn tauri dev
 ```
 
 To build a binary for your platform, use
+
 ```shell
 yarn tauri build
 ```

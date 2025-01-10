@@ -1,9 +1,6 @@
 import { tags as t } from '@lezer/highlight'
 import { autocompletion } from '@codemirror/autocomplete'
-import {
-  syntaxHighlighting,
-  HighlightStyle,
-} from '@codemirror/language'
+import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
 import { Compartment, StateEffect, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { lang } from './stream-lang'
@@ -15,7 +12,7 @@ const pausedLine = Decoration.line({
   attributes: {
     class: 'dark:bg-breakpoint-stopped bg-breakpoint-stopped-light',
   },
-});
+})
 
 const highlightedLineState = StateField.define<DecorationSet>({
   create: () => Decoration.none,
@@ -63,7 +60,7 @@ export const darkTheme = EditorView.theme(
     },
     '.cm-completionDetail': {
       marginLeft: 'auto',
-      color: 'rgb(115 115 115)' // text-neutral-400
+      color: 'rgb(115 115 115)', // text-neutral-400
     },
     '.cm-completionLabel': {
       marginRight: '1.5rem',
@@ -77,7 +74,7 @@ export const darkTheme = EditorView.theme(
       padding: '.5rem',
     },
     '.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-     backgroundColor: 'rgb(64 64 64)', // bg-neutral-700
+      backgroundColor: 'rgb(64 64 64)', // bg-neutral-700
     },
     '.cm-tooltip-autocomplete > ul > li': {
       padding: '.5rem 0px',
@@ -107,7 +104,7 @@ export const lightTheme = EditorView.theme(
     },
     '.cm-gutters': {
       backgroundColor: 'inherit',
-    }
+    },
   },
   { dark: false },
 )

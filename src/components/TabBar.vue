@@ -2,7 +2,10 @@
   <div @click.stop>
     <SaveModal :dialog="saveModal" />
     <SettingsModal :show="showSettings" @close="showSettings = false" />
-    <ExportOverlay :show="showExportRegionsDialog" @close="showExportRegionsDialog = false" />
+    <ExportOverlay
+      :show="showExportRegionsDialog"
+      @close="showExportRegionsDialog = false"
+    />
 
     <div
       class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none"
@@ -41,7 +44,14 @@
 import Tab from './Tab.vue'
 import { PlusIcon } from '@heroicons/vue/24/solid'
 
-import { closeTab, createTab, saveModal, tabsState, showSettings, showExportRegionsDialog } from '../state/state'
+import {
+  closeTab,
+  createTab,
+  saveModal,
+  tabsState,
+  showSettings,
+  showExportRegionsDialog,
+} from '../state/state'
 
 import TabBarItems from './TabBarItems.vue'
 import SaveModal from './SaveModal.vue'
@@ -125,7 +135,7 @@ const handleMove = async (event: MouseEvent) => {
 
     if (start <= middle && middle <= end) {
       const first = tabsState.tabs.findIndex(
-        (x) => x.uuid === tabsState.selected
+        (x) => x.uuid === tabsState.selected,
       )
       const second = tabsState.tabs.findIndex((x) => x.uuid === key)
 

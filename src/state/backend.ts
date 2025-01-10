@@ -17,15 +17,12 @@ export const backend = createBackend()
 export async function setupBackend(): Promise<MipsBackend> {
   await backend.setCallbacks({
     consoleWrite(text: string, error: boolean) {
-      pushConsole(
-        text,
-        error ? ConsoleType.Stderr : ConsoleType.Stdout
-      )
+      pushConsole(text, error ? ConsoleType.Stderr : ConsoleType.Stdout)
     },
 
     async midiPlay(note: MidiNote) {
       await playNote(note)
-    }
+    },
   })
 
   await backend.waitReady()

@@ -17,7 +17,7 @@ declare module 'midicube' {
     channel: number,
     note: number,
     velocity: number,
-    delay?: number
+    delay?: number,
   )
   function noteOff(channel: number, note: number, delay?: number)
 }

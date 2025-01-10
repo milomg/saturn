@@ -16,12 +16,11 @@ export const {
   closeTab,
   loadElf,
   saveModal,
-  showSettings
+  showSettings,
 } = useTabs()
 
 export const errorHighlights = useHighlights()
 export const gotoHighlights = useHighlights<GotoMessage>()
-
 
 const storageResult = useStorage(errorHighlights, tab)
 

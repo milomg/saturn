@@ -21,7 +21,7 @@ export function useVirtualize(
   lineHeight: number,
   count: () => number,
   linePadding: number = defaultLinePadding,
-  dangerPadding: number = defaultDangerPadding
+  dangerPadding: number = defaultDangerPadding,
 ): Virtualization {
   const state = reactive({
     startIndex: 0,
@@ -34,11 +34,11 @@ export function useVirtualize(
 
   const renderStart = computed(() => inBounds(state.startIndex))
   const renderCount = computed(
-    () => inBounds(state.endIndex) - renderStart.value
+    () => inBounds(state.endIndex) - renderStart.value,
   )
   const topPadding = computed(() => renderStart.value * lineHeight)
   const remainingLines = computed(
-    () => count() - renderCount.value - renderStart.value
+    () => count() - renderCount.value - renderStart.value,
   )
   const bottomPadding = computed(() => remainingLines.value * lineHeight)
   function update(top: number, height: number) {

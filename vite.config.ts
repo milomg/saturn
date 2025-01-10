@@ -4,22 +4,14 @@ import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
 
 // @ts-ignore (not sure why typescript is having trouble with this import)
-import { lezer } from "@lezer/generator/rollup"
+import { lezer } from '@lezer/generator/rollup'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    wasm(),
-    topLevelAwait(),
-    lezer()
-  ],
+  plugins: [vue(), wasm(), topLevelAwait(), lezer()],
 
   worker: {
-    plugins: () => [
-      wasm(),
-      topLevelAwait()
-    ]
+    plugins: () => [wasm(), topLevelAwait()],
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`

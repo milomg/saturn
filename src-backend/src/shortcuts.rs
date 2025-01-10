@@ -1,6 +1,6 @@
+use serde::Serialize;
 use std::fmt::Display;
 use std::str::FromStr;
-use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct Accelerator {
@@ -183,7 +183,7 @@ pub fn get_emulated_shortcuts() -> Vec<MenuOptionsData> {
         MenuOptions::ToggleConsole.try_into(),
         MenuOptions::ToggleSettings.try_into(),
     ]
-        .into_iter()
-        .filter_map(|x| x.ok())
-        .collect()
+    .into_iter()
+    .filter_map(|x| x.ok())
+    .collect()
 }

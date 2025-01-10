@@ -2,7 +2,7 @@ import { Suggestion, SuggestionMatch, SuggestionType } from '../suggestions'
 import Fuse, { type FuseResult } from 'fuse.js'
 
 export function toSuggestionMatches(
-  results: FuseResult<Suggestion>[]
+  results: FuseResult<Suggestion>[],
 ): SuggestionMatch[] {
   return results.map((x) => {
     let range = undefined

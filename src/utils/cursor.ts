@@ -56,7 +56,7 @@ export function useCursor(
     // No way to watch state here in cursor, so fall back for any forgetful times.
     if (text === undefined) {
       console.error(
-        `Cursor failed to reset: ${index.line} < ${editor().lineCount()}`
+        `Cursor failed to reset: ${index.line} < ${editor().lineCount()}`,
       )
       return { offsetX: 0, offsetY: 0 }
     }
@@ -346,7 +346,10 @@ export function useCursor(
     const text = editor().lineAt(current.line)
     const space = grabWhitespace(text)
 
-    putCursor({ line: current.line, index: text.length - space.trailing.length })
+    putCursor({
+      line: current.line,
+      index: text.length - space.trailing.length,
+    })
   }
 
   function hitTab(shift: boolean = false) {
@@ -364,7 +367,7 @@ export function useCursor(
             line: value.highlight.line,
             index: value.highlight.index + alignment,
           },
-          value.highlight
+          value.highlight,
         )
       }
     }
@@ -484,7 +487,7 @@ export function useCursor(
             line: value.highlight.line,
             index: highlightIndex,
           },
-          value.highlight
+          value.highlight,
         )
       }
     } else {
@@ -492,7 +495,7 @@ export function useCursor(
 
       // This should... maybe be correct cursor positioning
       const { leading: cursorLeading } = grabWhitespace(
-        editor().lineAt(value.line)
+        editor().lineAt(value.line),
       )
       if (value.index >= cursorLeading.length) {
         putCursor({ line: value.line + lineOffset, index: value.index + 2 })
@@ -502,7 +505,7 @@ export function useCursor(
 
       if (value.highlight) {
         const { leading: highlightLeading } = grabWhitespace(
-          editor().lineAt(value.highlight.line)
+          editor().lineAt(value.highlight.line),
         )
 
         if (value.highlight.index >= highlightLeading.length) {
@@ -511,7 +514,7 @@ export function useCursor(
               line: value.highlight.line,
               index: value.highlight.index + 2,
             },
-            value.highlight
+            value.highlight,
           )
         }
       }
@@ -658,7 +661,7 @@ export function useCursor(
             nextPosition = editor().backspace(
               value,
               hasAltKey(event),
-              settings.tabSize
+              settings.tabSize,
             )
           }
 
@@ -673,7 +676,6 @@ export function useCursor(
             line: value.line,
             index: editor().lineAt(value.line).length,
           })
-
         }
 
         editor().commit()
