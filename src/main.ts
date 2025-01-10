@@ -17,6 +17,6 @@ if (window.__TAURI__) {
   setupEvents().then(() => {})
 }
 
-setupBackend().then(backend => {
+setupBackend().then((backend) => {
   setupShortcuts(backend).then(() => {})
 })

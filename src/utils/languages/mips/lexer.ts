@@ -36,7 +36,7 @@ interface Item {
 function takeCount(
   input: string,
   index: number,
-  take: (c: string) => boolean
+  take: (c: string) => boolean,
 ): number {
   let size = 0
 
@@ -287,7 +287,7 @@ function readItem(line: string, index: number, initial: boolean): Item {
       return {
         type: TokenType.Directive,
         known: knownDirectives.has(
-          line.substring(start + 1, start + 1 + count)
+          line.substring(start + 1, start + 1 + count),
         ),
         next: start + 1 + count,
         marker,

@@ -34,7 +34,7 @@ export type WidthQuery = (text: string) => number
 function findPin(
   line: string,
   pin: string,
-  widthQuery: WidthQuery
+  widthQuery: WidthQuery,
 ): FindMatch[] {
   if (!pin.length) {
     return []
@@ -75,7 +75,7 @@ function findPin(
 
 export function useFind(
   lines: () => string[],
-  widthQuery: WidthQuery
+  widthQuery: WidthQuery,
 ): FindResult {
   const state = reactive({
     show: false,
@@ -91,7 +91,7 @@ export function useFind(
 
   function matchesFor(lines: string[]): FindMatch[][] {
     return lines.map((value) =>
-      findPin(value.toLowerCase(), lower.value, widthQuery)
+      findPin(value.toLowerCase(), lower.value, widthQuery),
     )
   }
 
@@ -114,7 +114,7 @@ export function useFind(
   function findNextIndex(
     matches: FindMatch[],
     index: number,
-    exclude: FindMatch | null
+    exclude: FindMatch | null,
   ): number | null {
     let start = 0
     let end = matches.length
@@ -194,7 +194,7 @@ export function useFind(
       } else {
         state.matches = []
       }
-    }
+    },
   )
 
   // Not deep, which is good!
@@ -210,7 +210,7 @@ export function useFind(
       }
 
       state.debounce = window.setTimeout(findAll, 200)
-    }
+    },
   )
 
   return {

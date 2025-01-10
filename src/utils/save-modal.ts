@@ -17,7 +17,7 @@ export interface SaveModalResult {
 
 export function useSaveModal(
   save: (tab: EditorTab) => Promise<boolean>,
-  close: (tab: EditorTab) => void
+  close: (tab: EditorTab) => void,
 ): SaveModalResult {
   const state = reactive({
     tab: null,

@@ -1,5 +1,10 @@
 import { reactive } from 'vue'
-import { ExecutionModeType, MipsBackend, MipsExecution, Registers } from '../utils/mips/mips'
+import {
+  ExecutionModeType,
+  MipsBackend,
+  MipsExecution,
+  Registers,
+} from '../utils/mips/mips'
 
 export enum DebugTab {
   Registers,
@@ -7,7 +12,7 @@ export enum DebugTab {
   Console,
   Bitmap,
   Tests,
-  Debug
+  Debug,
 }
 
 export enum ConsoleType {

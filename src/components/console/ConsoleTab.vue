@@ -124,7 +124,7 @@ watch(
 
     updateBounds()
     state.editor = makeEditor()
-  }
+  },
 )
 
 const {
@@ -141,7 +141,7 @@ const {
   () => cursor,
   settings.editor,
   tiny,
-  16
+  16,
 )
 
 const focusKeys = new Set(['Enter', 'Delete', 'Backspace', 'Tab'])
@@ -288,7 +288,7 @@ const updateAndShow = async (value: number) => {
 
 watch(
   () => position.value.offsetX,
-  () => updateAndShow(position.value.offsetY)
+  () => updateAndShow(position.value.offsetY),
 )
 watch(() => position.value.offsetY, updateAndShow)
 
@@ -302,7 +302,7 @@ watch(
     await nextTick()
 
     makeVisible(value * lineHeight)
-  }
+  },
 )
 
 function updateBounds() {

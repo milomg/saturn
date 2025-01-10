@@ -37,7 +37,7 @@ import {
   RewindData,
   SetBreakpointsData,
   SetRegisterData,
-  WriteBytesData
+  WriteBytesData,
 } from './wasm-worker-message'
 import { type MidiNote } from '../midi'
 
@@ -45,32 +45,34 @@ function sendConsoleWrite(text: string, error: boolean) {
   postEvent({
     op: MessageEventOp.ConsoleWrite,
     text,
-    error
+    error,
   })
 }
 
 function sendMidiPlay(note: MidiNote) {
   postEvent({
     op: MessageEventOp.MidiPlay,
-    note
+    note,
   })
 }
 
 // Runner/Execution State (Automatically Freed with the Worker Memory)
-const runner = new backend.Runner(new backend.EventHandler(
-  sendConsoleWrite,
-  sendMidiPlay
-))
+const runner = new backend.Runner(
+  new backend.EventHandler(sendConsoleWrite, sendMidiPlay),
+)
 
-function assembleRegions({ text, options }: AssembleRegionsData): HexBinaryResult {
+function assembleRegions({
+  text,
+  options,
+}: AssembleRegionsData): HexBinaryResult {
   const [regions, result] = backend.assemble_regions(text, options) as [
     AssembledRegions | null,
-    AssemblerResult
+    AssemblerResult,
   ]
 
   return {
     regions,
-    result
+    result,
   }
 }
 
@@ -82,20 +84,33 @@ function assembleBinary({ text }: AssembleBinaryData): BinaryResult {
   return backend.assemble_binary(text) as BinaryResult
 }
 
-function decodeInstruction({ pc, instruction }: DecodeInstructionData): InstructionDetails | null {
-  return backend.decode_instruction(pc, instruction) as InstructionDetails | null
+function decodeInstruction({
+  pc,
+  instruction,
+}: DecodeInstructionData): InstructionDetails | null {
+  return backend.decode_instruction(
+    pc,
+    instruction,
+  ) as InstructionDetails | null
 }
 
 function disassemble({ named, bytes }: DisassembleData): DisassembleResult {
   return backend.disassemble(named ?? undefined, bytes) as DisassembleResult
 }
 
-function detailedDisassemble({ bytes }: DetailedDisassembleData): InstructionLine[] {
+function detailedDisassemble({
+  bytes,
+}: DetailedDisassembleData): InstructionLine[] {
   return backend.detailed_disassemble(bytes) as InstructionLine[]
 }
 
 function configureDisplay({ config }: ConfigureDisplayData) {
-  runner.configure_display(config.address, config.register ?? undefined, config.width, config.height)
+  runner.configure_display(
+    config.address,
+    config.register ?? undefined,
+    config.width,
+    config.height,
+  )
 }
 
 function lastDisplay(): LastDisplay {
@@ -118,13 +133,16 @@ let currentResolve: (() => void) | null = null
 channel.port1.onmessage = () => currentResolve!()
 
 function awaitMacrotaskFast(): Promise<void> {
-  return new Promise<void>(resolve => {
+  return new Promise<void>((resolve) => {
     currentResolve = resolve
     port.postMessage(null)
   })
 }
 
-async function resume({ count, breakpoints }: ResumeData): Promise<ExecutionResult | null> {
+async function resume({
+  count,
+  breakpoints,
+}: ResumeData): Promise<ExecutionResult | null> {
   const batchSize = 120000 // worth adjusting this batch size
 
   let instructionsExecuted = 0
@@ -136,9 +154,17 @@ async function resume({ count, breakpoints }: ResumeData): Promise<ExecutionResu
   let firstRun = true
 
   while (count === null || instructionsExecuted < count) {
-    const instructionsToExecute = count === null ? batchSize : Math.min(count - instructionsExecuted, batchSize)
+    const instructionsToExecute =
+      count === null
+        ? batchSize
+        : Math.min(count - instructionsExecuted, batchSize)
 
-    result = await runner.resume(instructionsToExecute, firstRun ? breaks : undefined, firstRun, count !== null) as ExecutionResult | null
+    result = (await runner.resume(
+      instructionsToExecute,
+      firstRun ? breaks : undefined,
+      firstRun,
+      count !== null,
+    )) as ExecutionResult | null
 
     firstRun = false
 
@@ -170,7 +196,10 @@ function lastPc(): number | null {
   return runner.last_pc() ?? null
 }
 
-function readBytes({ address, count }: ReadBytesData): (number | null)[] | null {
+function readBytes({
+  address,
+  count,
+}: ReadBytesData): (number | null)[] | null {
   return runner.read_bytes(address, count)
 }
 
@@ -212,30 +241,54 @@ function platformShortcuts(): Shortcut[] {
 
 async function dispatchOp(data: MessageData): Promise<any> {
   switch (data.op) {
-    case MessageOp.AssembleRegions: return assembleRegions(data)
-    case MessageOp.AssembleText: return assembleText(data)
-    case MessageOp.AssembleBinary: return assembleBinary(data)
-    case MessageOp.DecodeInstruction: return decodeInstruction(data)
-    case MessageOp.Disassemble: return disassemble(data)
-    case MessageOp.DetailedDisassemble: return detailedDisassemble(data)
-    case MessageOp.ConfigureDisplay: return configureDisplay(data)
-    case MessageOp.LastDisplay: return lastDisplay()
-    case MessageOp.ConfigureElf: return configureElf(data)
-    case MessageOp.ConfigureAsm: return configureAsm(data)
-    case MessageOp.Resume: return await resume(data)
-    case MessageOp.Stop: return stop()
-    case MessageOp.Pause: return pause()
-    case MessageOp.LastPc: return lastPc()
-    case MessageOp.ReadBytes: return readBytes(data)
-    case MessageOp.WriteBytes: return writeBytes(data)
-    case MessageOp.SetRegister: return setRegister(data)
-    case MessageOp.SetBreakpoints: return setBreakpoints(data)
-    case MessageOp.PostInput: return postInput(data)
-    case MessageOp.PostKey: return postKey(data)
-    case MessageOp.WakeSync: return wakeSync()
-    case MessageOp.Rewind: return rewind(data)
-    case MessageOp.ReadDisplay: return readDisplay(data)
-    case MessageOp.PlatformShortcuts: return platformShortcuts()
+    case MessageOp.AssembleRegions:
+      return assembleRegions(data)
+    case MessageOp.AssembleText:
+      return assembleText(data)
+    case MessageOp.AssembleBinary:
+      return assembleBinary(data)
+    case MessageOp.DecodeInstruction:
+      return decodeInstruction(data)
+    case MessageOp.Disassemble:
+      return disassemble(data)
+    case MessageOp.DetailedDisassemble:
+      return detailedDisassemble(data)
+    case MessageOp.ConfigureDisplay:
+      return configureDisplay(data)
+    case MessageOp.LastDisplay:
+      return lastDisplay()
+    case MessageOp.ConfigureElf:
+      return configureElf(data)
+    case MessageOp.ConfigureAsm:
+      return configureAsm(data)
+    case MessageOp.Resume:
+      return await resume(data)
+    case MessageOp.Stop:
+      return stop()
+    case MessageOp.Pause:
+      return pause()
+    case MessageOp.LastPc:
+      return lastPc()
+    case MessageOp.ReadBytes:
+      return readBytes(data)
+    case MessageOp.WriteBytes:
+      return writeBytes(data)
+    case MessageOp.SetRegister:
+      return setRegister(data)
+    case MessageOp.SetBreakpoints:
+      return setBreakpoints(data)
+    case MessageOp.PostInput:
+      return postInput(data)
+    case MessageOp.PostKey:
+      return postKey(data)
+    case MessageOp.WakeSync:
+      return wakeSync()
+    case MessageOp.Rewind:
+      return rewind(data)
+    case MessageOp.ReadDisplay:
+      return readDisplay(data)
+    case MessageOp.PlatformShortcuts:
+      return platformShortcuts()
   }
 }
 
@@ -255,13 +308,13 @@ async function handleMessage(event: MessageEvent) {
     postMessage({
       id,
       kind: MessageResponseKind.Success,
-      data: value
+      data: value,
     } satisfies MessageResponse)
   } catch (error) {
     postMessage({
       id,
       kind: MessageResponseKind.Failure,
-      error
+      error,
     } satisfies MessageResponse)
   }
 }
@@ -271,5 +324,5 @@ onmessage = handleMessage
 backend.initialize()
 
 postEvent({
-  op: MessageEventOp.Ready
+  op: MessageEventOp.Ready,
 })

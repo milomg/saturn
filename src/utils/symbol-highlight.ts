@@ -29,29 +29,30 @@ interface BracketId {
 
 export function useSymbolHighlight(
   storage: StorageResult,
-  widthQuery: WidthQuery
+  widthQuery: WidthQuery,
 ): SymbolHighlightResult {
   let bracket = null as BracketId | null
   let name = null as string | null
   let cache = ref(null as (SymbolHighlight[] | null)[] | null)
 
   function matches(other: Token, line: number): boolean {
-    return (bracket !== null
-        && line === bracket.line
-        && bracket.id === other.bracket)
-      || (name !== null
-        && symbolName(other.text) === name)
+    return (
+      (bracket !== null &&
+        line === bracket.line &&
+        bracket.id === other.bracket) ||
+      (name !== null && symbolName(other.text) === name)
+    )
   }
 
-  function matchingTokens(
-    tokens: Token[],
-    line: number
-  ): SymbolHighlight[] {
+  function matchingTokens(tokens: Token[], line: number): SymbolHighlight[] {
     const result = [] as SymbolHighlight[]
 
     for (const [index, token] of tokens.entries()) {
       if (matches(token, line)) {
-        const leadingTokenText = tokens.slice(0, index).map(x => x.text).join('')
+        const leadingTokenText = tokens
+          .slice(0, index)
+          .map((x) => x.text)
+          .join('')
         const { leading } = grabWhitespace(token.text)
 
         const leadingText = leadingTokenText + leading
@@ -61,7 +62,7 @@ export function useSymbolHighlight(
         result.push({
           index: leadingText.length,
           offset: leadingOffset,
-          size: widthQuery(token.text.substring(leading.length))
+          size: widthQuery(token.text.substring(leading.length)),
         })
       }
     }
@@ -117,7 +118,10 @@ export function useSymbolHighlight(
     }
   }
 
-  function highlights(start: number, count: number): SymbolHighlight[][] | null {
+  function highlights(
+    start: number,
+    count: number,
+  ): SymbolHighlight[][] | null {
     const lines = cache.value
     if (!lines) {
       return null
@@ -150,6 +154,6 @@ export function useSymbolHighlight(
     clear,
     updateCursor,
     highlights,
-    symbolName
+    symbolName,
   }
 }

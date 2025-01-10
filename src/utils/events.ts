@@ -10,7 +10,7 @@ import {
   selectOpenFile,
   accessWriteText,
   selectOpenElf,
-  accessReadFile
+  accessReadFile,
 } from './query/access-manager'
 import { consoleData, ConsoleType, pushConsole } from '../state/console-data'
 import { backend } from '../state/backend'
@@ -25,7 +25,7 @@ import {
   showSettings,
   suggestions,
   tab,
-  tabsState
+  tabsState,
 } from '../state/state'
 import { appWindow } from '@tauri-apps/api/window'
 import { watch } from 'vue'
@@ -69,7 +69,7 @@ export async function openTab(file: AccessFile<string | Uint8Array>) {
 
 export async function saveTab(
   current: EditorTab,
-  type: PromptType = PromptType.PromptWhenNeeded
+  type: PromptType = PromptType.PromptWhenNeeded,
 ): Promise<boolean> {
   if (type === PromptType.NeverPrompt && !current.path) {
     return true
@@ -98,7 +98,7 @@ export async function saveTab(
 }
 
 export async function saveCurrentTab(
-  prompt: PromptType = PromptType.PromptWhenNeeded
+  prompt: PromptType = PromptType.PromptWhenNeeded,
 ) {
   const current = tab()
 
@@ -165,7 +165,10 @@ export async function setupEvents() {
   await listen('assemble', async () => {
     const current = tab()
 
-    const result = await backend.assembleWithBinary(collectLines(current?.lines ?? []), current?.path ?? null)
+    const result = await backend.assembleWithBinary(
+      collectLines(current?.lines ?? []),
+      current?.path ?? null,
+    )
 
     if (result.binary) {
       const name = tab()?.title
@@ -189,9 +192,14 @@ export async function setupEvents() {
     let result: BinaryResult | null = null
 
     if (current.profile && current.profile.kind === 'elf') {
-      binary = Uint8Array.from(window.atob(current.profile.elf), c => c.charCodeAt(0))
+      binary = Uint8Array.from(window.atob(current.profile.elf), (c) =>
+        c.charCodeAt(0),
+      )
     } else {
-      result = await backend.assembleWithBinary(collectLines(current.lines), current.path)
+      result = await backend.assembleWithBinary(
+        collectLines(current.lines),
+        current.path,
+      )
 
       binary = result.binary
     }
@@ -240,7 +248,7 @@ export async function setupEvents() {
   let events = new Map<string, number>() // uuid to number
   watch(
     () => consoleData.console,
-    () => (events = new Map())
+    () => (events = new Map()),
   )
 
   await listen('post-console-event', (event) => {
@@ -283,7 +291,7 @@ export async function setupEvents() {
 
   await listen('save:modify', (event) => {
     const modification = event.payload as {
-      path: string,
+      path: string
       data: any
     }
 

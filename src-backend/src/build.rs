@@ -1,3 +1,4 @@
+use crate::keyboard::{KeyboardHandler, KeyboardState, KEYBOARD_SELECTOR};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::io::Cursor;
@@ -6,13 +7,12 @@ use std::sync::{Arc, Mutex};
 use titan::assembler::binary::{Binary, RegionFlags};
 use titan::assembler::line_details::LineDetails;
 use titan::assembler::string::{assemble_from, assemble_from_path, SourceError};
-use titan::cpu::memory::{Mountable, Region};
 use titan::cpu::memory::section::SectionMemory;
+use titan::cpu::memory::{Mountable, Region};
 use titan::cpu::{Memory, State};
-use titan::execution::elf::inspection::Inspection;
-use titan::elf::Elf;
 use titan::elf::program::ProgramHeaderFlags;
-use crate::keyboard::{KeyboardHandler, KeyboardState, KEYBOARD_SELECTOR};
+use titan::elf::Elf;
+use titan::execution::elf::inspection::Inspection;
 
 pub const TIME_TRAVEL_HISTORY_SIZE: usize = 1000;
 
@@ -42,8 +42,7 @@ pub enum AssemblerResult {
 }
 
 pub fn get_elf_finished_pcs(elf: &Elf) -> Vec<u32> {
-    elf
-        .program_headers
+    elf.program_headers
         .iter()
         .filter(|header| header.flags.contains(ProgramHeaderFlags::EXECUTABLE))
         .map(|header| header.virtual_address + header.data.len() as u32)
@@ -130,11 +129,10 @@ pub fn assemble_text(text: &str, path: Option<&str>) -> Result<Binary, SourceErr
     }
 }
 
-
 pub fn create_elf_state<Mem: Memory + Mountable>(
     elf: &Elf,
     heap_size: u32,
-    mut memory: Mem
+    mut memory: Mem,
 ) -> State<Mem> {
     for header in &elf.program_headers {
         let region = Region {
@@ -160,7 +158,9 @@ pub fn create_elf_state<Mem: Memory + Mountable>(
     state
 }
 
-pub fn configure_keyboard(memory: &mut SectionMemory<KeyboardHandler>) -> Arc<Mutex<KeyboardState>> {
+pub fn configure_keyboard(
+    memory: &mut SectionMemory<KeyboardHandler>,
+) -> Arc<Mutex<KeyboardState>> {
     let handler = KeyboardHandler::new();
     let keyboard = handler.state.clone();
 
@@ -206,7 +206,7 @@ pub fn assemble_binary(text: &str, path: Option<&str>) -> (Option<Vec<u8>>, Asse
     let (binary, result) = AssemblerResult::from_result_with_binary(result, text);
 
     let Some(binary) = binary else {
-        return (None, result)
+        return (None, result);
     };
 
     let elf: Elf = binary.create_elf();

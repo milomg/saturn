@@ -12,7 +12,7 @@ pub enum TestResult {
 #[derive(Serialize)]
 pub struct TestItem {
     name: String,
-    result: TestResult
+    result: TestResult,
 }
 
 /*

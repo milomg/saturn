@@ -30,7 +30,7 @@ const props = withDefaults(
     start: number
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 
 const highlightIndices = computed(() => {

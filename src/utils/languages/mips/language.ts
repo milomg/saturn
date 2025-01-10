@@ -30,7 +30,7 @@ export class MipsHighlighter implements Language {
 
         const fuse = storage?.cache('macros', (values) => {
           const filter = Array.from(values).filter(
-            (s) => s.type === SuggestionType.Function
+            (s) => s.type === SuggestionType.Function,
           )
 
           return new Fuse(filter, fuseOptions)
@@ -39,7 +39,7 @@ export class MipsHighlighter implements Language {
         const macroResults = fuse?.search(trim) ?? []
 
         return toSuggestionMatches(
-          mergeResults(instructionResults, directiveResults, macroResults)
+          mergeResults(instructionResults, directiveResults, macroResults),
         )
       }
 
@@ -50,7 +50,7 @@ export class MipsHighlighter implements Language {
             const filter = Array.from(values).filter(
               (s) =>
                 s.type === SuggestionType.Label ||
-                s.type === SuggestionType.Variable
+                s.type === SuggestionType.Variable,
             )
 
             return new Fuse(filter, fuseOptions)

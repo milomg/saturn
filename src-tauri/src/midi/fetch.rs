@@ -93,7 +93,7 @@ async fn download_file(
         let result = hasher.finalize();
 
         let Ok(expected) = hex::decode(sha256) else {
-            return None
+            return None;
         };
 
         if expected != result[..] {

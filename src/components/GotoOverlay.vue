@@ -42,6 +42,6 @@ const props = withDefaults(
     highlight: Highlights<UnwrapRef<GotoMessage>>
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 </script>

@@ -3,39 +3,44 @@
     windows_subsystem = "windows"
 )]
 
+mod access_manager;
 mod build;
 mod debug;
+mod decode;
+mod display;
+mod export;
 mod menu;
 mod midi;
 mod state;
 mod testing;
-mod access_manager;
-mod watch;
-mod export;
-mod decode;
-mod display;
 mod time;
+mod watch;
 
+use crate::access_manager::{
+    access_read_file, access_read_text, access_select_open, access_select_save, access_sync,
+    access_write_text, AccessManager,
+};
 use std::sync::{Arc, Mutex};
-use tauri::{FileDropEvent, Manager};
 use tauri::WindowEvent::{Destroyed, FileDrop};
-use crate::access_manager::{access_read_file, access_read_text, access_select_open, access_select_save, access_sync, access_write_text, AccessManager};
+use tauri::{FileDropEvent, Manager};
 
-use saturn_backend::display::{FlushDisplayBody, FlushDisplayState};
 use crate::menu::{create_menu, handle_event};
+use saturn_backend::display::{FlushDisplayBody, FlushDisplayState};
 
-use crate::build::{assemble, assemble_binary, assemble_regions, configure_asm, configure_elf, disassemble};
+use crate::build::{
+    assemble, assemble_binary, assemble_regions, configure_asm, configure_elf, disassemble,
+};
 use crate::debug::{read_bytes, set_register, swap_breakpoints, write_bytes};
+use crate::export::{export_binary_contents, export_hex_contents, export_hex_regions};
 use crate::menu::platform_shortcuts;
 use crate::midi::{midi_install, midi_protocol, MidiProviderContainer};
-use crate::export::{export_binary_contents, export_hex_contents, export_hex_regions};
 use crate::state::DebuggerBody;
 
 use crate::state::{last_pc, pause, post_input, post_key, resume, rewind, stop, wake_sync};
 use crate::testing::{all_tests, run_tests};
 
 use crate::decode::{decode_instruction, detailed_disassemble};
-use crate::display::{configure_display, last_display, display_protocol};
+use crate::display::{configure_display, display_protocol, last_display};
 
 #[tauri::command]
 fn is_debug() -> bool {
@@ -62,14 +67,14 @@ fn main() {
                     let manager: tauri::State<AccessManager> = app.state();
 
                     manager.permit(paths.clone());
-                },
+                }
                 Destroyed => {
                     // Relieve some pressure on tokio.
                     stop(event.window().state())
 
                     // Assuming tokio will join threads for me if needed.
                 }
-                _ => { }
+                _ => {}
             }
         })
         .on_menu_event(handle_event)

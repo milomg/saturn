@@ -1,15 +1,21 @@
-use std::error::Error;
+use crate::state::DebuggerBody;
 use num::FromPrimitive;
-use tauri::{AppHandle, Manager, Wry};
-use tauri::http::{Request, Response, ResponseBuilder};
-use tauri::http::method::Method;
-use titan::unit::register::RegisterName;
 use saturn_backend::display::{FlushDisplayBody, FlushDisplayState};
 use saturn_backend::execution::ReadDisplayTarget;
-use crate::state::DebuggerBody;
+use std::error::Error;
+use tauri::http::method::Method;
+use tauri::http::{Request, Response, ResponseBuilder};
+use tauri::{AppHandle, Manager, Wry};
+use titan::unit::register::RegisterName;
 
 #[tauri::command]
-pub fn configure_display(address: u32, register: Option<u8>, width: u32, height: u32, state: tauri::State<FlushDisplayBody>) {
+pub fn configure_display(
+    address: u32,
+    register: Option<u8>,
+    width: u32,
+    height: u32,
+    state: tauri::State<FlushDisplayBody>,
+) {
     let mut body = state.lock().unwrap();
 
     *body = FlushDisplayState {
@@ -46,37 +52,31 @@ pub fn display_protocol(
         let width = headers.get("width")?.to_str().ok()?;
         let height = headers.get("height")?.to_str().ok()?;
         // address is still required as fallback
-        let register = headers.get("register")
-            .and_then(|x| x.to_str().ok());
-        
+        let register = headers.get("register").and_then(|x| x.to_str().ok());
+
         let target = if let Some(register) = register {
             ReadDisplayTarget::Register(RegisterName::from_u8(register.parse().ok()?)?)
         } else {
             let address = headers.get("address")?.to_str().ok()?;
-            
+
             ReadDisplayTarget::Address(address.parse().ok()?)
         };
-        
-        Some((
-            width.parse().ok()?,
-            height.parse().ok()?,
-            target,
-        ))
+
+        Some((width.parse().ok()?, height.parse().ok()?, target))
     };
 
     let Some((width, height, address)) = grab_params() else {
-        return builder.status(400).body(vec![])
+        return builder.status(400).body(vec![]);
     };
 
     let state: tauri::State<'_, DebuggerBody> = app.state();
 
     let Some(pointer) = &*state.lock().unwrap() else {
-        return builder.status(400).body(vec![])
+        return builder.status(400).body(vec![]);
     };
 
-
     let Some(result) = pointer.read_display(address, width, height) else {
-        return builder.status(400).body(vec![])
+        return builder.status(400).body(vec![]);
     };
 
     builder.body(result)

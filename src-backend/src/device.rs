@@ -2,10 +2,10 @@ use crate::keyboard::KeyboardState;
 use crate::syscall::SyscallState;
 use std::sync::{Arc, Mutex};
 use titan::assembler::binary::Binary;
-use titan::cpu::{Memory, State};
 use titan::cpu::memory::{Mountable, Region};
-use titan::execution::Executor;
+use titan::cpu::{Memory, State};
 use titan::execution::trackers::Tracker;
+use titan::execution::Executor;
 
 pub struct ExecutionState<Mem: Memory, Track: Tracker<Mem>> {
     pub debugger: Arc<Executor<Mem, Track>>,
@@ -14,7 +14,11 @@ pub struct ExecutionState<Mem: Memory, Track: Tracker<Mem>> {
     pub finished_pcs: Vec<u32>,
 }
 
-pub fn state_from_binary<Mem: Memory + Mountable>(binary: Binary, heap_size: u32, mut memory: Mem) -> State<Mem> {
+pub fn state_from_binary<Mem: Memory + Mountable>(
+    binary: Binary,
+    heap_size: u32,
+    mut memory: Mem,
+) -> State<Mem> {
     for region in binary.regions {
         let region = Region {
             start: region.address,

@@ -1,10 +1,10 @@
+#[cfg(target_os = "windows")]
+use saturn_backend::shortcuts::get_emulated_shortcuts;
+use saturn_backend::shortcuts::{MenuOptions, MenuOptionsData};
 use std::str::FromStr;
 #[cfg(target_os = "macos")]
 use tauri::AboutMetadata;
-#[cfg(target_os = "windows")]
-use saturn_backend::shortcuts::get_emulated_shortcuts;
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowMenuEvent, Wry};
-use saturn_backend::shortcuts::{MenuOptions, MenuOptionsData};
 
 fn make_item(option: MenuOptions) -> CustomMenuItem {
     let item = CustomMenuItem::new(option.to_string(), option.label());
@@ -19,7 +19,7 @@ fn make_item(option: MenuOptions) -> CustomMenuItem {
 pub fn get_platform_emulated_shortcuts() -> Vec<MenuOptionsData> {
     #[cfg(target_os = "windows")]
     return get_emulated_shortcuts();
-    
+
     #[cfg(not(target_os = "windows"))]
     vec![]
 }
@@ -63,7 +63,7 @@ pub fn create_menu() -> Menu {
             .add_item(make_item(MenuOptions::Assemble))
             .add_item(make_item(MenuOptions::Disassemble))
             .add_item(make_item(MenuOptions::Export))
-            .add_item(make_item(MenuOptions::ExportHex))
+            .add_item(make_item(MenuOptions::ExportHex)),
     ));
 
     // windows unsupported for some of these, hopefully this wont cause a crash
@@ -96,7 +96,7 @@ pub fn create_menu() -> Menu {
         "Window",
         Menu::new()
             .add_native_item(MenuItem::Minimize)
-            .add_item(make_item(MenuOptions::ToggleConsole))
+            .add_item(make_item(MenuOptions::ToggleConsole)),
     ));
 
     menu
@@ -115,7 +115,7 @@ pub fn handle_event(event: WindowMenuEvent<Wry>) {
     let emit_normal = |name: &str| catch_emit(event.window().emit(name, ()));
 
     let Ok(item) = MenuOptions::from_str(event.menu_item_id()) else {
-        return eprintln!("Unknown menu ID: {}", event.menu_item_id())
+        return eprintln!("Unknown menu ID: {}", event.menu_item_id());
     };
 
     emit_normal(&item.to_string())

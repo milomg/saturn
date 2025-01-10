@@ -17,7 +17,10 @@
       />
 
       <div class="flex px-2 space-x-1">
-        <button class="p-1 rounded dark:hover:bg-neutral-700 hover:bg-neutral-300" @click="jumpToNext()">
+        <button
+          class="p-1 rounded dark:hover:bg-neutral-700 hover:bg-neutral-300"
+          @click="jumpToNext()"
+        >
           <ArrowRightIcon class="w-4 h-4" />
         </button>
       </div>
@@ -97,7 +100,7 @@ watch(
     if (value && !old) {
       queueFocus()
     }
-  }
+  },
 )
 
 watch(
@@ -107,7 +110,7 @@ watch(
       queueFocus()
       find.state.focus = false
     }
-  }
+  },
 )
 
 watch(
@@ -116,6 +119,6 @@ watch(
     if (needsFocus) {
       queueFocus()
     }
-  }
+  },
 )
 </script>

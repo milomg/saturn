@@ -48,7 +48,7 @@ export enum AddressingMode {
 }
 
 export interface MemorySettings {
-  address: string,
+  address: string
   mode: AddressingMode
 }
 
@@ -70,7 +70,7 @@ function defaultSettings(): Settings {
       fontSize: 22,
       consoleFontSize: 16,
       enterAutocomplete: true,
-      darkMode: true
+      darkMode: true,
     },
     bitmap: {
       displayWidth: 64,
@@ -78,13 +78,13 @@ function defaultSettings(): Settings {
       unitWidth: 1,
       unitHeight: 1,
       address: 0x10008000,
-      register: undefined
+      register: undefined,
     },
     registers: {
       format: RegisterFormat.Hexadecimal,
     },
     execution: {
-      timeTravel: true
+      timeTravel: true,
     },
     memory: {
       address: '0x10010000',
@@ -93,8 +93,8 @@ function defaultSettings(): Settings {
     export: {
       continuous: false,
       kind: 'hex_v3',
-      encoding: 'little32'
-    }
+      encoding: 'little32',
+    },
   }
 }
 
@@ -139,7 +139,7 @@ export function useSettings(): Settings {
       // Update tauri backend.
       await backend.configureDisplay(displayConfig(bitmap))
     },
-    { deep: true }
+    { deep: true },
   )
 
   let debounce = null as number | null
@@ -153,7 +153,7 @@ export function useSettings(): Settings {
 
       debounce = window.setTimeout(() => toStorage(settings), 1000)
     },
-    { deep: true }
+    { deep: true },
   )
 
   watch(

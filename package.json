@@ -10,6 +10,7 @@
     "build": "yarn wasm && vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
+    "format": "prettier --write . && cd src-backend && cargo fmt && cd ../src-tauri && cargo fmt && cd ../src-wasm && cargo fmt",
     "cargo-bump": "cd src-backend && cargo update && cd ../src-tauri && cargo update && cd ../src-wasm && cargo update"
   },
   "dependencies": {

@@ -23,6 +23,6 @@ const props = withDefaults(
     lineHeight?: number
     cursorShift?: number
   }>(),
-  { lineHeight: 24, cursorShift: -1.3 }
+  { lineHeight: 24, cursorShift: -1.3 },
 )
 </script>

@@ -1,21 +1,22 @@
 <template>
-  <div class="flex-auto flex-grow overflow-auto flex px-6 border-l border-neutral-500" :style="{ width: '900px' }">
+  <div
+    class="flex-auto flex-grow overflow-auto flex px-6 border-l border-neutral-500"
+    :style="{ width: '900px' }"
+  >
     <div v-if="buildLines" class="font-mono text-sm w-full">
       <div class="h-6 flex items-center pr-16 text-gray-500 w-full">
-        <div class="w-32">
-          Address
-        </div>
+        <div class="w-32">Address</div>
 
-        <div>
-          Instruction
-        </div>
+        <div>Instruction</div>
 
-        <div class="w-32 ml-auto">
-          Encoding
-        </div>
+        <div class="w-32 ml-auto">Encoding</div>
       </div>
 
-      <div v-for="(line, i) in buildLines" :key="i" class="h-6 flex items-center pr-16 w-full">
+      <div
+        v-for="(line, i) in buildLines"
+        :key="i"
+        class="h-6 flex items-center pr-16 w-full"
+      >
         <div v-if="line.type === 'Comment'" class="text-neutral-400 pl-32">
           {{ line.message }}
         </div>
@@ -25,9 +26,7 @@
         </div>
 
         <div v-if="line.type === 'Instruction'" class="flex w-full">
-          <div class="w-32">
-            0x{{ line.details.pc.toString(16) }}
-          </div>
+          <div class="w-32">0x{{ line.details.pc.toString(16) }}</div>
 
           <span class="text-sky-400 ml-4">
             {{ line.details.name }}
@@ -50,7 +49,10 @@
             </span>
 
             <span v-if="parameter.type === 'Offset'" class="text-teal-300">
-              {{ parameter.value.offset }}(<span class="text-orange-300">{{ registers[parameter.value.register].name }}</span>)
+              {{ parameter.value.offset }}(<span class="text-orange-300">{{
+                registers[parameter.value.register].name
+              }}</span
+              >)
             </span>
           </span>
 

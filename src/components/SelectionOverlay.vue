@@ -29,6 +29,6 @@ const props = withDefaults(
     range: RangeSelection
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 </script>
