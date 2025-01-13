@@ -1,4 +1,6 @@
 import { CompletionContext } from '@codemirror/autocomplete'
+import { suggestions } from './context'
+import { SuggestionType } from '../languages/suggestions'
 
 export function myCompletions(context: CompletionContext) {
   let word = context.matchBefore(/[a-zA-Z$._]*/)!
@@ -42,6 +44,32 @@ export function myCompletions(context: CompletionContext) {
       ].map((x) => ({ ...x, type: 'variable' })),
     }
   }
+
+  let labels: { detail: string; label: string; type: string | undefined }[] = []
+
+  const suggestionsContext = context.view?.state.field(suggestions)
+
+  if (suggestionsContext) {
+    const { all } = suggestionsContext
+
+    labels = all.map((suggestion) => ({
+      detail: suggestion.name ?? suggestion.replace,
+      label: suggestion.replace,
+      type: (() => {
+        switch (suggestion.type) {
+          case SuggestionType.Label:
+            return 'variable' // ?
+          case SuggestionType.Function:
+            return 'function'
+          case SuggestionType.Variable:
+            return 'constant'
+          default:
+            return undefined
+        }
+      })(),
+    }))
+  }
+
   return {
     from: word.from,
     options: [
@@ -65,7 +93,7 @@ export function myCompletions(context: CompletionContext) {
       { detail: 'End Macro', label: '.end_macro' },
       { detail: 'Include Source', label: '.include' },
     ]
-      .map((x) => ({ ...x, type: 'text' }))
+      .map((x) => ({ ...x, type: 'text' as string | undefined }))
       .concat(
         [
           { detail: 'Shift Left', label: 'sll' },
@@ -156,6 +184,7 @@ export function myCompletions(context: CompletionContext) {
           { detail: 'Subtract Immediate', label: 'subi' },
           { detail: 'Subtract Immediate Unsigned', label: 'subiu' },
         ].map((x) => ({ ...x, type: 'keyword' })),
-      ),
+      )
+      .concat(labels),
   }
 }
