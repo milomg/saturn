@@ -1,0 +1,39 @@
+.cm-editor {
+  .cm-content {
+    @apply caret-orange-400;
+  }
+  .cm-cursor,
+  .cm-dropCursor {
+    @apply border-orange-400;
+    border-left-width: 2px;
+  }
+  .cm-gutters {
+    background-color: inherit;
+  }
+  .cm-completionDetail {
+    margin-left: auto;
+    @apply text-neutral-400;
+  }
+  .cm-completionLabel {
+    margin-right: 1.5rem;
+  }
+  .cm-tooltip-autocomplete {
+    border-radius: 0.5rem;
+    border: 1px solid #333;
+    @apply bg-neutral-900;
+  }
+  .cm-tooltip.cm-tooltip-autocomplete > ul {
+    padding: 0.5rem;
+  }
+  .cm-tooltip-autocomplete > ul > li[aria-selected] {
+    @apply bg-neutral-700;
+  }
+  .cm-tooltip-autocomplete > ul > li {
+    padding: 0.5rem 0px;
+    border-radius: 0.25rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+}

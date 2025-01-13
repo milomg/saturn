@@ -25,7 +25,7 @@ import { isSyncing } from '../utils/tabs'
 import GotoOverlay from './GotoOverlay.vue'
 
 import { EditorView } from 'codemirror'
-import { darkTheme, editorTheme, lightTheme } from '../utils/lezer-mips'
+import { setTheme } from '../utils/lezer-mips'
 import { consoleData } from '../state/console-data'
 import { setHighlightedLine } from '../utils/lezer-mips'
 import { setMinimap, setVim } from '../utils/lezer-mips/modes'
@@ -39,14 +39,12 @@ onMounted(() => {
     state: tab()?.state,
     parent: code.value!,
   })
-  forceParsing(view, view.state.doc.length, 100)
 
   watch(
     () => tab()?.state,
     (state) => {
       if (!isSyncing()) {
         view.setState(state!)
-        forceParsing(view, view.state.doc.length, 100)
       }
     },
     { flush: 'sync' },
@@ -54,14 +52,7 @@ onMounted(() => {
 
   watch(
     () => settings.editor.darkMode,
-    (theme: boolean) => {
-      // A strange bug in codemirror made launching in the opposite theme fail without a timeout.
-      setTimeout(() => {
-        view.dispatch({
-          effects: [editorTheme.reconfigure(theme ? darkTheme : lightTheme)],
-        })
-      }, 0)
-    },
+    (theme: boolean) => view.dispatch({ effects: [setTheme(theme)] }),
     { immediate: true },
   )
 
@@ -74,6 +65,7 @@ onMounted(() => {
   watch(
     () => settings.editor.showMinimap,
     (minimap: boolean) => view.dispatch({ effects: [setMinimap(minimap)] }),
+    { immediate: true },
   )
 
   // https://gist.github.com/shimondoodkin/1081133
