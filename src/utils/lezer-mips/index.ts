@@ -3,7 +3,7 @@ import { autocompletion } from '@codemirror/autocomplete'
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
 import { Compartment, StateEffect, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
-import { lang } from './stream-lang'
+import { lang } from './lezer-lang'
 import './codemirror.css'
 
 export const clearHighlightedLine = StateEffect.define<null>()

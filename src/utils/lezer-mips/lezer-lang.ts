@@ -6,7 +6,6 @@ import {
   indentNodeProp,
 } from '@codemirror/language'
 import { styleTags, tags as t } from '@lezer/highlight'
-import { CompletionContext } from '@codemirror/autocomplete'
 import { myCompletions } from './autocomplete'
 
 const MipsLanguage = LRLanguage.define({

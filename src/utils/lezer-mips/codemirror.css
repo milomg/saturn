@@ -8,7 +8,7 @@
     border-left-width: 2px;
   }
   .cm-gutters {
-    background-color: inherit;
+    @apply bg-neutral-900;
   }
   .cm-completionDetail {
     margin-left: auto;
