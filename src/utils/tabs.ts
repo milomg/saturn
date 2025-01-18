@@ -109,7 +109,7 @@ export interface TabsInterface {
     path?: string,
     profile?: ExecutionProfile,
   ): void
-  loadElf(named: string, elf: ArrayBuffer): Promise<void>
+  loadElf(named: string, elf: ArrayBufferLike): Promise<void>
 }
 
 export type TabsResult = TabsInterface & {
@@ -373,7 +373,7 @@ export function useTabs(): TabsResult {
     editor.selected = id
   }
 
-  async function loadElf(named: string, elf: ArrayBuffer) {
+  async function loadElf(named: string, elf: ArrayBufferLike) {
     const value = await backend.disassembleElf(named, elf)
 
     const bytes = new Uint8Array(elf)
