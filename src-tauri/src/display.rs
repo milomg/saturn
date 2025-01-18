@@ -2,10 +2,9 @@ use crate::state::DebuggerBody;
 use num::FromPrimitive;
 use saturn_backend::display::{FlushDisplayBody, FlushDisplayState};
 use saturn_backend::execution::ReadDisplayTarget;
-use std::error::Error;
 use tauri::http::method::Method;
-use tauri::http::{Request, Response, ResponseBuilder};
-use tauri::{AppHandle, Manager, Wry};
+use tauri::http::{Request, Response};
+use tauri::{Manager, UriSchemeContext, Wry};
 use titan::unit::register::RegisterName;
 
 #[tauri::command]
@@ -33,17 +32,19 @@ pub fn last_display(state: tauri::State<FlushDisplayBody>) -> FlushDisplayState 
 }
 
 pub fn display_protocol(
-    app: &AppHandle<Wry>,
-    request: &Request,
-) -> Result<Response, Box<dyn Error>> {
+    context: UriSchemeContext<'_, Wry>,
+    request: Request<Vec<u8>>,
+) -> Response<Vec<u8>> {
+    let app = context.app_handle();
+
     // Disable CORS, nothing super private here.
-    let builder = ResponseBuilder::new()
+    let builder = Response::builder()
         .header("Access-Control-Allow-Headers", "*")
         .header("Access-Control-Allow-Origin", "*");
 
     // Check for preflight, very primitive check.
     if request.method() == Method::OPTIONS {
-        return builder.body(vec![]);
+        return builder.body(vec![]).expect("Failed to build response");
     }
 
     let grab_params = || -> Option<(u32, u32, ReadDisplayTarget)> {
@@ -66,18 +67,27 @@ pub fn display_protocol(
     };
 
     let Some((width, height, address)) = grab_params() else {
-        return builder.status(400).body(vec![]);
+        return builder
+            .status(400)
+            .body(vec![])
+            .expect("Failed to build response");
     };
 
     let state: tauri::State<'_, DebuggerBody> = app.state();
 
     let Some(pointer) = &*state.lock().unwrap() else {
-        return builder.status(400).body(vec![]);
+        return builder
+            .status(400)
+            .body(vec![])
+            .expect("Failed to build response");
     };
 
     let Some(result) = pointer.read_display(address, width, height) else {
-        return builder.status(400).body(vec![]);
+        return builder
+            .status(400)
+            .body(vec![])
+            .expect("Failed to build response");
     };
 
-    builder.body(result)
+    builder.body(result).expect("Failed to build response")
 }

@@ -3,17 +3,20 @@ use saturn_backend::shortcuts::get_emulated_shortcuts;
 use saturn_backend::shortcuts::{MenuOptions, MenuOptionsData};
 use std::str::FromStr;
 #[cfg(target_os = "macos")]
-use tauri::AboutMetadata;
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, WindowMenuEvent, Wry};
+use tauri::menu::AboutMetadata;
+use tauri::{
+    menu::{Menu, MenuBuilder, MenuEvent, MenuItem, MenuItemBuilder, SubmenuBuilder},
+    AppHandle, Emitter, Wry,
+};
 
-fn make_item(option: MenuOptions) -> CustomMenuItem {
-    let item = CustomMenuItem::new(option.to_string(), option.label());
+fn make_item(app: &AppHandle, option: MenuOptions) -> tauri::Result<MenuItem<Wry>> {
+    let mut item = MenuItemBuilder::with_id(option.to_string(), option.label());
 
     if let Some(accelerator) = option.accelerator() {
-        item.accelerator(accelerator.combo())
-    } else {
-        item
+        item = item.accelerator(accelerator.combo())
     }
+
+    item.build(app)
 }
 
 pub fn get_platform_emulated_shortcuts() -> Vec<MenuOptionsData> {
@@ -29,93 +32,93 @@ pub fn platform_shortcuts() -> Vec<MenuOptionsData> {
     get_platform_emulated_shortcuts()
 }
 
-pub fn create_menu() -> Menu {
-    let mut menu = Menu::new();
+pub fn create_menu(app: &AppHandle) -> tauri::Result<Menu<Wry>> {
+    let mut menu = MenuBuilder::new(app);
 
     #[cfg(target_os = "macos")]
     {
         let meta = AboutMetadata::default();
 
-        menu = menu.add_submenu(Submenu::new(
-            "Saturn",
-            Menu::new()
-                .add_native_item(MenuItem::About("Saturn".into(), meta))
-                .add_item(make_item(MenuOptions::ToggleSettings))
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Hide)
-                .add_native_item(MenuItem::HideOthers)
-                .add_native_item(MenuItem::ShowAll)
-                .add_native_item(MenuItem::Separator)
-                .add_native_item(MenuItem::Quit),
-        ));
+        menu = menu.item(
+            &SubmenuBuilder::new(app, "Saturn")
+                .about(Some(meta))
+                .item(&make_item(app, MenuOptions::ToggleSettings)?)
+                .separator()
+                .hide()
+                .hide_others()
+                .show_all()
+                .separator()
+                .quit()
+                .build()?,
+        );
     }
 
-    menu = menu.add_submenu(Submenu::new(
-        "File",
-        Menu::new()
-            .add_item(make_item(MenuOptions::NewTab))
-            .add_item(make_item(MenuOptions::OpenFile))
-            .add_item(make_item(MenuOptions::CloseTab))
-            .add_native_item(MenuItem::Separator)
-            .add_item(make_item(MenuOptions::Save))
-            .add_item(make_item(MenuOptions::SaveAs))
-            .add_native_item(MenuItem::Separator)
-            .add_item(make_item(MenuOptions::Assemble))
-            .add_item(make_item(MenuOptions::Disassemble))
-            .add_item(make_item(MenuOptions::Export))
-            .add_item(make_item(MenuOptions::ExportHex)),
-    ));
+    menu = menu.item(
+        &SubmenuBuilder::new(app, "File")
+            .item(&make_item(app, MenuOptions::NewTab)?)
+            .item(&make_item(app, MenuOptions::OpenFile)?)
+            .item(&make_item(app, MenuOptions::CloseTab)?)
+            .separator()
+            .item(&make_item(app, MenuOptions::Save)?)
+            .item(&make_item(app, MenuOptions::SaveAs)?)
+            .separator()
+            .item(&make_item(app, MenuOptions::Assemble)?)
+            .item(&make_item(app, MenuOptions::Disassemble)?)
+            .item(&make_item(app, MenuOptions::Export)?)
+            .item(&make_item(app, MenuOptions::ExportHex)?)
+            .build()?,
+    );
 
     // windows unsupported for some of these, hopefully this wont cause a crash
-    menu = menu.add_submenu(Submenu::new(
-        "Edit",
-        Menu::new()
-            .add_native_item(MenuItem::Cut)
-            .add_native_item(MenuItem::Copy)
-            .add_native_item(MenuItem::Paste)
-            .add_native_item(MenuItem::Separator)
-            .add_native_item(MenuItem::Undo)
-            .add_native_item(MenuItem::Redo)
-            .add_native_item(MenuItem::Separator)
-            .add_item(make_item(MenuOptions::Find))
-            .add_native_item(MenuItem::SelectAll),
-    ));
+    menu = menu.item(
+        &SubmenuBuilder::new(app, "Edit")
+            .cut()
+            .copy()
+            .paste()
+            .separator()
+            .undo()
+            .redo()
+            .separator()
+            .item(&make_item(app, MenuOptions::Find)?)
+            .select_all()
+            .build()?,
+    );
 
-    menu = menu.add_submenu(Submenu::new(
-        "Build",
-        Menu::new()
-            .add_item(make_item(MenuOptions::Build))
-            .add_item(make_item(MenuOptions::Run))
-            .add_native_item(MenuItem::Separator)
-            .add_item(make_item(MenuOptions::Step))
-            .add_item(make_item(MenuOptions::Pause))
-            .add_item(make_item(MenuOptions::Stop)),
-    ));
+    menu = menu.item(
+        &SubmenuBuilder::new(app, "Build")
+            .item(&make_item(app, MenuOptions::Build)?)
+            .item(&make_item(app, MenuOptions::Run)?)
+            .separator()
+            .item(&make_item(app, MenuOptions::Step)?)
+            .item(&make_item(app, MenuOptions::Pause)?)
+            .item(&make_item(app, MenuOptions::Stop)?)
+            .build()?,
+    );
 
-    menu = menu.add_submenu(Submenu::new(
-        "Window",
-        Menu::new()
-            .add_native_item(MenuItem::Minimize)
-            .add_item(make_item(MenuOptions::ToggleConsole)),
-    ));
+    menu = menu.item(
+        &SubmenuBuilder::new(app, "Window")
+            .minimize()
+            .item(&make_item(app, MenuOptions::ToggleConsole)?)
+            .build()?,
+    );
 
-    menu
+    menu.build()
 }
 
-pub fn handle_event(event: WindowMenuEvent<Wry>) {
+pub fn handle_event(window: &AppHandle<Wry>, event: MenuEvent) {
     let catch_emit = |result: tauri::Result<()>| {
         if result.is_err() {
             eprintln!(
                 "Failed to emit event from {} menu option",
-                event.menu_item_id()
+                event.id.as_ref()
             );
         }
     };
 
-    let emit_normal = |name: &str| catch_emit(event.window().emit(name, ()));
+    let emit_normal = |name: &str| catch_emit(window.emit(name, ()));
 
-    let Ok(item) = MenuOptions::from_str(event.menu_item_id()) else {
-        return eprintln!("Unknown menu ID: {}", event.menu_item_id());
+    let Ok(item) = MenuOptions::from_str(event.id.as_ref()) else {
+        return eprintln!("Unknown menu ID: {}", event.id.as_ref());
     };
 
     emit_normal(&item.to_string())

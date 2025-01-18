@@ -5,7 +5,7 @@ import { MidiNote, playNote } from '../utils/midi'
 import { ConsoleType, pushConsole } from './console-data'
 
 function createBackend(): MipsBackend {
-  if (window.__TAURI__) {
+  if (window.__TAURI_INTERNALS__) {
     return new TauriBackend()
   } else {
     return new WasmBackend()
