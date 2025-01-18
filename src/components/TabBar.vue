@@ -10,6 +10,28 @@
     <div
       class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none"
     >
+      <DropdownMenuRoot v-if="shouldShowMenu">
+        <DropdownMenuTrigger>
+          <button
+            class="w-10 h-10 dark:hover:bg-slate-800 hover:bg-slate-300 dark:text-slate-300 text-slate-800 shrink-0 flex items-center justify-center font-black"
+          >
+            <Bars3Icon class="w-4 h-4" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuPortal>
+          <DropdownMenuContent>
+            <DropdownMenuItem @click="showSettings = true">
+              <DropdownMenuLabel>Settings</DropdownMenuLabel>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem @click="showExportRegionsDialog = true">
+              <DropdownMenuLabel>Export</DropdownMenuLabel>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
+
       <div class="flex flex-grow overflow-x-auto no-scrollbar items-start">
         <Tab
           v-for="tab in tabsState.tabs"
@@ -42,7 +64,15 @@
 
 <script setup lang="ts">
 import Tab from './Tab.vue'
-import { PlusIcon } from '@heroicons/vue/24/solid'
+import { PlusIcon, Bars3Icon } from '@heroicons/vue/24/solid'
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from 'reka-ui'
 
 import {
   closeTab,
@@ -58,6 +88,8 @@ import SaveModal from './SaveModal.vue'
 import { nextTick, onMounted, onUnmounted, reactive, StyleValue } from 'vue'
 import SettingsModal from './SettingsModal.vue'
 import ExportOverlay from './ExportModal.vue'
+
+const shouldShowMenu = !window.__TAURI__
 
 const state = reactive({
   dragging: false,
