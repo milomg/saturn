@@ -51,6 +51,7 @@ fn is_debug() -> bool {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_dialog::init())
         .manage(Mutex::new(None) as DebuggerBody)
         .manage(Arc::new(Mutex::new(FlushDisplayState::default())) as FlushDisplayBody)
         .manage(Mutex::new(MidiProviderContainer::None))
