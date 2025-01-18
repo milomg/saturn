@@ -76,11 +76,8 @@ function createState(editor: Tabs, uuid: string, doc: string) {
   return EditorState.create({
     doc,
     extensions: [
-      Mips(),
-      breakpointGutter,
-      basicSetup,
-      minimapCompartment.of(minimap),
       vimCompartment.of([]),
+      minimapCompartment.of(minimap),
       EditorView.updateListener.of((update) => {
         const tab = editor.tabs.find((tab) => tab.uuid === uuid)!
         syncing = true
@@ -91,9 +88,9 @@ function createState(editor: Tabs, uuid: string, doc: string) {
         tab.state = markRaw(update.state)
         syncing = false
       }),
-      EditorView.theme({
-        '&.cm-editor': { height: '100%', width: '100%' },
-      }),
+      Mips(),
+      breakpointGutter,
+      basicSetup,
     ],
   })
 }

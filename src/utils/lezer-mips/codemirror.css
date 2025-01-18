@@ -1,4 +1,6 @@
 .cm-editor {
+  @apply w-full;
+
   .cm-content {
     @apply caret-orange-400;
   }
