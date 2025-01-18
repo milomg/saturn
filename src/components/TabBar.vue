@@ -20,7 +20,7 @@
         </DropdownMenuTrigger>
 
         <DropdownMenuPortal>
-          <DropdownMenuContent>
+          <DropdownMenuContent class="bg-white dark:bg-neutral-800 p-4 gap-2">
             <DropdownMenuItem @click="showSettings = true">
               <DropdownMenuLabel>Settings</DropdownMenuLabel>
             </DropdownMenuItem>
