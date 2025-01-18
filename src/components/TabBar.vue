@@ -20,7 +20,9 @@
         </DropdownMenuTrigger>
 
         <DropdownMenuPortal>
-          <DropdownMenuContent class="bg-neutral-200 dark:bg-neutral-800 gap-2 shadow-md ml-2">
+          <DropdownMenuContent
+            class="bg-neutral-200 dark:bg-neutral-800 gap-2 shadow-md ml-2"
+          >
             <DropdownMenuItem
               @click="showSettings = true"
               class="dark:hover:bg-neutral-700 hover:bg-neutral-300 py-2 px-3"
@@ -95,7 +97,7 @@ import { nextTick, onMounted, onUnmounted, reactive, StyleValue } from 'vue'
 import SettingsModal from './SettingsModal.vue'
 import ExportOverlay from './ExportModal.vue'
 
-const shouldShowMenu = !window.__TAURI__
+const shouldShowMenu = !window.__TAURI_INTERNALS__
 
 const state = reactive({
   dragging: false,

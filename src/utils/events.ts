@@ -25,7 +25,7 @@ import {
   tab,
   tabsState,
 } from '../state/state'
-import { appWindow } from '@tauri-apps/api/window'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { watch } from 'vue'
 import { MidiNote, playNote } from './midi'
 import { exportBinaryContents } from './query/serialize-files'
@@ -308,7 +308,9 @@ export async function setupEvents() {
     }
   })
 
-  await appWindow.onFileDropEvent(async (event) => {
+  const appWindow = getCurrentWebviewWindow()
+
+  await appWindow.onDragDropEvent(async (event) => {
     if (event.payload.type === 'drop') {
       for (const item of event.payload.paths) {
         const file = await accessReadFile(item)

@@ -6,7 +6,7 @@ use std::collections::HashSet;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use tauri::api::path::app_local_data_dir;
+use tauri::Emitter;
 use tauri::{AppHandle, Manager, Wry};
 
 #[derive(Clone)]
@@ -48,7 +48,7 @@ impl MidiHandler for ForwardMidi {
         };
 
         self.app
-            .emit_all(
+            .emit(
                 "play-midi",
                 MidiNote {
                     sync,
@@ -81,7 +81,7 @@ impl MidiHandler for ForwardMidi {
             return false;
         };
 
-        let Some(mut directory) = app_local_data_dir(&self.app.config()) else {
+        let Ok(mut directory) = self.app.path().app_local_data_dir() else {
             return false;
         };
 

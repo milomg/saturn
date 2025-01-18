@@ -19,8 +19,7 @@ import {
 } from './mips'
 import { ExportRegionsOptions } from '../settings'
 
-import { tauri } from '@tauri-apps/api'
-import { convertFileSrc } from '@tauri-apps/api/tauri'
+import { convertFileSrc, invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { MidiNote } from '../midi'
 
@@ -46,7 +45,7 @@ export class TauriExecution implements MipsExecution {
           bytes[i] = text.charCodeAt(i)
         }
 
-        const result = await tauri.invoke('configure_elf', {
+        const result = await invoke('configure_elf', {
           bytes,
           path: this.path,
           timeTravel: this.timeTravel,
@@ -63,7 +62,7 @@ export class TauriExecution implements MipsExecution {
       }
 
       case 'asm': {
-        const result = (await tauri.invoke('configure_asm', {
+        const result = (await invoke('configure_asm', {
           text: this.text,
           path: this.path,
           timeTravel: this.timeTravel,
@@ -85,11 +84,11 @@ export class TauriExecution implements MipsExecution {
 
   // Requires Time Travel
   public async lastPc(): Promise<number | null> {
-    return await tauri.invoke('last_pc')
+    return await invoke('last_pc')
   }
 
   public async rewind(count: number): Promise<ExecutionResult | null> {
-    return await tauri.invoke('rewind', { count })
+    return await invoke('rewind', { count })
   }
 
   public async resume(
@@ -106,7 +105,7 @@ export class TauriExecution implements MipsExecution {
       ? (this.breakpoints?.mapLines(breakpoints) ?? [])
       : []
 
-    const result = await tauri.invoke('resume', {
+    const result = await invoke('resume', {
       breakpoints: mappedBreakpoints,
       count,
     })
@@ -122,17 +121,17 @@ export class TauriExecution implements MipsExecution {
       return
     }
 
-    await tauri.invoke('swap_breakpoints', {
+    await invoke('swap_breakpoints', {
       breakpoints: this.breakpoints?.mapLines(breakpoints) ?? [],
     })
   }
 
   public async pause() {
-    await tauri.invoke('pause')
+    await invoke('pause')
   }
 
   public async stop() {
-    await tauri.invoke('stop')
+    await invoke('stop')
   }
 
   public async postKey(key: string, up: boolean) {
@@ -140,7 +139,7 @@ export class TauriExecution implements MipsExecution {
       return
     }
 
-    await tauri.invoke('post_key', { key, up })
+    await invoke('post_key', { key, up })
   }
 
   public async postInput(text: string) {
@@ -148,25 +147,25 @@ export class TauriExecution implements MipsExecution {
       return
     }
 
-    await tauri.invoke('post_input', { text })
+    await invoke('post_input', { text })
   }
 
   public async memoryAt(
     address: number,
     count: number,
   ): Promise<(number | null)[] | null> {
-    const result = await tauri.invoke('read_bytes', { address, count })
+    const result = await invoke('read_bytes', { address, count })
 
     return result as (number | null)[] | null
   }
 
   // register: 32 -> hi, 33 -> lo, 34 -> pc
   public async setRegister(register: number, value: number) {
-    await tauri.invoke('set_register', { register, value })
+    await invoke('set_register', { register, value })
   }
 
   public async setMemory(address: number, bytes: number[]) {
-    await tauri.invoke('write_bytes', { address, bytes })
+    await invoke('write_bytes', { address, bytes })
   }
 
   async readDisplay(
@@ -248,7 +247,7 @@ export class TauriBackend implements MipsBackend {
   }
 
   async shortcuts(): Promise<Shortcut[]> {
-    return (await tauri.invoke('platform_shortcuts')) as Shortcut[]
+    return (await invoke('platform_shortcuts')) as Shortcut[]
   }
 
   waitReady(): Promise<void> {
@@ -260,7 +259,7 @@ export class TauriBackend implements MipsBackend {
     path: string | null,
     options: ExportRegionsOptions,
   ): Promise<HexBinaryResult> {
-    const value = (await tauri.invoke('assemble_regions', {
+    const value = (await invoke('assemble_regions', {
       text,
       path,
       options,
@@ -278,7 +277,7 @@ export class TauriBackend implements MipsBackend {
     text: string,
     path: string | null,
   ): Promise<AssemblerResult> {
-    const result = await tauri.invoke('assemble', { text, path })
+    const result = await invoke('assemble', { text, path })
 
     return result as AssemblerResult
   }
@@ -287,7 +286,7 @@ export class TauriBackend implements MipsBackend {
     text: string,
     path: string | null,
   ): Promise<BinaryResult> {
-    const result = (await tauri.invoke('assemble_binary', { text, path })) as [
+    const result = (await invoke('assemble_binary', { text, path })) as [
       number[] | null,
       AssemblerResult,
     ]
@@ -301,7 +300,7 @@ export class TauriBackend implements MipsBackend {
   }
 
   async configureDisplay(config: BitmapConfig): Promise<void> {
-    await tauri.invoke('configure_display', {
+    await invoke('configure_display', {
       width: config.width,
       height: config.height,
       address: config.address,
@@ -313,9 +312,7 @@ export class TauriBackend implements MipsBackend {
     pc: number,
     instruction: number,
   ): Promise<InstructionDetails | null> {
-    return (
-      (await tauri.invoke('decode_instruction', { pc, instruction })) ?? null
-    )
+    return (await invoke('decode_instruction', { pc, instruction })) ?? null
   }
 
   async disassembleElf(
@@ -324,25 +321,25 @@ export class TauriBackend implements MipsBackend {
   ): Promise<DisassembleResult> {
     const bytes = Array.from(new Uint8Array(elf))
 
-    const value = await tauri.invoke('disassemble', { named, bytes })
+    const value = await invoke('disassemble', { named, bytes })
 
     return value as DisassembleResult
   }
 
   async disassemblyDetails(bytes: ArrayBuffer): Promise<InstructionLine[]> {
-    return await tauri.invoke('detailed_disassemble', {
+    return await invoke('detailed_disassemble', {
       bytes: Array.from(new Uint8Array(bytes)),
     })
   }
 
   async lastDisplay(): Promise<LastDisplay> {
-    const result = await tauri.invoke('last_display')
+    const result = await invoke('last_display')
 
     return result as LastDisplay
   }
 
   async wakeSync(): Promise<void> {
-    await tauri.invoke('wake_sync')
+    await invoke('wake_sync')
   }
 
   createExecution(

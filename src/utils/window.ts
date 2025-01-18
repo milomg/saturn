@@ -1,9 +1,9 @@
-import { appWindow } from '@tauri-apps/api/window'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { hasActionKey } from './query/shortcut-key'
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api/core'
 
 export function setupWindow() {
-  if (window.__TAURI__) {
+  if (window.__TAURI_INTERNALS__) {
     window.addEventListener('keydown', (event) => {
       // Prevent the Ctrl + R refresh.
       if (hasActionKey(event) && event.key === 'r') {
@@ -26,5 +26,6 @@ export function setupWindow() {
 
 // Restricting tauri calls to certain files.
 export async function closeWindow() {
+  const appWindow = getCurrentWebviewWindow()
   await appWindow.close()
 }

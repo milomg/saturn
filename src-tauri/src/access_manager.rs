@@ -11,8 +11,9 @@ use std::fs;
 use std::future::Future;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
-use tauri::api::dialog::FileDialogBuilder;
-use tauri::{AppHandle, Config, Manager};
+use tauri::Emitter;
+use tauri::{AppHandle, Manager, Wry};
+use tauri_plugin_dialog::{DialogExt, FileDialogBuilder};
 use tokio::sync::oneshot;
 use tokio::sync::oneshot::Sender;
 
@@ -60,6 +61,7 @@ struct AccessManagerState {
 }
 
 pub struct AccessManager {
+    app: AppHandle,
     watcher: Option<Arc<Mutex<RecommendedWatcher>>>,
     state: Arc<Watch<AccessManagerState>>,
 }
@@ -131,16 +133,16 @@ impl AccessManager {
 
             match event.kind {
                 notify::EventKind::Create(_) => {
-                    app.emit_all("save:create", path).ok();
+                    app.emit("save:create", path).ok();
                 }
                 notify::EventKind::Remove(_) => {
-                    app.emit_all("save:remove", path).ok();
+                    app.emit("save:remove", path).ok();
                 }
                 notify::EventKind::Modify(ModifyKind::Name(_)) => {
                     if path.exists() {
-                        app.emit_all("save:create", path).ok();
+                        app.emit("save:create", path).ok();
                     } else {
-                        app.emit_all("save:remove", path).ok();
+                        app.emit("save:remove", path).ok();
                     }
                 }
                 notify::EventKind::Modify(ModifyKind::Data(_) | ModifyKind::Any) => {
@@ -150,7 +152,7 @@ impl AccessManager {
                     }
 
                     if let Ok(data) = fs::read_to_string(path) {
-                        app.emit_all(
+                        app.emit(
                             "save:modify",
                             AccessModify {
                                 path: path.to_string_lossy().to_string(),
@@ -166,9 +168,7 @@ impl AccessManager {
         .ok()
     }
 
-    fn create_config_path(config: &Config) -> Option<PathBuf> {
-        let mut path = tauri::api::path::app_data_dir(config)?;
-
+    fn create_config_path(mut path: PathBuf) -> Option<PathBuf> {
         fs::create_dir_all(&path).ok()?;
 
         path.push(ACCESS_CONFIG_FILENAME);
@@ -191,7 +191,7 @@ impl AccessManager {
     }
 
     fn new(app: AppHandle, state: AccessManagerState) -> Self {
-        let config_path = Self::create_config_path(&app.config());
+        let config_path = Self::create_config_path(app.path().app_data_dir().expect("No App Data"));
         let watch = Watch::new(state);
 
         let config_path_clone = config_path.clone();
@@ -204,7 +204,7 @@ impl AccessManager {
 
         let state = Arc::new(watch);
         let watcher =
-            Self::watcher(app, state.clone()).map(|watcher| Arc::new(Mutex::new(watcher)));
+            Self::watcher(app.clone(), state.clone()).map(|watcher| Arc::new(Mutex::new(watcher)));
 
         if let Some(watcher) = &watcher {
             let watcher = watcher.clone();
@@ -225,12 +225,16 @@ impl AccessManager {
             });
         }
 
-        AccessManager { state, watcher }
+        AccessManager {
+            app,
+            state,
+            watcher,
+        }
     }
 
     pub fn load(app: AppHandle) -> Self {
         // Create Config Path is also called in new()
-        let config_path = Self::create_config_path(&app.config());
+        let config_path = Self::create_config_path(app.path().app_data_dir().expect("No App Data"));
 
         let config = config_path
             .and_then(|path| Self::read_config(&path))
@@ -268,8 +272,8 @@ impl AccessManager {
         }
     }
 
-    fn builder(title: &str, filters: &[AccessFilter]) -> FileDialogBuilder {
-        let mut builder = FileDialogBuilder::new().set_title(title);
+    fn builder(app: &AppHandle, title: &str, filters: &[AccessFilter]) -> FileDialogBuilder<Wry> {
+        let mut builder = FileDialogBuilder::new(app.dialog().clone()).set_title(title);
 
         for filter in filters {
             let extensions: Vec<&str> = filter.extensions.iter().map(|x| x.as_str()).collect();
@@ -340,8 +344,13 @@ impl AccessManager {
     ) -> Option<PathBuf> {
         self.dispatch_select(
             |sender| {
-                Self::builder(title, filters).save_file(|file| {
-                    sender.send(file).ok();
+                Self::builder(&self.app, title, filters).save_file(|file| {
+                    sender
+                        .send(
+                            file.and_then(|f| f.into_path().ok())
+                                .map(|f| f.to_path_buf()),
+                        )
+                        .ok();
                 });
             },
             permit,
@@ -357,8 +366,13 @@ impl AccessManager {
     ) -> Option<PathBuf> {
         self.dispatch_select(
             |sender| {
-                Self::builder(title, filters).pick_file(|file| {
-                    sender.send(file).ok();
+                Self::builder(&self.app, title, filters).pick_file(|file| {
+                    sender
+                        .send(
+                            file.and_then(|f| f.into_path().ok())
+                                .map(|f| f.to_path_buf()),
+                        )
+                        .ok();
                 });
             },
             permit,
