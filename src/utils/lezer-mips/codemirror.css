@@ -8,7 +8,7 @@
     border-left-width: 2px;
   }
   .cm-gutters {
-    @apply bg-neutral-900;
+    @apply dark:bg-neutral-900 bg-neutral-200;
   }
   .cm-completionDetail {
     margin-left: auto;
@@ -20,7 +20,7 @@
   .cm-tooltip-autocomplete {
     border-radius: 0.5rem;
     border: 1px solid #333;
-    @apply bg-neutral-900;
+    @apply dark:bg-neutral-900;
   }
   .cm-tooltip.cm-tooltip-autocomplete > ul {
     padding: 0.5rem;

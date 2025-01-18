@@ -20,17 +20,17 @@
         </DropdownMenuTrigger>
 
         <DropdownMenuPortal>
-          <DropdownMenuContent class="bg-white dark:bg-neutral-800 gap-2">
+          <DropdownMenuContent class="bg-neutral-200 dark:bg-neutral-800 gap-2 shadow-md ml-2">
             <DropdownMenuItem
               @click="showSettings = true"
-              class="dark:hover:bg-neutral-700 hover:bg-neutral-200 py-2 px-3"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 py-2 px-3"
             >
               <DropdownMenuLabel>Settings</DropdownMenuLabel>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               @click="showExportRegionsDialog = true"
-              class="dark:hover:bg-neutral-700 hover:bg-neutral-200 py-2 px-3"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 py-2 px-3"
             >
               <DropdownMenuLabel>Export</DropdownMenuLabel>
             </DropdownMenuItem>
