@@ -17,7 +17,7 @@ interface GotoDestination {
   destLine: number
   destPos: number
   srcPos: number
-  name?: string
+  name: string
   type?: SuggestionType
 }
 
