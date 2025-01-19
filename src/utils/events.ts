@@ -174,7 +174,7 @@ export async function setupEvents() {
       const name = tab()?.title
       const extended = name ? `${name}.elf` : 'Untitled Elf'
 
-      await loadElf(extended, result.binary)
+      await loadElf(extended, result.binary.buffer)
     }
 
     consoleData.showConsole = true

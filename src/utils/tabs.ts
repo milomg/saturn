@@ -79,7 +79,7 @@ export interface TabsInterface {
     path?: string,
     profile?: ExecutionProfile,
   ): void
-  loadElf(named: string, elf: ArrayBuffer): Promise<void>
+  loadElf(named: string, elf: ArrayBufferLike): Promise<void>
 }
 
 export type TabsResult = TabsInterface & {
