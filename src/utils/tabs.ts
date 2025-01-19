@@ -77,12 +77,9 @@ function createState(editor: Tabs, uuid: string, doc: string) {
   return EditorState.create({
     doc,
     extensions: [
-      Mips(),
-      breakpointGutter,
-      basicSetup,
       suggestionsContext,
-      minimapCompartment.of(minimap),
       vimCompartment.of([]),
+      minimapCompartment.of(minimap),
       EditorView.updateListener.of((update) => {
         const tab = editor.tabs.find((tab) => tab.uuid === uuid)!
         syncing = true
@@ -93,9 +90,9 @@ function createState(editor: Tabs, uuid: string, doc: string) {
         tab.state = markRaw(update.state)
         syncing = false
       }),
-      EditorView.theme({
-        '&.cm-editor': { height: '100%', width: '100%' },
-      }),
+      Mips(),
+      breakpointGutter,
+      basicSetup,
     ],
   })
 }
@@ -114,7 +111,7 @@ export interface TabsInterface {
     path?: string,
     profile?: ExecutionProfile,
   ): void
-  loadElf(named: string, elf: ArrayBuffer): Promise<void>
+  loadElf(named: string, elf: ArrayBufferLike): Promise<void>
 }
 
 export type TabsResult = TabsInterface & {
@@ -378,7 +375,7 @@ export function useTabs(): TabsResult {
     editor.selected = id
   }
 
-  async function loadElf(named: string, elf: ArrayBuffer) {
+  async function loadElf(named: string, elf: ArrayBufferLike) {
     const value = await backend.disassembleElf(named, elf)
 
     const bytes = new Uint8Array(elf)

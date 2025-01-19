@@ -1,6 +1,6 @@
 import { Compartment } from '@codemirror/state'
 import { showMinimap } from '@replit/codemirror-minimap'
-import { vim as vimSetup, Vim } from '@replit/codemirror-vim'
+import { vim as vimSetup } from '@replit/codemirror-vim'
 import { EditorView } from 'codemirror'
 
 export const vimCompartment = new Compartment()
@@ -17,6 +17,8 @@ export const minimap = showMinimap.compute(['doc'], (state) => {
       const dom = document.createElement('div')
       return { dom }
     },
+    displayText: 'blocks',
+    showOverlay: 'always',
   }
 })
 

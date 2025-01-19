@@ -1,26 +1,26 @@
 @top Mips {
-  Instr*
   expression*
 }
 
 @skip { space | LineComment | "," }
 
 expression {
-  Macro |
-  LabelGroup { Label Instr* }
-}
-
-Instr {
-  Op args+
+  MacroGroup { Macro macroargs* } |
+  Label |
+  Instr { Op args* }
 }
 
 args {
   Register |
-  Identifier { identifier } |
+  Ident { identifier } |
   String |
   Number
 }
 
+macroargs {
+  Ident {identifier} | String | Number |
+  Array {Number ":" Number}
+}
 
 @external specialize {identifier} specializeIdent from "./tokenizer" {
   Label,
@@ -32,7 +32,7 @@ args {
 
   String { ('"' (!["\\] | "\\" _)* '"') | ("'" (!['\\] | '\\' _)* "'") }
 
-  Register { "$" ( $[a-z0-9]+ ) }
+  Register { $[$%] $[a-z0-9]+ }
 
   Number { ("0x" $[0-9a-fA-F]+) | "-"? $[0-9]+ | ("0b" $[01]+)}
 

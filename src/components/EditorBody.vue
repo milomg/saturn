@@ -25,7 +25,7 @@ import { isSyncing } from '../utils/tabs'
 import GotoOverlay from './GotoOverlay.vue'
 
 import { EditorView } from 'codemirror'
-import { setTheme } from '../utils/lezer-mips'
+import { clearHighlightedLine, setTheme } from '../utils/lezer-mips'
 import { consoleData } from '../state/console-data'
 import { setHighlightedLine } from '../utils/lezer-mips'
 import { setMinimap, setVim } from '../utils/lezer-mips/modes'
@@ -147,6 +147,8 @@ onMounted(() => {
       view.dispatch({
         effects: [setHighlightedLine.of(pos), EditorView.scrollIntoView(pos)],
       })
+    } else {
+      view.dispatch({ effects: [clearHighlightedLine.of(null)] })
     }
   })
 })
