@@ -16,7 +16,7 @@ interface GotoState {
 interface GotoDestination {
   destLine: number
   destPos: number
-  srcPos: number,
+  srcPos: number
   name?: string
   type?: SuggestionType
 }
@@ -38,7 +38,8 @@ class GotoWidgetType extends WidgetType {
 
     const inner = document.createElement('div')
 
-    inner.className = 'absolute pointer-events-none left-0 py-2 px-4 w-auto dark:bg-neutral-700 bg-neutral-300 rounded shadow-xl z-30 dark:text-gray-300 text-gray-800 font-medium font-sans flex items-center'
+    inner.className =
+      'absolute pointer-events-none left-0 py-2 px-4 w-auto dark:bg-neutral-700 bg-neutral-300 rounded shadow-xl z-30 dark:text-gray-300 text-gray-800 font-medium font-sans flex items-center'
 
     const label = document.createElement('span')
     label.className = 'dark:text-gray-200 text-gray-800 font-bold font-mono'
@@ -53,7 +54,9 @@ class GotoWidgetType extends WidgetType {
 
     inner.appendChild(document.createTextNode('Jump to '))
     inner.appendChild(label)
-    inner.appendChild(document.createTextNode(` (line ${this.destination.destLine})`))
+    inner.appendChild(
+      document.createTextNode(` (line ${this.destination.destLine})`),
+    )
     inner.appendChild(marker)
 
     result.appendChild(inner)
@@ -65,12 +68,12 @@ class GotoWidgetType extends WidgetType {
 function gotoWidget(destination: GotoDestination) {
   return Decoration.widget({
     widget: new GotoWidgetType(destination),
-    side: 1
+    side: 1,
   })
 }
 
 const marker = Decoration.mark({
-  class: 'underline decoration-dotted'
+  class: 'underline decoration-dotted',
 })
 
 const gotoEffect = StateEffect.define<GotoDestination | null>()
@@ -83,7 +86,10 @@ const gotoDecoration = StateField.define<DecorationSet>({
         if (effect.value) {
           value = RangeSet.of([
             gotoWidget(effect.value).range(effect.value.srcPos),
-            marker.range(effect.value.srcPos, effect.value.srcPos + effect.value.name.length)
+            marker.range(
+              effect.value.srcPos,
+              effect.value.srcPos + effect.value.name.length,
+            ),
           ])
         } else {
           value = Decoration.none
@@ -93,7 +99,7 @@ const gotoDecoration = StateField.define<DecorationSet>({
 
     return value
   },
-  provide: f => EditorView.decorations.from(f)
+  provide: (f) => EditorView.decorations.from(f),
 })
 
 // Horrible way of approaching this.
@@ -104,7 +110,10 @@ const gotoDecoration = StateField.define<DecorationSet>({
 // This should be replaced in the future with something more isolated/better.
 const highlighter = new MipsHighlighter()
 
-function checkForGotoDestination(pos: number, view: EditorView): GotoDestination | null {
+function checkForGotoDestination(
+  pos: number,
+  view: EditorView,
+): GotoDestination | null {
   const insights = view.state.field(suggestions)
 
   if (!insights) {
@@ -112,10 +121,13 @@ function checkForGotoDestination(pos: number, view: EditorView): GotoDestination
   }
 
   const line = view.state.doc.lineAt(pos)
-  const linePos = (pos - line.from)
+  const linePos = pos - line.from
   const { tokens } = highlighter.highlight(line.text)
 
-  const token = tokens.find(token => linePos >= token.start && linePos < token.start + token.text.length)
+  const token = tokens.find(
+    (token) =>
+      linePos >= token.start && linePos < token.start + token.text.length,
+  )
 
   if (!token) {
     return null
@@ -157,7 +169,7 @@ export const goto = [
         this.inspecting = true
 
         view.dispatch({
-          effects: gotoEffect.of(checkForGotoDestination(this.pos, view))
+          effects: gotoEffect.of(checkForGotoDestination(this.pos, view)),
         })
       }
     },
@@ -167,7 +179,7 @@ export const goto = [
         this.inspecting = false
 
         view.dispatch({
-          effects: gotoEffect.of(null)
+          effects: gotoEffect.of(null),
         })
       }
     },
@@ -179,9 +191,9 @@ export const goto = [
         if (result) {
           view.dispatch({
             selection: {
-              anchor: result.destPos
+              anchor: result.destPos,
             },
-            scrollIntoView: true
+            scrollIntoView: true,
           })
 
           return true
@@ -190,11 +202,12 @@ export const goto = [
     },
 
     mousemove(this: GotoState, event, view) {
-      this.pos = view.posAtCoords({ x: event.clientX, y: event.clientY }) ?? undefined
+      this.pos =
+        view.posAtCoords({ x: event.clientX, y: event.clientY }) ?? undefined
 
       if (this.pos !== undefined && (this.inspecting ?? false)) {
         view.dispatch({
-          effects: gotoEffect.of(checkForGotoDestination(this.pos, view))
+          effects: gotoEffect.of(checkForGotoDestination(this.pos, view)),
         })
       }
     },
@@ -204,5 +217,5 @@ export const goto = [
     },
 
     // Ignoring focusout events.
-  })
+  }),
 ]

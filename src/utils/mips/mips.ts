@@ -253,7 +253,10 @@ export interface MipsBackend {
   ): Promise<InstructionDetails | null>
   disassemblyDetails(bytes: ArrayBufferLike): Promise<InstructionLine[]>
 
-  disassembleElf(named: string, elf: ArrayBufferLike): Promise<DisassembleResult>
+  disassembleElf(
+    named: string,
+    elf: ArrayBufferLike,
+  ): Promise<DisassembleResult>
 
   assembleText(text: string, path: string | null): Promise<AssemblerResult>
   assembleWithBinary(text: string, path: string | null): Promise<BinaryResult>

@@ -1,19 +1,26 @@
-import { StateEffect, StateField, Text, Range, RangeValue, RangeSet } from '@codemirror/state'
+import {
+  StateEffect,
+  StateField,
+  Text,
+  Range,
+  RangeValue,
+  RangeSet,
+} from '@codemirror/state'
 import { EditorView } from 'codemirror'
 import { MipsHighlighter } from '../languages/mips/language'
 import { Suggestion } from '../languages/suggestions'
 
 class InsightValue extends RangeValue {
   eq(other: RangeValue): boolean {
-    return other instanceof InsightValue
-      && this.suggestion.replace === other.suggestion.replace
-      && this.suggestion.name === other.suggestion.name
-      && this.suggestion.type === other.suggestion.type
+    return (
+      other instanceof InsightValue &&
+      this.suggestion.replace === other.suggestion.replace &&
+      this.suggestion.name === other.suggestion.name &&
+      this.suggestion.type === other.suggestion.type
+    )
   }
 
-  constructor(
-    public suggestion: Suggestion,
-  ) {
+  constructor(public suggestion: Suggestion) {
     super()
 
     this.point = false
@@ -56,12 +63,13 @@ function inspect(
 
     const result = highlighter.highlight(details.text)
 
-    elements.push(...result.suggestions
-      .map(suggestion => ({
+    elements.push(
+      ...result.suggestions.map((suggestion) => ({
         index: suggestion.index + details.from,
         count: suggestion.replace.length,
-        value: new InsightValue(suggestion)
-      })))
+        value: new InsightValue(suggestion),
+      })),
+    )
   }
 
   return elements
@@ -73,13 +81,20 @@ export const suggestions = StateField.define<RangeSet<InsightValue> | null>({
     return null
   },
   update(value, tr) {
-    function elementToRange({ index, count, value }: InsightElement): Range<InsightValue> {
+    function elementToRange({
+      index,
+      count,
+      value,
+    }: InsightElement): Range<InsightValue> {
       return value.range(index, index + count)
     }
 
     if (value === null) {
-      const elements = inspect(1, tr.startState.doc.lines, tr.startState.doc)
-        .map(elementToRange)
+      const elements = inspect(
+        1,
+        tr.startState.doc.lines,
+        tr.startState.doc,
+      ).map(elementToRange)
 
       // Is the end position inclusive?
       value = RangeSet.of(elements, true)
@@ -97,7 +112,9 @@ export const suggestions = StateField.define<RangeSet<InsightValue> | null>({
           filter(from, to) {
             // console.log({ from, to, sli: insight.startLineIndex, eli: insight.endLineIndex, keep: !(from <= insight.endLineIndex && to >= insight.startLineIndex) })
             // If it intersects with this region in any way.
-            return !(from <= insight.endLineIndex && to >= insight.startLineIndex)
+            return !(
+              from <= insight.endLineIndex && to >= insight.startLineIndex
+            )
           },
           add: insight.elements.map(elementToRange),
           sort: true,
@@ -126,7 +143,11 @@ export const suggestionsContext = [
       // we can pass these details here to an LSP if needed, we probably just want to debounce the request
       // here we will deal with them synchronously
 
-      const elements = inspect(startLine.number, endLine.number, update.state.doc)
+      const elements = inspect(
+        startLine.number,
+        endLine.number,
+        update.state.doc,
+      )
 
       insights.push({
         startLineIndex: startLine.from,
@@ -137,7 +158,7 @@ export const suggestionsContext = [
 
     // Assumption here: Effects are delivered timely.
     update.view.dispatch({
-      effects: insights.map(insight => insightUpdateEffect.of(insight))
+      effects: insights.map((insight) => insightUpdateEffect.of(insight)),
     })
   }),
   suggestions,
