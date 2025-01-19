@@ -1,5 +1,5 @@
 import { CompletionContext } from '@codemirror/autocomplete'
-import { suggestions } from './context'
+import { suggestions } from './suggestions'
 import { SuggestionType } from '../languages/suggestions'
 
 export function myCompletions(context: CompletionContext) {
@@ -50,24 +50,30 @@ export function myCompletions(context: CompletionContext) {
   const suggestionsContext = context.view?.state.field(suggestions)
 
   if (suggestionsContext) {
-    const { all } = suggestionsContext
+    const iter = suggestionsContext.iter()
 
-    labels = all.map((suggestion) => ({
-      detail: suggestion.name ?? suggestion.replace,
-      label: suggestion.replace,
-      type: (() => {
-        switch (suggestion.type) {
-          case SuggestionType.Label:
-            return 'variable' // ?
-          case SuggestionType.Function:
-            return 'function'
-          case SuggestionType.Variable:
-            return 'constant'
-          default:
-            return undefined
-        }
-      })(),
-    }))
+    while (iter.value) {
+      const suggestion = iter.value.suggestion
+
+      labels.push({
+        detail: suggestion.name ?? suggestion.replace,
+        label: suggestion.replace,
+        type: (() => {
+          switch (suggestion.type) {
+            case SuggestionType.Label:
+              return 'variable' // ?
+            case SuggestionType.Function:
+              return 'function'
+            case SuggestionType.Variable:
+              return 'constant'
+            default:
+              return undefined
+          }
+        })(),
+      })
+
+      iter.next()
+    }
   }
 
   return {

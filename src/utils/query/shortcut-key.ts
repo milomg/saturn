@@ -23,6 +23,8 @@ interface AltMarkedEvent {
   ctrlKey: boolean
 }
 
+export const actionKey = isMetaKey ? 'Meta' : 'Control'
+
 export function hasActionKey(event: ActionMarkedEvent): boolean {
   return isMetaKey ? event.metaKey : event.ctrlKey
 }
