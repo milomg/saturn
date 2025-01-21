@@ -1,7 +1,7 @@
-import { tauri } from '@tauri-apps/api'
+import { core } from '@tauri-apps/api'
 
 import * as MIDI from 'midicube'
-import { convertFileSrc } from '@tauri-apps/api/tauri'
+import { convertFileSrc } from '@tauri-apps/api/core'
 import { backend } from '../state/backend'
 ;(window as any).MIDI = MIDI
 
@@ -17,7 +17,7 @@ export interface MidiNote {
 }
 
 function loadInstrument(instrument: string): void {
-  const soundfontUrl = window.__TAURI__
+  const soundfontUrl = window.__TAURI_INTERNALS__
     ? convertFileSrc('', 'midi')
     : 'https://gleitz.github.io/midi-js-soundfonts/FatBoy/'
 

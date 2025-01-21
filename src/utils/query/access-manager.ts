@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api/core'
 
 export interface AccessFile<T> {
   path: string
@@ -93,7 +93,7 @@ export async function accessReadFile(
 }
 
 export async function accessSync(paths: string[]) {
-  if (window.__TAURI__) {
+  if (window.__TAURI_INTERNALS__) {
     await invoke('access_sync', { paths })
   }
 }

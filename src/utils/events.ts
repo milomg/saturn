@@ -27,7 +27,7 @@ import {
   tab,
   tabsState,
 } from '../state/state'
-import { appWindow } from '@tauri-apps/api/window'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { watch } from 'vue'
 import { splitLines } from './split-lines'
 import { exportBinaryContents } from './query/serialize-files'
@@ -174,7 +174,7 @@ export async function setupEvents() {
       const name = tab()?.title
       const extended = name ? `${name}.elf` : 'Untitled Elf'
 
-      await loadElf(extended, result.binary)
+      await loadElf(extended, result.binary.buffer)
     }
 
     consoleData.showConsole = true
@@ -314,7 +314,9 @@ export async function setupEvents() {
     }
   })
 
-  await appWindow.onFileDropEvent(async (event) => {
+  const appWindow = getCurrentWebviewWindow()
+
+  await appWindow.onDragDropEvent(async (event) => {
     if (event.payload.type === 'drop') {
       for (const item of event.payload.paths) {
         const file = await accessReadFile(item)

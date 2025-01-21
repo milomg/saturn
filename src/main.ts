@@ -12,7 +12,7 @@ createApp(App).mount('#app')
 
 setupWindow()
 
-if (window.__TAURI__) {
+if (window.__TAURI_INTERNALS__) {
   // Needs backend tying.
   setupEvents().then(() => {})
 }

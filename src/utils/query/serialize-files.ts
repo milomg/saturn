@@ -1,10 +1,10 @@
 import { HexRegion } from '../mips/mips'
 
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api/core'
 import { AccessFilter } from './access-manager'
 
 export async function exportBinaryContents(
-  data: ArrayBuffer,
+  data: ArrayBufferLike,
   filters: AccessFilter[],
 ): Promise<string | null> {
   try {
