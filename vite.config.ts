@@ -8,7 +8,7 @@ import { lezer } from '@lezer/generator/rollup'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), lezer()],
+  plugins: [vue(), wasm(), topLevelAwait(), lezer()],
 
   worker: {
     plugins: () => [wasm(), topLevelAwait()],
