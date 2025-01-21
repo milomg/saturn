@@ -60,11 +60,4 @@ export default defineConfig({
       'top-level-await': true,
     },
   },
-
-  // for some reason esbuild is running in the worker before the top level await plugin... we ignore the warning that it generates
-  esbuild: {
-    supported: {
-      'top-level-await': true,
-    },
-  },
 })
