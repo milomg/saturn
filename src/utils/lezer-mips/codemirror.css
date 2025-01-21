@@ -20,9 +20,7 @@
     margin-right: 1.5rem;
   }
   .cm-tooltip-autocomplete {
-    border-radius: 0.5rem;
-    border: 1px solid #333;
-    @apply dark:bg-neutral-900;
+    @apply dark:bg-neutral-900 rounded-lg border border-neutral-700;
   }
   .cm-tooltip.cm-tooltip-autocomplete > ul {
     padding: 0.5rem;

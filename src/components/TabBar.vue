@@ -8,7 +8,7 @@
     />
 
     <div
-      class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none"
+      class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none text-xs"
     >
       <DropdownMenuRoot v-if="shouldShowMenu">
         <DropdownMenuTrigger>
@@ -21,20 +21,26 @@
 
         <DropdownMenuPortal>
           <DropdownMenuContent
-            class="bg-neutral-200 dark:bg-neutral-800 gap-2 shadow-md ml-2"
+            class="bg-neutral-200 dark:bg-neutral-900 dark:text-slate-300 text-slate-800 rounded-lg border dark:border-neutral-700 gap-2 shadow-md ml-2 p-2 text-sm w-60"
           >
             <DropdownMenuItem
               @click="showSettings = true"
-              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 py-2 px-3"
+              value="Settings"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
             >
-              <DropdownMenuLabel>Settings</DropdownMenuLabel>
+              <CogIcon class="w-4 h-4 m-2" />
+              Settings
+              <div class="ml-auto pl-[20px] font-mono">⌘+,</div>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               @click="showExportRegionsDialog = true"
-              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 py-2 px-3"
+              value="Export"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
             >
-              <DropdownMenuLabel>Export</DropdownMenuLabel>
+              <ArrowUpLeftIcon class="w-4 h-4 m-2" />
+              Export
+              <div class="ml-auto pl-[20px] font-mono">⌘+E</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenuPortal>
@@ -72,10 +78,16 @@
 
 <script setup lang="ts">
 import Tab from './Tab.vue'
-import { PlusIcon, Bars3Icon } from '@heroicons/vue/24/solid'
+import {
+  PlusIcon,
+  Bars3Icon,
+  CogIcon,
+  ArrowUpLeftIcon,
+} from '@heroicons/vue/24/solid'
 import {
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuItemIndicator,
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRoot,
