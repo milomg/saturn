@@ -30,7 +30,7 @@
             >
               <CogIcon class="w-4 h-4 m-2" />
               Settings
-              <div class="ml-auto pl-[20px] font-mono">⌘+,</div>
+              <div class="ml-auto mr-1 pl-[20px] font-mono">⌘+,</div>
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -40,7 +40,7 @@
             >
               <ArrowUpLeftIcon class="w-4 h-4 m-2" />
               Export
-              <div class="ml-auto pl-[20px] font-mono">⌘+E</div>
+              <div class="ml-auto mr-1 pl-[20px] font-mono">⌘+E</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenuPortal>
