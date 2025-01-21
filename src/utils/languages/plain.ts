@@ -1,5 +1,4 @@
 import { HighlightResult, Language, style, TokenType } from './language'
-import { Suggestion } from './suggestions'
 
 export class PlainHighlighter implements Language {
   highlight(line: string): HighlightResult {
@@ -14,13 +13,5 @@ export class PlainHighlighter implements Language {
       ],
       suggestions: [],
     }
-  }
-
-  inspect(): Suggestion[] {
-    return []
-  }
-
-  suggest(): Suggestion[] {
-    return []
   }
 }

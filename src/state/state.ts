@@ -2,7 +2,6 @@ import { useSettings } from '../utils/settings'
 import { useHighlights } from '../utils/highlights'
 import { useStorage } from '../utils/storage'
 import { useTabs } from '../utils/tabs'
-import { GotoMessage, useGoto } from '../utils/goto'
 import { ref } from 'vue'
 import { InstructionLine } from '../utils/mips/mips'
 
@@ -19,13 +18,10 @@ export const {
 } = useTabs()
 
 export const errorHighlights = useHighlights()
-export const gotoHighlights = useHighlights<GotoMessage>()
 
 const storageResult = useStorage(errorHighlights, tab)
 
-export const { editor, storage, suggestionsStorage } = storageResult
-
-export const goto = useGoto(gotoHighlights)
+export const { storage } = storageResult
 
 export const showExportRegionsDialog = ref(false)
 

@@ -18,7 +18,6 @@ import { BinaryResult } from './mips/mips'
 import {
   closeTab,
   createTab,
-  editor,
   loadElf,
   showExportRegionsDialog,
   showSettings,
@@ -288,15 +287,9 @@ export async function setupEvents() {
       return
     }
 
-    const current = tab()
-
     for (const tab of tabsState.tabs) {
       if (tab.path === modification.path) {
-        if (current?.uuid === tab.uuid) {
-          editor.value.replaceAll(modification.data)
-        } else {
-          tab.doc = modification.data
-        }
+        tab.doc = modification.data
 
         tab.marked = false
       }

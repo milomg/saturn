@@ -2,27 +2,14 @@
   <div
     ref="code"
     class="font-mono text-sm flex-auto flex-grow overflow-auto flex pt-2 bg-neutral-200 dark:bg-neutral-900"
-  >
-    <GotoOverlay
-      v-if="gotoHighlights.state.highlight"
-      @click="jumpGoto"
-      :highlight="gotoHighlights.state.highlight"
-    />
-  </div>
+  ></div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 
-import {
-  goto,
-  gotoHighlights,
-  errorHighlights,
-  tab,
-  settings,
-} from '../state/state'
+import { errorHighlights, tab, settings } from '../state/state'
 import { isSyncing } from '../utils/tabs'
-import GotoOverlay from './GotoOverlay.vue'
 
 import { EditorView } from 'codemirror'
 import { clearHighlightedLine, setTheme } from '../utils/lezer-mips'
@@ -157,8 +144,4 @@ onMounted(() => {
     }
   })
 })
-
-function jumpGoto() {
-  goto.jump()
-}
 </script>
