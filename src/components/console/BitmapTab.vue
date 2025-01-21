@@ -131,7 +131,6 @@
       @keyup="(e) => handleKey(e, true)"
       class="outline-none overflow-visible focus:ring-4 border border-neutral-700 rounded h-full shrink-0 max-w-3/4 self-end"
       :style="{ width: `${correctedWidth}px` }"
-      :class="{ 'mx-auto sm:mx-0': !state.small, 'mx-auto': state.small }"
     >
       <canvas
         ref="canvas"
