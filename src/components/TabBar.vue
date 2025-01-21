@@ -87,8 +87,6 @@ import {
 import {
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuItemIndicator,
-  DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuRoot,
   DropdownMenuTrigger,
