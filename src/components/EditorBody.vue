@@ -95,7 +95,7 @@ onMounted(() => {
     (highlight) => {
       const diagnostics: Diagnostic[] = []
       if (highlight) {
-        let lineI = highlight.line
+        let lineI = highlight.line + 1
         let line
         do {
           line = view.state.doc.line(lineI)

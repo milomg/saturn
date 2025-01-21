@@ -20,7 +20,7 @@ export interface Suggestion {
   type?: SuggestionType
 }
 
-export type MarkedSuggestion = Suggestion & { index: number }
+export type MarkedSuggestion = Suggestion & { index: number } // use replace.length for count
 export type SuggestionMatch = Suggestion & { range?: MatchRange }
 
 export function findTokenIndex(tokens: Token[], index: number): number | null {

@@ -32,5 +32,25 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          codemirror: [
+            '@codemirror/autocomplete',
+            '@codemirror/language',
+            '@codemirror/lint',
+            '@codemirror/state',
+            '@codemirror/view',
+          ],
+          'codemirror-external': [
+            '@lezer/generator',
+            '@lezer/highlight',
+            '@lezer/lr',
+            '@replit/codemirror-minimap',
+            '@replit/codemirror-vim',
+          ],
+        },
+      },
+    },
   },
 })

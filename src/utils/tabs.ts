@@ -17,6 +17,8 @@ import { EditorView, basicSetup } from 'codemirror'
 import { breakpointGutter } from './breakpoints'
 import { Mips } from './lezer-mips'
 import { minimap, minimapCompartment, vimCompartment } from './lezer-mips/modes'
+import { goto } from './lezer-mips/goto'
+import { suggestionsContext } from './lezer-mips/suggestions'
 
 export type CursorState = SelectionIndex & {
   highlight: SelectionIndex | null
@@ -76,6 +78,8 @@ function createState(editor: Tabs, uuid: string, doc: string) {
   return EditorState.create({
     doc,
     extensions: [
+      goto,
+      suggestionsContext,
       vimCompartment.of([]),
       minimapCompartment.of(minimap),
       EditorView.updateListener.of((update) => {
