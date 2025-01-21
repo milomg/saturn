@@ -110,7 +110,6 @@ import {
   pushConsole,
 } from '../state/console-data'
 import { backend } from '../state/backend'
-import { collectLines } from '../utils/tabs'
 import {
   exportHexContents,
   exportHexRegions,

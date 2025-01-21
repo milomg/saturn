@@ -7,12 +7,10 @@ import {
 import {
   Decoration,
   EditorView,
-  gutter,
   gutterLineClass,
   GutterMarker,
   lineNumbers,
 } from '@codemirror/view'
-import { setBreakpoint } from './debug'
 
 const breakpointEffect = StateEffect.define<{ pos: number; on: boolean }>({
   map: (val, mapping) => ({ pos: mapping.mapPos(val.pos), on: val.on }),
@@ -74,6 +72,7 @@ export function getBreakpoints(state: EditorState) {
   })
   return result
 }
+
 const breakpointMarker = new (class extends GutterMarker {
   elementClass = 'cm-breakpoint'
 })()

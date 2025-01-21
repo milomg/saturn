@@ -273,7 +273,7 @@ export function useTabs(): TabsResult {
       } as RestoreTab
 
       if (!tab.path) {
-        const collect = tab.state.doc.toString()
+        const collect = tab.doc.toString()
 
         if (collect.length <= maxBackupLength) {
           map.set(tab.uuid, collect)

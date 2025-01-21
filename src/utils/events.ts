@@ -27,12 +27,7 @@ import {
 } from '../state/state'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { watch } from 'vue'
-import { MidiNote, playNote } from './midi'
 import { exportBinaryContents } from './query/serialize-files'
-
-function splitLines(text: string): string[] {
-  return text.split(/\r?\n/)
-}
 
 export enum PromptType {
   NeverPrompt,
@@ -88,7 +83,7 @@ export async function saveTab(
     current.path = path
   }
 
-  const data = current.state.doc.toString()
+  const data = current.doc.toString()
 
   await accessWriteText(current.path, data)
 
@@ -191,7 +186,7 @@ export async function setupEvents() {
       )
     } else {
       result = await backend.assembleWithBinary(
-        current.state.doc.toString(),
+        current.doc.toString(),
         current.path,
       )
 

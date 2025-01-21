@@ -1,4 +1,3 @@
-import { collectLines } from './tabs'
 import {
   consoleData,
   ConsoleType,
@@ -18,18 +17,6 @@ import { format } from 'date-fns'
 import { PromptType, saveCurrentTab } from './events'
 import { getBreakpoints } from './breakpoints'
 import { computed, toRaw } from 'vue'
-
-export async function setBreakpoint(line: number, remove: boolean) {
-  const currentTab = tab()
-
-  if (!currentTab) {
-    return
-  }
-
-  if (consoleData.execution) {
-    await consoleData.execution.setBreakpoints(getBreakpoints(currentTab.state))
-  }
-}
 
 async function postDebugInformationWithPcHint(result: ExecutionResult) {
   postDebugInformation(result)
@@ -140,7 +127,7 @@ export async function build() {
   const current = tab()
 
   const { result } = await backend.assembleWithBinary(
-    current?.state.doc.toString() ?? '',
+    current?.doc.toString() ?? '',
     current?.path ?? null,
   )
 
@@ -186,7 +173,7 @@ export async function resume() {
   const usedBreakpoints = getBreakpoints(current.state)
 
   if (!consoleData.execution) {
-    const text = current.state.doc.toString()
+    const text = current.doc.toString()
     const path = current.path
 
     await saveCurrentTab(PromptType.NeverPrompt)

@@ -173,7 +173,7 @@ watch(
 
 watch(
   () => consoleData.registers,
-  (value, old) => {
+  (_, old) => {
     if (!!old) {
       lastRegisters = old
     }

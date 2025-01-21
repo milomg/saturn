@@ -13,9 +13,7 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  show: boolean
-}>()
+const { show } = defineProps<{ show: boolean }>()
 
 const emit = defineEmits(['close'])
 </script>

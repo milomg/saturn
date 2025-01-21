@@ -1,8 +1,7 @@
 import { computed, ComputedRef, reactive, watch } from 'vue'
 import { Editor } from './editor'
-import { collectLines, EditorTab } from './tabs'
-import { Language, Token } from './languages/language'
-import { MipsHighlighter } from './languages/mips/language'
+import { EditorTab } from './tabs'
+import { Token } from './languages/language'
 import { HighlightsInterface } from './highlights'
 import { SuggestionsStorage } from './languages/suggestions'
 import { backend } from '../state/backend'
@@ -22,8 +21,6 @@ export type StorageResult = StorageInterface & {
   storage: StorageState
 }
 
-type ShiftCallback = (line: number, deleted: number, insert: string[]) => void
-
 export function useStorage(
   error: HighlightsInterface,
   tab: () => EditorTab | null,
@@ -41,13 +38,11 @@ export function useStorage(
     const current = tab()
 
     const result = await backend.assembleText(
-      current?.state.doc.toString() ?? '',
+      current?.doc.toString() ?? '',
       current?.path ?? null,
     )
 
     if (result.status === 'Error' && result.marker) {
-      const tokens = storage.highlights[result.marker.line]
-
       error.setHighlight(
         result.marker.line,
         result.marker.offset,
@@ -72,7 +67,7 @@ export function useStorage(
     const current = tab()
 
     return new Editor(
-      current?.state.doc.toString().split('\n') ?? ['Nothing yet.'],
+      current?.doc.toString().split('\n') ?? ['Nothing yet.'],
       { line: 0, index: 0 },
       (current?.writable ?? false) ? undefined : () => false, // weird
     )
@@ -94,7 +89,7 @@ export function useStorage(
 
   watch(
     () => tab()?.doc,
-    (tab) => highlightAll(),
+    () => highlightAll(),
     { immediate: true },
   )
 

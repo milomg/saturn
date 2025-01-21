@@ -30,42 +30,47 @@ import { consoleData } from '../state/console-data'
 import { setHighlightedLine } from '../utils/lezer-mips'
 import { setMinimap, setVim } from '../utils/lezer-mips/modes'
 import { Diagnostic, setDiagnostics } from '@codemirror/lint'
-import { ensureSyntaxTree, forceParsing } from '@codemirror/language'
 
 const code = ref(null as HTMLElement | null)
 
 onMounted(() => {
   const view = new EditorView({
-    state: tab()?.state,
+    state: undefined,
     parent: code.value!,
   })
 
   watch(
     () => tab()?.state,
     (state) => {
-      if (!isSyncing()) {
+      if (!isSyncing() && state) {
         view.setState(state!)
+
+        // sync global settings on tab switch
+        view.dispatch({
+          effects: [
+            setTheme(settings.editor.darkMode),
+            setVim(settings.editor.vimMode),
+            setMinimap(settings.editor.showMinimap),
+          ],
+        })
       }
     },
-    { flush: 'sync' },
+    { flush: 'sync', immediate: true },
   )
 
   watch(
     () => settings.editor.darkMode,
     (theme: boolean) => view.dispatch({ effects: [setTheme(theme)] }),
-    { immediate: true },
   )
 
   watch(
     () => settings.editor.vimMode,
     (vimMode: boolean) => view.dispatch({ effects: [setVim(vimMode)] }),
-    { immediate: true },
   )
 
   watch(
     () => settings.editor.showMinimap,
     (minimap: boolean) => view.dispatch({ effects: [setMinimap(minimap)] }),
-    { immediate: true },
   )
 
   // https://gist.github.com/shimondoodkin/1081133
@@ -154,15 +159,6 @@ onMounted(() => {
 })
 
 function jumpGoto() {
-  const index = goto.jump()
-
-  tab()?.state
-
-  // if (index && cursor) {
-  //   cursor.line = index.line
-  //   cursor.index = index.index
-
-  //   cursor.highlight = null
-  // }
+  goto.jump()
 }
 </script>

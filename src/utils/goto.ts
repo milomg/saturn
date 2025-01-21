@@ -1,10 +1,5 @@
 import { HighlightsResult } from './highlights'
-import {
-  findTokenIndex,
-  MarkedSuggestion,
-  SuggestionType,
-} from './languages/suggestions'
-import { StorageResult } from './storage'
+import { MarkedSuggestion, SuggestionType } from './languages/suggestions'
 import { SelectionIndex } from './editor'
 import { Token } from './languages/language'
 
@@ -34,23 +29,7 @@ interface GotoCache {
 
 export function useGoto(
   highlights: HighlightsResult<GotoMessage>,
-  storage: StorageResult,
 ): GotoInterface {
-  function searchStorage(
-    text: string,
-    body: MarkedSuggestion[][],
-  ): SearchStorageResult | null {
-    for (const [index, line] of body.entries()) {
-      const item = line.find((x) => x.replace == text)
-
-      if (item) {
-        return { line: index, suggestion: item }
-      }
-    }
-
-    return null
-  }
-
   let cache = null as GotoCache | null
 
   function dismiss() {
