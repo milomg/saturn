@@ -18,6 +18,18 @@ import { PromptType, saveCurrentTab } from './events'
 import { getBreakpoints } from './breakpoints'
 import { computed, toRaw } from 'vue'
 
+export async function setBreakpoint() {
+  const currentTab = tab()
+
+  if (!currentTab) {
+    return
+  }
+
+  if (consoleData.execution) {
+    await consoleData.execution.setBreakpoints(getBreakpoints(currentTab.state))
+  }
+}
+
 async function postDebugInformationWithPcHint(result: ExecutionResult) {
   postDebugInformation(result)
 

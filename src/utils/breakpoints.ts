@@ -11,6 +11,7 @@ import {
   GutterMarker,
   lineNumbers,
 } from '@codemirror/view'
+import { setBreakpoint } from './debug'
 
 const breakpointEffect = StateEffect.define<{ pos: number; on: boolean }>({
   map: (val, mapping) => ({ pos: mapping.mapPos(val.pos), on: val.on }),
@@ -62,6 +63,7 @@ function toggleBreakpoint(view: EditorView, pos: number) {
   view.dispatch({
     effects: breakpointEffect.of({ pos, on: !hasBreakpoint }),
   })
+  setBreakpoint()
 }
 
 export function getBreakpoints(state: EditorState) {
