@@ -57,7 +57,7 @@ import {
   ExclamationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { onMounted, reactive } from 'vue'
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api/core'
 import { tab } from '../../state/state'
 
 interface TestItem {

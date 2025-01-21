@@ -8,7 +8,7 @@ import { lezer } from '@lezer/generator/rollup'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), wasm(), topLevelAwait(), lezer()],
+  plugins: [vue(), lezer()],
 
   worker: {
     plugins: () => [wasm(), topLevelAwait()],
@@ -51,6 +51,13 @@ export default defineConfig({
           ],
         },
       },
+    },
+  },
+
+  // for some reason esbuild is running in the worker before the top level await plugin... we ignore the warning that it generates
+  esbuild: {
+    supported: {
+      'top-level-await': true,
     },
   },
 })

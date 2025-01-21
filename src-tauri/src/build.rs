@@ -14,7 +14,7 @@ use saturn_backend::syscall::{ConsoleHandler, MidiHandler, SyscallState, TimeHan
 use std::io::Cursor;
 use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard};
-use tauri::{Manager, Wry};
+use tauri::{Emitter, Wry};
 use titan::cpu::memory::section::{ListenResponder, SectionMemory};
 use titan::cpu::memory::watched::WatchedMemory;
 use titan::cpu::Memory;
@@ -30,9 +30,7 @@ struct ForwardPrinter {
 
 impl ConsoleHandler for ForwardPrinter {
     fn print(&mut self, text: &str, error: bool) {
-        self.app
-            .emit_all("print", PrintPayload { text, error })
-            .ok();
+        self.app.emit("print", PrintPayload { text, error }).ok();
     }
 }
 

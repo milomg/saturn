@@ -5,11 +5,11 @@ use percent_encoding::percent_decode_str;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
 use std::fs;
-use std::path::Path;
-use tauri::api::path::app_local_data_dir;
+use std::path::{Path, PathBuf};
 use tauri::http::method::Method;
-use tauri::http::{Request, Response, ResponseBuilder, Uri};
-use tauri::{AppHandle, Wry};
+use tauri::http::{Request, Response, Uri};
+use tauri::Manager;
+use tauri::{UriSchemeContext, Wry};
 
 #[derive(Debug)]
 enum MidiProtocolError {
@@ -40,13 +40,12 @@ impl Display for MidiProtocolError {
 
 impl Error for MidiProtocolError {}
 
-fn get_path(uri: &str, config: &tauri::Config) -> Result<String, MidiProtocolError> {
+fn get_path(uri: &str, mut directory: PathBuf) -> Result<String, MidiProtocolError> {
     let decode = percent_decode_str(uri)
         .decode_utf8()
         .map_err(|_| URIDecode(uri.into()))?;
 
     let uri = Uri::try_from(&*decode).map_err(|_| URIParse(decode.to_string()))?;
-    let mut directory = app_local_data_dir(config).ok_or(MissingAppDir)?;
 
     let path = Path::new(uri.path())
         .strip_prefix("/")
@@ -65,19 +64,33 @@ fn get_path(uri: &str, config: &tauri::Config) -> Result<String, MidiProtocolErr
     fs::read_to_string(&directory).map_err(|_| FileIO(directory.to_str().map(|x| x.into())))
 }
 
-pub fn midi_protocol(app: &AppHandle<Wry>, request: &Request) -> Result<Response, Box<dyn Error>> {
+pub fn midi_protocol(
+    context: UriSchemeContext<'_, Wry>,
+    request: Request<Vec<u8>>,
+) -> Response<Vec<u8>> {
     // Disable CORS, nothing super private here.
-    let builder = ResponseBuilder::new()
+    let builder = Response::builder()
         .header("Access-Control-Allow-Headers", "*")
         .header("Access-Control-Allow-Origin", "*");
 
     // Check for preflight, very primitive check.
     if request.method() == Method::OPTIONS {
-        return builder.body(vec![]);
+        return builder.body(vec![]).expect("Failed to build response");
     }
 
-    match get_path(request.uri(), &app.config()) {
-        Ok(text) => builder.body(text.into_bytes()),
-        Err(error) => builder.status(400).body(error.to_string().into_bytes()),
+    match context.app_handle().path().app_local_data_dir() {
+        Ok(directory) => match get_path(&request.uri().to_string(), directory) {
+            Ok(text) => builder
+                .body(text.into_bytes())
+                .expect("Failed to build response"),
+            Err(error) => builder
+                .status(400)
+                .body(error.to_string().into_bytes())
+                .expect("Failed to build response"),
+        },
+        Err(_) => builder
+            .status(400)
+            .body(MissingAppDir.to_string().into_bytes())
+            .expect("Failed to build response"),
     }
 }

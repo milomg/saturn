@@ -6,18 +6,18 @@ authors = ["desgroup"]
 license = ""
 repository = ""
 edition = "2021"
-rust-version = "1.66"
+rust-version = "1.84"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
-futures = "0.3.29"
+futures = "0.3.31"
 
 num = "0.4.1"
 byteorder = "1.5.0"
 base64 = "0.22.1"
 rand = "0.8.5"
 rand_chacha = "0.3.1"
-async-trait = "0.1.77"
-log = "0.4.22"
+async-trait = "0.1.85"
+log = "0.4.25"
 
 titan = { git = "https://github.com/1whatleytay/titan.git", branch = "main" }

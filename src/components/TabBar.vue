@@ -97,7 +97,7 @@ import { nextTick, onMounted, onUnmounted, reactive, StyleValue } from 'vue'
 import SettingsModal from './SettingsModal.vue'
 import ExportOverlay from './ExportModal.vue'
 
-const shouldShowMenu = !window.__TAURI__
+const shouldShowMenu = !window.__TAURI_INTERNALS__
 
 const state = reactive({
   dragging: false,
