@@ -5,6 +5,7 @@ import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
 import { Compartment, StateEffect, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView, keymap } from '@codemirror/view'
 import { lang } from './lezer-lang'
+import { foldOnIndent } from './folding'
 import './codemirror.css'
 
 export const clearHighlightedLine = StateEffect.define<null>()
@@ -61,6 +62,7 @@ export function Mips() {
     lang,
     autocompletion({ activateOnTyping: true }),
     highlightedLineState,
+    foldOnIndent,
     keymap.of([indentWithTab]),
   ]
 }
