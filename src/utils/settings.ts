@@ -69,7 +69,7 @@ function defaultSettings(): Settings {
     version: settingsVersion,
     editor: {
       tabSize: 4,
-      fontSize: 22,
+      fontSize: 14,
       consoleFontSize: 16,
       enterAutocomplete: true,
       darkMode: true,

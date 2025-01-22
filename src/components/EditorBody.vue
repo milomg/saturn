@@ -2,6 +2,7 @@
   <div
     ref="code"
     class="font-mono text-sm flex-auto flex-grow overflow-auto flex pt-2 bg-neutral-200 dark:bg-neutral-900"
+    :style="{ '--font-size': settings.editor.fontSize + 'px' }"
   ></div>
 </template>
 
@@ -58,6 +59,11 @@ onMounted(() => {
   watch(
     () => settings.editor.showMinimap,
     (minimap: boolean) => view.dispatch({ effects: [setMinimap(minimap)] }),
+  )
+
+  watch(
+    () => settings.editor.fontSize,
+    () => view.requestMeasure(),
   )
 
   // https://gist.github.com/shimondoodkin/1081133

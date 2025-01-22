@@ -1,5 +1,6 @@
 .cm-editor {
   @apply w-full;
+  font-size: var(--font-size);
 
   .cm-content {
     @apply caret-orange-400;
