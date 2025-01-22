@@ -43,10 +43,15 @@ export const foldOnIndent = foldService.of((state, from, to) => {
     }
   }
 
+  // Adjust foldEnd to exclude trailing empty lines
+  while (foldEnd > foldStart && !state.doc.lineAt(foldEnd).text.trim().length) {
+    foldEnd = state.doc.lineAt(foldEnd).from - 1
+  }
+
   // Don't create fold if it's a single line
   if (
     onlyEmptyNext ||
-    state.doc.lineAt(foldStart).number === state.doc.lineAt(foldEnd).number
+    state.doc.lineAt(foldStart).number >= state.doc.lineAt(foldEnd).number
   ) {
     return null
   }
