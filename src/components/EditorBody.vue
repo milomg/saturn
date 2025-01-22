@@ -13,10 +13,10 @@ import { errorHighlights, tab, settings } from '../state/state'
 import { isSyncing } from '../utils/tabs'
 
 import { EditorView } from 'codemirror'
-import { clearHighlightedLine, setTheme } from '../utils/lezer-mips'
+import { clearHighlightedLine } from '../utils/lezer-mips'
 import { consoleData } from '../state/console-data'
 import { setHighlightedLine } from '../utils/lezer-mips'
-import { setMinimap, setVim } from '../utils/lezer-mips/modes'
+import { setMinimap, setVim, setTheme } from '../utils/lezer-mips/modes'
 import { Diagnostic, setDiagnostics } from '@codemirror/lint'
 
 const code = ref(null as HTMLElement | null)

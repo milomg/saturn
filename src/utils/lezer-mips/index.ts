@@ -1,12 +1,12 @@
 import { tags as t } from '@lezer/highlight'
 import { autocompletion } from '@codemirror/autocomplete'
-import { indentWithTab } from '@codemirror/commands'
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
-import { Compartment, StateEffect, StateField } from '@codemirror/state'
-import { Decoration, DecorationSet, EditorView, keymap } from '@codemirror/view'
+import { StateEffect, StateField } from '@codemirror/state'
+import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { lang } from './lezer-lang'
 import { foldOnIndent } from './folding'
 import './codemirror.css'
+import { goto } from './goto'
 
 export const clearHighlightedLine = StateEffect.define<null>()
 export const setHighlightedLine = StateEffect.define<number>()
@@ -46,23 +46,13 @@ const twHighlightStyle = HighlightStyle.define([
   { tag: [t.lineComment], class: 'dark:text-neutral-400 text-neutral-500' },
 ])
 
-// defined in codemirror.css
-const darkTheme = EditorView.theme({}, { dark: true })
-const lightTheme = EditorView.theme({}, { dark: false })
-
-const editorTheme = new Compartment()
-
-export const setTheme = (theme: boolean) =>
-  editorTheme.reconfigure(theme ? darkTheme : lightTheme)
-
 export function Mips() {
   return [
     syntaxHighlighting(twHighlightStyle),
-    editorTheme.of(lightTheme),
     lang,
     autocompletion({ activateOnTyping: true }),
     highlightedLineState,
     foldOnIndent,
-    keymap.of([indentWithTab]),
+    goto,
   ]
 }

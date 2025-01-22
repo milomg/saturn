@@ -16,9 +16,14 @@ import { EditorState } from '@codemirror/state'
 import { EditorView, basicSetup } from 'codemirror'
 import { breakpointGutter } from './breakpoints'
 import { Mips } from './lezer-mips'
-import { minimap, minimapCompartment, vimCompartment } from './lezer-mips/modes'
-import { goto } from './lezer-mips/goto'
+import {
+  createDefaultMinimap,
+  createDefaultTheme,
+  createDefaultVim,
+} from './lezer-mips/modes'
 import { suggestionsContext } from './lezer-mips/suggestions'
+import { highlightTrailingWhitespace, keymap } from '@codemirror/view'
+import { indentWithTab } from '@codemirror/commands'
 
 export type CursorState = SelectionIndex & {
   highlight: SelectionIndex | null
@@ -78,10 +83,13 @@ function createState(editor: Tabs, uuid: string, doc: string) {
   return EditorState.create({
     doc,
     extensions: [
-      goto,
+      // vim needs to be before any other keymap
+      createDefaultVim(),
+      createDefaultMinimap(),
+      createDefaultTheme(),
       suggestionsContext,
-      vimCompartment.of([]),
-      minimapCompartment.of(minimap),
+      keymap.of([indentWithTab]),
+      highlightTrailingWhitespace(),
       EditorView.updateListener.of((update) => {
         const tab = editor.tabs.find((tab) => tab.uuid === uuid)!
         syncing = true
