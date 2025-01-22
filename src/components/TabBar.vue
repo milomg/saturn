@@ -21,7 +21,7 @@
 
         <DropdownMenuPortal>
           <DropdownMenuContent
-            class="bg-neutral-200 dark:bg-neutral-900 dark:text-slate-300 text-slate-800 rounded-lg border dark:border-neutral-700 gap-2 shadow-md ml-2 p-2 text-sm w-60"
+            class="bg-neutral-200 dark:bg-neutral-900 dark:text-slate-300 text-slate-800 rounded-lg rounded-tl-none border dark:border-neutral-700 gap-2 shadow-md ml-2 p-2 text-sm w-60"
           >
             <DropdownMenuItem
               @click="showSettings = true"
