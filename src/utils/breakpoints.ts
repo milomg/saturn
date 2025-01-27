@@ -84,7 +84,7 @@ export const breakpointGutter = [
   breakpointLines,
   EditorView.baseTheme({
     '.cm-lineNumbers .cm-gutterElement': {
-      'padding-left': '0.75em',
+      'padding-left': '1.25em',
       position: 'relative',
     },
     '.cm-lineNumbers .cm-gutterElement:hover::before': {
@@ -100,7 +100,7 @@ export const breakpointGutter = [
         color: 'red',
         cursor: 'pointer',
         position: 'absolute',
-        left: '0.125em',
+        left: '0.5em',
       },
   }),
   lineNumbers({
