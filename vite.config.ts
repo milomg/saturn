@@ -37,13 +37,10 @@ export default defineConfig({
         manualChunks: {
           codemirror: [
             '@codemirror/autocomplete',
-            '@codemirror/language',
             '@codemirror/lint',
             '@codemirror/state',
             '@codemirror/view',
-          ],
-          'codemirror-external': [
-            '@lezer/generator',
+            '@codemirror/language',
             '@lezer/highlight',
             '@lezer/lr',
             '@replit/codemirror-minimap',
