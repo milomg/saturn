@@ -6,6 +6,12 @@
       :show="showExportRegionsDialog"
       @close="showExportRegionsDialog = false"
     />
+    <FileSaveDialog 
+      title="Save File"
+    />
+    <FileOpenDialog 
+      title="Open File"
+      />
 
     <div
       class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none text-xs"
@@ -106,6 +112,8 @@ import SaveModal from './SaveModal.vue'
 import { nextTick, onMounted, onUnmounted, reactive, StyleValue } from 'vue'
 import SettingsModal from './SettingsModal.vue'
 import ExportOverlay from './ExportModal.vue'
+import FileSaveDialog from './FileSaveDialog.vue'
+import FileOpenDialog from './FileOpenDialog.vue'
 
 const shouldShowMenu = !window.__TAURI_INTERNALS__
 
