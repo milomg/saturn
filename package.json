@@ -51,5 +51,5 @@
     "vue-tsc": "^2.2.0",
     "wasm-pack": "^0.13.1"
   },
-  "packageManager": "pnpm@10.1.0"
+  "packageManager": "pnpm@10.1.0+sha1.ab7948c89104fdd3fc88b5b391fa4b73fd800631"
 }
