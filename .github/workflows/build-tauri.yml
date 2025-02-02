@@ -11,6 +11,8 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v3
+      - name: Update Corepack
+        run: npm i -g corepack@latest --force
       - name: Enable Corepack
         run: corepack enable
       - uses: actions/setup-node@v4
