@@ -7,7 +7,7 @@ import {
   ExecutionProfile,
 } from './mips/mips'
 import { SelectionIndex, SelectionRange } from './editor'
-import { PromptType, saveTab } from './events'
+import { PromptType } from './events/events'
 import { SaveModalResult, useSaveModal } from './save-modal'
 import { closeWindow } from './window'
 import { accessReadText, accessSync } from './query/access-manager'
@@ -24,6 +24,7 @@ import {
 import { suggestionsContext } from './lezer-mips/suggestions'
 import { highlightTrailingWhitespace, keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
+import { saveTab } from './events/tauri-shortcuts'
 
 export type CursorState = SelectionIndex & {
   highlight: SelectionIndex | null
@@ -332,6 +333,7 @@ export function useTabs(): TabsResult {
     }
   }
 
+  // !! Not very functional on WebSaturn.
   const saveModal = useSaveModal(
     (tab) => saveTab(tab, PromptType.PromptWhenNeeded),
     (tab) => discardTab(tab.uuid),
