@@ -80,7 +80,12 @@ let syncing = false
 export function isSyncing(): boolean {
   return syncing
 }
-function createState(editor: Tabs, uuid: string, doc: string, writable: boolean): EditorState {
+function createState(
+  editor: Tabs,
+  uuid: string,
+  doc: string,
+  writable: boolean,
+): EditorState {
   return EditorState.create({
     doc,
     extensions: [
@@ -91,7 +96,11 @@ function createState(editor: Tabs, uuid: string, doc: string, writable: boolean)
       suggestionsContext,
       keymap.of([indentWithTab]),
       EditorView.updateListener.of((update) => {
-        const tab = editor.tabs.find((tab) => tab.uuid === uuid)!
+        const tab = editor.tabs.find((tab) => tab.uuid === uuid)
+        if (!tab) {
+          console.warn('Editor is rendering a tab that does not exist, strange')
+          return
+        }
         syncing = true
         if (update.docChanged) {
           tab.marked = true
