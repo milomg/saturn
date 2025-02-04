@@ -4,6 +4,7 @@ import {
   selectOpenFile as selectOpenFileTauri,
   accessReadText as accessReadTextTauri,
   accessReadFile as accessReadFileTauri,
+  accessSync as accessSyncTauri,
 } from "./access-manager-tauri"
 import { 
   selectSaveDestination as selectSaveDestinationWeb,
@@ -68,5 +69,11 @@ export async function accessReadFile(
     return accessReadFileTauri(path)
   } else {
     return accessReadFileWeb(path)
+  }
+}
+
+export async function accessSync(paths: string[]) {
+  if (window.__TAURI_INTERNALS__) {
+    return await accessSyncTauri(paths)
   }
 }

@@ -83,7 +83,5 @@ export async function accessReadFile(
 }
 
 export async function accessSync(paths: string[]) {
-  if (window.__TAURI_INTERNALS__) {
-    await invoke('access_sync', { paths })
-  }
+  await invoke('access_sync', { paths })
 }
