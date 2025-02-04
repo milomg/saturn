@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { AccessFile, AccessFilter } from '.'
 
-
 export const assemblyFilter: AccessFilter[] = [
   {
     name: 'Assembly',

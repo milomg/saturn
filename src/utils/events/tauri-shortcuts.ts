@@ -2,10 +2,10 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { build, pause, postBuildMessage, resume, step, stop } from '../debug'
 import { watch } from 'vue'
 import { consoleData, ConsoleType, pushConsole } from '../../state/console-data'
-import { closeTab,  tab, tabsState } from '../../state/state'
+import { closeTab, tab, tabsState } from '../../state/state'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import {
-  accessReadFile, 
+  accessReadFile,
   elfFilter,
 } from '../query/access-manager/access-manager-tauri'
 import {
@@ -20,7 +20,7 @@ import {
   openFile,
   save,
   saveAs,
-  openTab
+  openTab,
 } from './events'
 import { BinaryResult } from '../mips/mips'
 import { backend } from '../../state/backend'

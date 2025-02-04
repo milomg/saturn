@@ -14,7 +14,12 @@ import {
   tab,
   tabsState,
 } from '../../state/state'
-import { AccessFile, accessWriteText, selectOpenFile, selectSaveDestination } from '../query/access-manager'
+import {
+  AccessFile,
+  accessWriteText,
+  selectOpenFile,
+  selectSaveDestination,
+} from '../query/access-manager'
 import { EditorTab } from '../tabs'
 
 export enum PromptType {
@@ -95,7 +100,6 @@ export async function exportHex() {
   showExportRegionsDialog.value = !showExportRegionsDialog.value
 }
 
-
 // 'open-file' - tauri required
 export async function openFile() {
   const result = await selectOpenFile('')
@@ -129,7 +133,10 @@ export async function openTab(file: AccessFile<string | Uint8Array>) {
   }
 }
 
-export async function saveTab(current: EditorTab, type: PromptType = PromptType.PromptWhenNeeded,): Promise<boolean> {
+export async function saveTab(
+  current: EditorTab,
+  type: PromptType = PromptType.PromptWhenNeeded,
+): Promise<boolean> {
   if (type === PromptType.NeverPrompt && !current.path) {
     return true
   }
@@ -156,7 +163,9 @@ export async function saveTab(current: EditorTab, type: PromptType = PromptType.
   return true
 }
 
-export async function saveCurrentTab(prompt: PromptType = PromptType.PromptWhenNeeded) {
+export async function saveCurrentTab(
+  prompt: PromptType = PromptType.PromptWhenNeeded,
+) {
   const current = tab()
 
   if (current) {

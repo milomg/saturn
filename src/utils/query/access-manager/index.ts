@@ -1,18 +1,18 @@
-import { 
+import {
   selectSaveDestination as selectSaveDestinationTauri,
   accessWriteText as accessWriteTextTauri,
   selectOpenFile as selectOpenFileTauri,
   accessReadText as accessReadTextTauri,
   accessReadFile as accessReadFileTauri,
   accessSync as accessSyncTauri,
-} from "./access-manager-tauri"
-import { 
+} from './access-manager-tauri'
+import {
   selectSaveDestination as selectSaveDestinationWeb,
   accessWriteText as accessWriteTextWeb,
   selectOpenFile as selectOpenFileWeb,
   accessReadText as accessReadTextWeb,
   accessReadFile as accessReadFileWeb,
- } from "./access-manager-web"
+} from './access-manager-web'
 
 export interface AccessFile<T> {
   path: string
@@ -26,14 +26,16 @@ export interface AccessFilter {
   extensions: string[]
 }
 
-export async function selectSaveDestination(title: string, filters?: AccessFilter[]): Promise<AccessFile<undefined> | null> {
+export async function selectSaveDestination(
+  title: string,
+  filters?: AccessFilter[],
+): Promise<AccessFile<undefined> | null> {
   if (window.__TAURI_INTERNALS__) {
     return selectSaveDestinationTauri(title, filters)
   } else {
     return selectSaveDestinationWeb()
   }
 }
-
 
 export async function accessWriteText(
   path: string,
@@ -46,7 +48,10 @@ export async function accessWriteText(
   }
 }
 
-export async function selectOpenFile(title: string, filters?: AccessFilter[]): Promise<AccessFile<string | Uint8Array> | null> {
+export async function selectOpenFile(
+  title: string,
+  filters?: AccessFilter[],
+): Promise<AccessFile<string | Uint8Array> | null> {
   if (window.__TAURI_INTERNALS__) {
     return selectOpenFileTauri(title, filters)
   } else {
