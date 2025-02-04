@@ -24,7 +24,7 @@ import {
 import { suggestionsContext } from './lezer-mips/suggestions'
 import { keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
-import { createCollab } from './lezer-mips/collab'
+import { createCollab, joinYTab } from './lezer-mips/collab'
 import { saveTab } from './events/events'
 
 export type CursorState = SelectionIndex & {
@@ -202,7 +202,13 @@ export function useTabs(): TabsResult {
     for (const tab of state.tabs) {
       const title = tab.title || 'Untitled'
       let data: string | null
+      
       if (tab.path) {
+        if (tab.path.startsWith('remote://')) {
+          editor.tabs.push(joinYTab(editor, tab.path.replace('remote://', '')))
+          continue
+        }
+
         try {
           data = await accessReadText(tab.path)
         } catch (e) {

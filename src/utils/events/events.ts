@@ -154,6 +154,10 @@ export async function saveTab(
     current.path = path
   }
 
+  if (current.path.startsWith('remote://')) {
+    return false
+  }
+
   const data = current.doc.toString()
 
   await accessWriteText(current.path, data)

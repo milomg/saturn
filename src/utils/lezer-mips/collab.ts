@@ -1,6 +1,6 @@
 import * as Y from 'yjs'
 import { WebrtcProvider } from 'y-webrtc'
-import { createState, EditorTab } from '../tabs'
+import { createState, EditorTab, Tabs } from '../tabs'
 import { tabsState } from '../../state/state'
 import { markRaw } from 'vue'
 import { Compartment, Extension } from '@codemirror/state'
@@ -23,6 +23,7 @@ export const createCollab = (collab: Extension) => collabCompartment.of(collab)
 
 const myname = 'Anonymous ' + Math.floor(Math.random() * 100)
 const random = Math.floor(Math.random() * usercolors.length)
+
 // select a random color for this user
 export const userColor = usercolors[random]
 
@@ -38,7 +39,10 @@ export const hostYTab = (tab: EditorTab) => {
     colorLight: userColor.light,
   })
   const undoManager = new Y.UndoManager(ytext)
-  ytext.insert(0, tab.doc)
+
+  if (ytext.length === 0) {
+    ytext.insert(0, tab.doc)
+  }
 
   console.log(tab.uuid)
 
@@ -47,7 +51,7 @@ export const hostYTab = (tab: EditorTab) => {
   )
 }
 
-export const joinYTab = (join: string): EditorTab => {
+export const joinYTab = (editor: Tabs, join: string): EditorTab => {
   const ydoc = new Y.Doc()
   const ytext = ydoc.getText('codemirror')
   const provider = new WebrtcProvider(join, ydoc, {
@@ -60,12 +64,12 @@ export const joinYTab = (join: string): EditorTab => {
   })
   const undoManager = new Y.UndoManager(ytext)
 
-  const content = ''
+  const content = ytext.toString()
   const named = '(remote tab)'
 
   const id = join
 
-  const state = createState(tabsState, id, content, true, [
+  const state = createState(editor, id, content, true, [
     yCollab(ytext, provider.awareness, { undoManager }),
   ])
 
@@ -75,16 +79,18 @@ export const joinYTab = (join: string): EditorTab => {
     doc: content,
     state: markRaw(state),
     removed: false,
-    path: null,
+    path: `remote://${join}`,
     writable: true,
     marked: false,
     profile: { kind: 'asm' },
   }
 
-  tabsState.tabs.push(tab)
-  tabsState.selected = tab.uuid
-
   return tab
 }
 
-window.join = joinYTab
+window.join = (x: string) => {
+  const tab = joinYTab(tabsState, x)
+
+  tabsState.tabs.push(tab)
+  tabsState.selected = tab.uuid
+}
