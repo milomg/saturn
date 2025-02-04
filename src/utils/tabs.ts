@@ -12,7 +12,7 @@ import { SaveModalResult, useSaveModal } from './save-modal'
 import { closeWindow } from './window'
 import { accessReadText, accessSync } from './query/access-manager'
 import { backend } from '../state/backend'
-import { EditorState } from '@codemirror/state'
+import { EditorState, Extension } from '@codemirror/state'
 import { EditorView, basicSetup } from 'codemirror'
 import { breakpointGutter } from './breakpoints'
 import { Mips } from './lezer-mips'
@@ -24,6 +24,7 @@ import {
 import { suggestionsContext } from './lezer-mips/suggestions'
 import { keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
+import { createCollab } from './lezer-mips/collab'
 import { saveTab } from './events/events'
 
 export type CursorState = SelectionIndex & {
@@ -80,11 +81,12 @@ let syncing = false
 export function isSyncing(): boolean {
   return syncing
 }
-function createState(
+export function createState(
   editor: Tabs,
   uuid: string,
   doc: string,
   writable: boolean,
+  collab: Extension = [],
 ): EditorState {
   return EditorState.create({
     doc,
@@ -110,6 +112,7 @@ function createState(
         syncing = false
       }),
       Mips(),
+      createCollab(collab),
       breakpointGutter,
       basicSetup,
       writable ? [] : EditorState.readOnly.of(true),

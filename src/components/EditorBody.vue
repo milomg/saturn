@@ -18,6 +18,7 @@ import { consoleData } from '../state/console-data'
 import { setHighlightedLine } from '../utils/lezer-mips'
 import { setMinimap, setVim, setTheme } from '../utils/lezer-mips/modes'
 import { Diagnostic, setDiagnostics } from '@codemirror/lint'
+import { hostYTab } from '../utils/lezer-mips/collab'
 
 const code = ref(null as HTMLElement | null)
 
@@ -66,6 +67,9 @@ onMounted(() => {
     () => view.requestMeasure(),
   )
 
+  window.host = () => {
+    view.dispatch({ effects: [hostYTab(tab()!)] })
+  }
   // https://gist.github.com/shimondoodkin/1081133
   // if (/AppleWebKit\/([\d.]+)/.exec(navigator.userAgent)) {
   //   view.contentDOM.addEventListener(
