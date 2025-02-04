@@ -12,7 +12,7 @@
     <div
       class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none text-xs"
     >
-      <MenuButton v-if="shouldShowMenu" />
+      <MenuButton v-if="shouldShowMenu" @create="create" />
 
       <div class="flex flex-grow overflow-x-auto no-scrollbar items-start">
         <Tab

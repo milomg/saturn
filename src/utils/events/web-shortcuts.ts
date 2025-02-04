@@ -32,7 +32,7 @@ export const getOpenableFiles = async () => {
   return out
 }
 
-async function saveCurrentTab() {
+export async function saveCurrentTab() {
   const current = tab()
   if (!current) {
     return
@@ -65,7 +65,7 @@ async function saveCurrentTab() {
   current.marked = false
 }
 
-async function openTab() {
+export async function openTab() {
   showFileOpenDialog.value = true
   const name = await new Promise<string>((resolve) => {
     showFileSaveResolve = resolve
