@@ -80,7 +80,7 @@ let syncing = false
 export function isSyncing(): boolean {
   return syncing
 }
-function createState(editor: Tabs, uuid: string, doc: string) {
+function createState(editor: Tabs, uuid: string, doc: string, writable: boolean): EditorState {
   return EditorState.create({
     doc,
     extensions: [
@@ -103,6 +103,7 @@ function createState(editor: Tabs, uuid: string, doc: string) {
       Mips(),
       breakpointGutter,
       basicSetup,
+      writable ? [] : EditorState.readOnly.of(true),
     ],
   })
 }
@@ -211,7 +212,7 @@ export function useTabs(): TabsResult {
         continue
       }
 
-      const state = markRaw(createState(editor, tab.uuid, data))
+      const state = markRaw(createState(editor, tab.uuid, data, tab.writable))
 
       editor.tabs.push({
         uuid: tab.uuid,
@@ -375,7 +376,7 @@ export function useTabs(): TabsResult {
       uuid: id,
       title: named,
       doc: content,
-      state: markRaw(createState(editor, id, content)),
+      state: markRaw(createState(editor, id, content, writable)),
       removed: false,
       path,
       writable,
