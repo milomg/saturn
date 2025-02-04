@@ -3,7 +3,6 @@ import {
   LRLanguage,
   LanguageSupport,
   foldNodeProp,
-  indentNodeProp,
 } from '@codemirror/language'
 import { styleTags, tags as t } from '@lezer/highlight'
 import { myCompletions } from './autocomplete'
@@ -16,10 +15,6 @@ const MipsLanguage = LRLanguage.define({
           let first = node.firstChild
           return first && first.to ? { from: first.to, to: node.to } : null
         },
-      }),
-      indentNodeProp.add({
-        LabelGroup: (context) =>
-          context.column(context.node.from) + context.unit,
       }),
       styleTags({
         Identifier: t.variableName,

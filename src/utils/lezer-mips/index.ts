@@ -1,6 +1,11 @@
 import { tags as t } from '@lezer/highlight'
 import { autocompletion } from '@codemirror/autocomplete'
-import { syntaxHighlighting, HighlightStyle } from '@codemirror/language'
+import {
+  syntaxHighlighting,
+  HighlightStyle,
+  indentOnInput,
+  indentService,
+} from '@codemirror/language'
 import { StateEffect, StateField } from '@codemirror/state'
 import { Decoration, DecorationSet, EditorView } from '@codemirror/view'
 import { lang } from './lezer-lang'
@@ -52,6 +57,12 @@ export function Mips() {
     lang,
     autocompletion({ activateOnTyping: true }),
     highlightedLineState,
+    indentService.of((context, pos) => {
+      const previousLine = context.lineAt(pos, -1)
+      const prevIndent = context.lineIndent(pos, -1)
+      if (previousLine.text.match(/:$/)) return prevIndent + context.unit
+      return prevIndent
+    }),
     foldOnIndent,
     goto,
   ]
