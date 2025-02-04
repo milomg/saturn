@@ -3,7 +3,6 @@ import { autocompletion } from '@codemirror/autocomplete'
 import {
   syntaxHighlighting,
   HighlightStyle,
-  indentOnInput,
   indentService,
 } from '@codemirror/language'
 import { StateEffect, StateField } from '@codemirror/state'
