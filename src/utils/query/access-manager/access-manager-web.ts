@@ -28,7 +28,7 @@ export async function selectSaveDestination(): Promise<AccessFile<undefined> | n
     path: name,
     name: name,
     extension: '',
-    data: undefined
+    data: undefined,
   }
 }
 
@@ -55,7 +55,9 @@ export async function accessWriteBinary(
   await writable.close()
 }
 
-export async function selectOpenFile(): Promise<AccessFile<string | Uint8Array> | null> {
+export async function selectOpenFile(): Promise<AccessFile<
+  string | Uint8Array
+> | null> {
   showFileOpenDialog.value = true
   const name = await new Promise<string>((resolve) => {
     showFileSaveResolve = resolve
@@ -78,10 +80,13 @@ export async function accessReadFile(
   const astorage = await storage
   const file = await astorage.getFileHandle(path)
   const fileContents = await file.getFile()
+  const data = fileContents.name.endsWith('.elf')
+    ? new Uint8Array(await fileContents.arrayBuffer())
+    : await fileContents.text()
   return {
     path,
     name: path,
     extension: path.split('.').pop() ?? '',
-    data: await fileContents.text()
+    data,
   }
 }

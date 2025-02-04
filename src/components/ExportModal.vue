@@ -118,6 +118,7 @@ import { postBuildMessage } from '../utils/debug'
 import { DocumentArrowUpIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 import { settings } from '../state/state'
 import ToggleField from './console/ToggleField.vue'
+import { toRaw } from 'vue'
 
 const props = defineProps<{
   show: boolean
@@ -173,7 +174,11 @@ async function exportRegions() {
     return
   }
 
-  const result = await backend.assembleRegions(current.doc, current.path, state)
+  const result = await backend.assembleRegions(
+    current.doc,
+    current.path,
+    toRaw(state),
+  )
 
   if (result.regions) {
     switch (result.regions.type) {

@@ -38,7 +38,7 @@
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          @click="openTab"
+          @click="openFile"
           value="Open File"
           class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
         >
@@ -117,7 +117,7 @@
 
         <!-- Assemble elf, disassemble elf, export elf, export regions -->
         <DropdownMenuItem
-          @click="showExportRegionsDialog = true"
+          @click="assemble"
           value="Assemble ELF"
           class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
         >
@@ -126,7 +126,7 @@
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          @click="showExportRegionsDialog = true"
+          @click="disassemble"
           value="Disassemble ELF"
           class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
         >
@@ -135,7 +135,7 @@
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          @click="showExportRegionsDialog = true"
+          @click="exportBinary"
           value="Export ELF"
           class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
         >
@@ -144,7 +144,7 @@
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          @click="showExportRegionsDialog = true"
+          @click="exportHex"
           value="Export Regions"
           class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
         >
@@ -173,12 +173,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from 'reka-ui'
-import {
-  showSettings,
-  showExportRegionsDialog,
-} from '../state/state'
+import { showSettings } from '../state/state'
 import { build, pause, resume, step, stop } from '../utils/debug'
-import { openTab, saveCurrentTab } from '../utils/events/events'
+import {
+  assemble,
+  disassemble,
+  exportHex,
+  openFile,
+  saveCurrentTab,
+} from '../utils/events/events'
+import { exportBinary } from '../utils/events/web-shortcuts'
 
 const emit = defineEmits(['create'])
 </script>
