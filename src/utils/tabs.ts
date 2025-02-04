@@ -10,7 +10,7 @@ import { SelectionIndex, SelectionRange } from './editor'
 import { PromptType } from './events/events'
 import { SaveModalResult, useSaveModal } from './save-modal'
 import { closeWindow } from './window'
-import { accessReadText, accessSync } from './query/access-manager'
+import { accessReadText, accessSync } from './query/access-manager/access-manager-tauri'
 import { backend } from '../state/backend'
 import { EditorState } from '@codemirror/state'
 import { EditorView, basicSetup } from 'codemirror'
@@ -24,7 +24,7 @@ import {
 import { suggestionsContext } from './lezer-mips/suggestions'
 import { highlightTrailingWhitespace, keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
-import { saveTab } from './events/tauri-shortcuts'
+import { saveTab } from './events/events'
 
 export type CursorState = SelectionIndex & {
   highlight: SelectionIndex | null

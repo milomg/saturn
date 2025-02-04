@@ -176,11 +176,9 @@ import {
 import {
   showSettings,
   showExportRegionsDialog,
-  showFileOpenDialog,
-  showFileSaveDialog,
 } from '../state/state'
 import { build, pause, resume, step, stop } from '../utils/debug'
-import { openTab, saveCurrentTab } from '../utils/events/web-shortcuts'
+import { openTab, saveCurrentTab } from '../utils/events/events'
 
 const emit = defineEmits(['create'])
 </script>

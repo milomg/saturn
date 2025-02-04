@@ -61,7 +61,7 @@ import {
 
 import { ref } from 'vue'
 import { showFileSaveDialog } from '../state/state'
-import { confirm } from '../utils/events/web-shortcuts'
+import { confirm } from '../utils/query/access-manager/access-manager-web'
 
 const fileName = ref('')
 

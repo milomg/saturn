@@ -2,81 +2,35 @@ import { emit, listen } from '@tauri-apps/api/event'
 import { build, pause, postBuildMessage, resume, step, stop } from '../debug'
 import { watch } from 'vue'
 import { consoleData, ConsoleType, pushConsole } from '../../state/console-data'
-import { closeTab, createTab, loadElf, showExportRegionsDialog, tab, tabsState } from '../../state/state'
+import { closeTab,  tab, tabsState } from '../../state/state'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import {
-  AccessFile,
-  accessReadFile, accessWriteText,
-  assemblyFilter,
+  accessReadFile, 
   elfFilter,
-  selectOpenFile,
-  selectSaveDestination
-} from '../query/access-manager'
+} from '../query/access-manager/access-manager-tauri'
 import {
   newTab,
   closeCurrentTab,
-  PromptType,
   assemble,
   disassemble,
   toggleConsole,
   toggleSettings,
-  Accelerator
+  Accelerator,
+  exportHex,
+  openFile,
+  save,
+  saveAs,
+  openTab
 } from './events'
 import { BinaryResult } from '../mips/mips'
 import { backend } from '../../state/backend'
 import { exportBinaryContents } from '../query/serialize-files'
 import { hasActionKey } from '../query/shortcut-key'
 import { invoke } from '@tauri-apps/api/core'
-import { EditorTab } from '../tabs'
 
 interface ConsoleEvent {
   uuid?: string
   message: string
-}
-
-
-// 'open-file' - tauri required
-export async function openFile() {
-  const result = await selectOpenFile('')
-
-  if (!result) {
-    return
-  }
-
-  await openTab(result)
-}
-
-export async function openTab(file: AccessFile<string | Uint8Array>) {
-  const { name: inName, path, data } = file
-  const name = inName ?? 'Untitled'
-
-  const existing = tabsState.tabs.find((tab) => tab.path === path)
-
-  if (existing) {
-    tabsState.selected = existing.uuid
-    return
-  }
-
-  switch (typeof data) {
-    case 'string':
-      createTab(name, data, path)
-      break
-
-    default:
-      await loadElf(name, data.buffer)
-      break
-  }
-}
-
-// 'save'
-export async function save() {
-  // duplicating this function for consistency
-  await saveCurrentTab()
-}
-
-// 'save-as'
-export async function saveAs() {
-  await saveCurrentTab(PromptType.ForcePrompt)
 }
 
 // 'export'
@@ -118,11 +72,6 @@ export async function exportBinary() {
   if (destination !== null) {
     pushConsole(`ELF file written to ${destination}`, ConsoleType.Info)
   }
-}
-
-// 'export-hex'
-export async function exportHex() {
-  showExportRegionsDialog.value = !showExportRegionsDialog.value
 }
 
 // Why is setupTauriEvents separate from setupTauriShortcuts?
@@ -242,46 +191,6 @@ export async function setupTauriEvents() {
 interface Shortcut {
   event: string
   accelerator: Accelerator
-}
-
-export async function saveTab(
-  current: EditorTab,
-  type: PromptType = PromptType.PromptWhenNeeded,
-): Promise<boolean> {
-  if (type === PromptType.NeverPrompt && !current.path) {
-    return true
-  }
-
-  if (type === PromptType.ForcePrompt || !current.path) {
-    const result = await selectSaveDestination('Save File', assemblyFilter)
-
-    if (!result) {
-      return false
-    }
-
-    const { name, path } = result
-
-    current.title = name ?? 'Untitled'
-    current.path = path
-  }
-
-  const data = current.doc.toString()
-
-  await accessWriteText(current.path, data)
-
-  current.marked = false // Remove "needs saving" marker
-
-  return true
-}
-
-export async function saveCurrentTab(
-  prompt: PromptType = PromptType.PromptWhenNeeded,
-) {
-  const current = tab()
-
-  if (current) {
-    await saveTab(current, prompt)
-  }
 }
 
 // Tauri Shortcuts - Windows specifically doesn't seem to send Tauri Events for menu shortcuts

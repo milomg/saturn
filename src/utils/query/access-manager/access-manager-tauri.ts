@@ -1,16 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
+import { AccessFile, AccessFilter } from '.'
 
-export interface AccessFile<T> {
-  path: string
-  name: string | null
-  extension: string | null
-  data: T
-}
-
-export interface AccessFilter {
-  name: string
-  extensions: string[]
-}
 
 export const assemblyFilter: AccessFilter[] = [
   {

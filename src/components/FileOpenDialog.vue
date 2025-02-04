@@ -85,7 +85,7 @@ import {
 
 import { onMounted, ref, watch } from 'vue'
 import { showFileOpenDialog } from '../state/state'
-import { confirm, getOpenableFiles } from '../utils/events/web-shortcuts'
+import { confirm, getOpenableFiles } from '../utils/query/access-manager/access-manager-web'
 
 const fileName = ref('')
 
