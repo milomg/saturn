@@ -18,7 +18,15 @@
           Enter the name of the file you want to open below.
         </DialogDescription>
 
-        <ComboboxRoot class="relative" v-model="fileName" :default-open="true">
+        <ComboboxRoot
+          class="relative"
+          v-model="fileName"
+          :default-open="true"
+          :ignore-filter="
+            // show ComboboxEmpty when there are no files
+            myfiles.length == 0
+          "
+        >
           <ComboboxAnchor>
             <ComboboxInput
               class="dark:text-neutral-200 text-neutral-800 dark:bg-neutral-800 bg-neutral-100 dark:shadow-neutral-700 shadow-neutral-300 focus:shadow-orange-400 inline-flex h-[35px] w-full flex-1 items-center justify-center rounded-lg px-[10px] text-sm leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
@@ -85,7 +93,10 @@ import {
 
 import { onMounted, ref, watch } from 'vue'
 import { showFileOpenDialog } from '../state/state'
-import { confirm, getOpenableFiles } from '../utils/query/access-manager/access-manager-web'
+import {
+  confirm,
+  getOpenableFiles,
+} from '../utils/query/access-manager/access-manager-web'
 
 const fileName = ref('')
 
