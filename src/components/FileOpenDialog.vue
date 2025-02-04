@@ -18,12 +18,12 @@
           Enter the name of the file you want to open below.
         </DialogDescription>
 
-        <ComboboxRoot class="relative" v-model="fileName">
+        <ComboboxRoot class="relative" v-model="fileName" :default-open="true">
           <ComboboxAnchor>
             <ComboboxInput class="dark:text-neutral-200 text-neutral-800 dark:bg-neutral-800 bg-neutral-100 dark:shadow-neutral-700 shadow-neutral-300 focus:shadow-orange-400 inline-flex h-[35px] w-full flex-1 items-center justify-center rounded-lg px-[10px] text-sm leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]" />
           </ComboboxAnchor>
           <ComboboxContent class="absolute  w-full">
-            <ComboboxViewport class="dark:bg-neutral-800 bg-neutral-100 rounded-lg p-2 mt-1 shadow-lg max-h-[300px] overflow-y-auto">
+            <ComboboxViewport class="dark:bg-neutral-800 bg-neutral-100 rounded-lg p-2 mt-1 shadow-lg max-h-[300px] overflow-y-auto z-[500]">
               <ComboboxEmpty class="text-sm dark:text-neutral-400 text-neutral-600 p-2">No files found</ComboboxEmpty>
               <ComboboxItem
                 v-for="file in myfiles"
