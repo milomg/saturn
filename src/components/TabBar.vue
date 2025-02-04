@@ -6,12 +6,8 @@
       :show="showExportRegionsDialog"
       @close="showExportRegionsDialog = false"
     />
-    <FileSaveDialog 
-      title="Save File"
-    />
-    <FileOpenDialog 
-      title="Open File"
-      />
+    <FileSaveDialog title="Save File" />
+    <FileOpenDialog title="Open File" />
 
     <div
       class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none text-xs"
