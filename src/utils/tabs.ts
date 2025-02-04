@@ -22,7 +22,7 @@ import {
   createDefaultVim,
 } from './lezer-mips/modes'
 import { suggestionsContext } from './lezer-mips/suggestions'
-import { highlightTrailingWhitespace, keymap } from '@codemirror/view'
+import { keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
 import { saveTab } from './events/tauri-shortcuts'
 
@@ -90,7 +90,6 @@ function createState(editor: Tabs, uuid: string, doc: string) {
       createDefaultTheme(),
       suggestionsContext,
       keymap.of([indentWithTab]),
-      highlightTrailingWhitespace(),
       EditorView.updateListener.of((update) => {
         const tab = editor.tabs.find((tab) => tab.uuid === uuid)!
         syncing = true
