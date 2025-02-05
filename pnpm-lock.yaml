@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  y-codemirror.next:
+    hash: ef71ca48fa170dc3286e76f3c83cbc19b6295e64fbc3fde05ee769bfcc1023cd
+    path: patches/y-codemirror.next.patch
+
 importers:
 
   .:
@@ -73,7 +78,7 @@ importers:
         version: 3.5.13(typescript@5.7.3)
       y-codemirror.next:
         specifier: ^0.3.5
-        version: 0.3.5(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)(yjs@13.6.23)
+        version: 0.3.5(patch_hash=ef71ca48fa170dc3286e76f3c83cbc19b6295e64fbc3fde05ee769bfcc1023cd)(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)(yjs@13.6.23)
       y-webrtc:
         specifier: ^10.3.0
         version: 10.3.0(yjs@13.6.23)
@@ -2773,7 +2778,7 @@ snapshots:
   ws@8.18.0:
     optional: true
 
-  y-codemirror.next@0.3.5(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)(yjs@13.6.23):
+  y-codemirror.next@0.3.5(patch_hash=ef71ca48fa170dc3286e76f3c83cbc19b6295e64fbc3fde05ee769bfcc1023cd)(@codemirror/state@6.5.1)(@codemirror/view@6.36.2)(yjs@13.6.23):
     dependencies:
       '@codemirror/state': 6.5.1
       '@codemirror/view': 6.36.2

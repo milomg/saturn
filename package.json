@@ -55,5 +55,10 @@
     "vue-tsc": "^2.2.0",
     "wasm-pack": "^0.13.1"
   },
-  "packageManager": "pnpm@10.1.0"
+  "packageManager": "pnpm@10.1.0",
+  "pnpm": {
+    "patchedDependencies": {
+      "y-codemirror.next": "patches/y-codemirror.next.patch"
+    }
+  }
 }

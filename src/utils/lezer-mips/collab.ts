@@ -4,7 +4,7 @@ import { createState, EditorTab, Tabs } from '../tabs'
 import { tabsState } from '../../state/state'
 import { markRaw } from 'vue'
 import { ChangeSpec, Compartment, Extension } from '@codemirror/state'
-import { yCollab } from 'y-codemirror.next'
+import { yCollab, ySync, ySyncAnnotation } from 'y-codemirror.next'
 import { EditorView, ViewPlugin } from '@codemirror/view'
 import { diff } from 'fast-myers-diff'
 
@@ -47,6 +47,7 @@ const syncPlugin = (ytext: Y.Text) =>
           queueMicrotask(() => {
             view.dispatch({
               changes: changes,
+              annotations: [ySyncAnnotation.of(view.plugin(ySync)!.conf)],
             })
           })
         }
