@@ -17,7 +17,7 @@ import { format } from 'date-fns'
 import { PromptType } from './events/events'
 import { getBreakpoints } from './breakpoints'
 import { computed, toRaw } from 'vue'
-import { saveCurrentTab } from './events/tauri-shortcuts'
+import { saveCurrentTab } from './events/events'
 
 export async function setBreakpoint() {
   const currentTab = tab()
