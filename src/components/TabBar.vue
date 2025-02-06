@@ -8,8 +8,44 @@
     />
 
     <div
-      class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none"
+      class="h-10 flex items-start dark:bg-neutral-900 bg-neutral-200 w-full fixed z-20 top-0 shadow-md dark:shadow-none text-xs"
     >
+      <DropdownMenuRoot v-if="shouldShowMenu">
+        <DropdownMenuTrigger>
+          <button
+            class="w-10 h-10 dark:hover:bg-slate-800 hover:bg-slate-300 dark:text-slate-300 text-slate-800 shrink-0 flex items-center justify-center font-black"
+          >
+            <Bars3Icon class="w-4 h-4" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuPortal>
+          <DropdownMenuContent
+            class="bg-neutral-200 dark:bg-neutral-900 dark:text-slate-300 text-slate-800 rounded-lg rounded-tl-none border dark:border-neutral-700 gap-2 shadow-md ml-2 p-2 text-sm w-60"
+          >
+            <DropdownMenuItem
+              @click="showSettings = true"
+              value="Settings"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
+            >
+              <CogIcon class="w-4 h-4 m-2" />
+              Settings
+              <div class="ml-auto mr-1 pl-[20px] font-mono">⌘+,</div>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              @click="showExportRegionsDialog = true"
+              value="Export"
+              class="dark:hover:bg-neutral-700 hover:bg-neutral-300 rounded flex items-center"
+            >
+              <ArrowUpLeftIcon class="w-4 h-4 m-2" />
+              Export
+              <div class="ml-auto mr-1 pl-[20px] font-mono">⌘+E</div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenuPortal>
+      </DropdownMenuRoot>
+
       <div class="flex flex-grow overflow-x-auto no-scrollbar items-start">
         <Tab
           v-for="tab in tabsState.tabs"
@@ -42,7 +78,19 @@
 
 <script setup lang="ts">
 import Tab from './Tab.vue'
-import { PlusIcon } from '@heroicons/vue/24/solid'
+import {
+  PlusIcon,
+  Bars3Icon,
+  CogIcon,
+  ArrowUpLeftIcon,
+} from '@heroicons/vue/24/solid'
+import {
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuRoot,
+  DropdownMenuTrigger,
+} from 'reka-ui'
 
 import {
   closeTab,
@@ -58,6 +106,8 @@ import SaveModal from './SaveModal.vue'
 import { nextTick, onMounted, onUnmounted, reactive, StyleValue } from 'vue'
 import SettingsModal from './SettingsModal.vue'
 import ExportOverlay from './ExportModal.vue'
+
+const shouldShowMenu = !window.__TAURI_INTERNALS__
 
 const state = reactive({
   dragging: false,
@@ -177,6 +227,6 @@ onUnmounted(() => {
 })
 
 function create() {
-  createTab('Untitled', [''])
+  createTab('Untitled', '')
 }
 </script>

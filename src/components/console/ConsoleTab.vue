@@ -107,7 +107,7 @@ function makeEditor(): Editor {
     )
   }
 
-  return new Editor(consoleData.console, cursor, () => {}, writable)
+  return new Editor(consoleData.console, cursor, writable)
 }
 
 const state = reactive({

@@ -17,6 +17,16 @@
       </div>
 
       <div class="mt-8">
+        <div class="font-bold uppercase text-sm">Font Size</div>
+
+        <div class="dark:text-gray-300 text-gray-800 text-sm mt-1">
+          Adjust the size of the text in the editor window.
+        </div>
+
+        <NumberField class="my-2 text-sm" v-model="settings.editor.fontSize" />
+      </div>
+
+      <div class="mt-8">
         <div class="font-bold uppercase text-sm">Tab Size</div>
 
         <div class="dark:text-gray-300 text-gray-800 text-sm mt-1">
@@ -91,6 +101,34 @@
           class="my-2"
           title="Use Dark Mode"
           v-model="settings.editor.darkMode"
+        />
+      </div>
+
+      <div class="mt-8">
+        <div class="font-bold uppercase text-sm">Show minimap</div>
+
+        <div class="dark:text-gray-300 text-gray-800 text-sm mt-1">
+          When enabled, a minimap will be shown on the right side of the editor.
+        </div>
+
+        <ToggleField
+          class="my-2"
+          title="Show minimap"
+          v-model="settings.editor.showMinimap"
+        />
+      </div>
+
+      <div class="mt-8">
+        <div class="font-bold uppercase text-sm">VIM Mode</div>
+
+        <div class="dark:text-gray-300 text-gray-800 text-sm mt-1">
+          When enabled, use VIM keybindings.
+        </div>
+
+        <ToggleField
+          class="my-2"
+          title="Use VIM Mode"
+          v-model="settings.editor.vimMode"
         />
       </div>
     </div>

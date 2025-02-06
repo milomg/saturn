@@ -71,7 +71,6 @@
 
 <script setup lang="ts">
 import { buildLines } from '../state/state'
-import { watch } from 'vue'
 
 const systemColor = 'text-purple-300'
 const valueColor = 'text-red-300'

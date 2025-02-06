@@ -122,13 +122,14 @@
       </div>
     </div>
 
-    <button
+    <div
       ref="wrapper"
       @click="focusSelf"
       @focusin="state.keyboardLive = true"
       @focusout="state.keyboardLive = false"
       @keydown="(e) => handleKey(e, false)"
       @keyup="(e) => handleKey(e, true)"
+      tabindex="0"
       class="outline-none overflow-visible focus:ring-4 border border-neutral-700 rounded h-full shrink-0 max-w-3/4 self-end"
       :style="{ width: `${correctedWidth}px` }"
     >
@@ -138,7 +139,7 @@
         :width="config.width"
         :height="config.height"
       />
-    </button>
+    </div>
   </div>
 </template>
 
