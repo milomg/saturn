@@ -1,34 +1,43 @@
 [package]
 name = "saturn"
-version = "0.1.9"
+version = "0.1.10"
 description = "A modern MIPS IDE."
 authors = ["desgroup"]
 license = ""
 repository = ""
 edition = "2021"
-rust-version = "1.66"
+rust-version = "1.84"
+
+[lib]
+name = "app_lib"
 
 [build-dependencies]
-tauri-build = {version = "1.2", features = [] }
+tauri-build = {version = "2", features = [] }
 
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
-tauri = { version = "1.7.2", features = ["api-all", "time", "linux-protocol-headers"] }
-tokio = { version = "1.33.0", features = ["time", "macros"] }
+tauri = { version = "2", features = [] } #, features = [ "time"] }
+tokio = { version = "1.43", features = ["time", "macros"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-http = "2"
 
 hex = "0.4.3"
-futures = "0.3.29"
-percent-encoding = "2.3.0"
+futures = "0.3.31"
+percent-encoding = "2.3"
 sha2 = "0.10.8"
-uuid = "1.5.0"
-notify = "6.1.1"
+uuid = "1.12"
+notify = "8.0"
 base64 = "0.22.1"
+num = "0.4.3"
 
 saturn_backend = { path = "../src-backend" }
 titan = { git = "https://github.com/1whatleytay/titan.git", branch = "main" }
-async-trait = "0.1.82"
+async-trait = "0.1.85"
 
 [features]
 default = [ "custom-protocol" ]
 custom-protocol = [ "tauri/custom-protocol" ]
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-global-shortcut = "2"

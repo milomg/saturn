@@ -54,6 +54,7 @@ export interface BitmapConfig {
   width: number
   height: number
   address: number
+  register: number | null
 }
 
 export enum ExecutionModeType {
@@ -130,7 +131,7 @@ export class Breakpoints {
 
   // pc -> line
   constructor(breakpoints: Breakpoint[]) {
-    this.maxLine = Math.max(...breakpoints.map(b => b.line))
+    this.maxLine = Math.max(...breakpoints.map((b) => b.line))
     this.lineToPc = new Map()
     this.pcToGroup = new Map()
 
@@ -185,20 +186,20 @@ export interface ParameterItemRegular {
 
 export interface ParameterItemOffset {
   type: 'Offset'
-  value: { offset: number, register: number }
+  value: { offset: number; register: number }
 }
 
 export type ParameterItem = ParameterItemRegular | ParameterItemOffset
 
 export interface InstructionDetails {
-  pc: number,
-  instruction: number,
-  name: string,
+  pc: number
+  instruction: number
+  name: string
   parameters: ParameterItem[]
 }
 
 export interface InstructionLineInstruction {
-  type: 'Instruction',
+  type: 'Instruction'
   details: InstructionDetails
 }
 
@@ -207,19 +208,31 @@ export interface InstructionLineBlank {
 }
 
 export interface InstructionLineComment {
-  type: 'Comment',
+  type: 'Comment'
   message: string
 }
 
 export interface InstructionLineLabel {
-  type: 'Label',
+  type: 'Label'
   name: string
 }
 
-export type InstructionLine = InstructionLineInstruction
+export type InstructionLine =
+  | InstructionLineInstruction
   | InstructionLineBlank
   | InstructionLineComment
   | InstructionLineLabel
+
+export interface Accelerator {
+  command: boolean
+  shift: boolean
+  key: string
+}
+
+export interface Shortcut {
+  event: string
+  accelerator: Accelerator
+}
 
 export interface MipsCallbacks {
   consoleWrite(text: string, error: boolean): void
@@ -227,15 +240,22 @@ export interface MipsCallbacks {
 }
 
 export interface MipsBackend {
+  waitReady(): Promise<void>
+
+  shortcuts(): Promise<Shortcut[]>
+
   setCallbacks(callbacks: MipsCallbacks): Promise<void>
 
   // Insight
-  decodeInstruction(pc: number, instruction: number): Promise<InstructionDetails | null>
+  decodeInstruction(
+    pc: number,
+    instruction: number,
+  ): Promise<InstructionDetails | null>
   disassemblyDetails(bytes: ArrayBuffer): Promise<InstructionLine[]>
 
   disassembleElf(
     named: string,
-    elf: ArrayBuffer
+    elf: ArrayBufferLike,
   ): Promise<DisassembleResult>
 
   assembleText(text: string, path: string | null): Promise<AssemblerResult>
@@ -244,7 +264,7 @@ export interface MipsBackend {
   assembleRegions(
     text: string,
     path: string | null,
-    options: ExportRegionsOptions
+    options: ExportRegionsOptions,
   ): Promise<HexBinaryResult>
 
   // Execution
@@ -257,7 +277,7 @@ export interface MipsBackend {
     text: string,
     path: string | null,
     timeTravel: boolean,
-    profile: ExecutionProfile
+    profile: ExecutionProfile,
   ): Promise<MipsExecution>
 
   close(): void
@@ -283,13 +303,15 @@ export interface MipsExecution {
   postKey(key: string, up: boolean): Promise<void>
   postInput(text: string): Promise<void>
 
-  memoryAt(
-    address: number,
-    count: number
-  ): Promise<(number | null)[] | null>
+  memoryAt(address: number, count: number): Promise<(number | null)[] | null>
   setRegister(register: number, value: number): Promise<void>
   setMemory(address: number, bytes: number[]): Promise<void>
 
   // Live display, should generally be more performant on tauri.
-  readDisplay(width: number, height: number, address: number): Promise<Uint8Array | null>
+  readDisplay(
+    width: number,
+    height: number,
+    address: number,
+    register: number | null,
+  ): Promise<Uint8Array | null>
 }

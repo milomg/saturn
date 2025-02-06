@@ -25,7 +25,7 @@
           :classes="section.classes"
           :value="register.value"
           :format="settings.registers.format"
-          @set="value => setRegister(register.id, value)"
+          @set="(value) => setRegister(register.id, value)"
         />
       </div>
     </div>
@@ -77,7 +77,7 @@ function buttonClasses(format: RegisterFormat) {
   if (settings.registers.format === format) {
     return 'hover:text-neutral-300 dark:text-neutral-300 text-neutral-300 hover:bg-slate-800 bg-neutral-800'
   } else {
-   return 'hover:text-neutral-300 dark:text-neutral-300 text-neutral-800 hover:bg-slate-700'
+    return 'hover:text-neutral-300 dark:text-neutral-300 text-neutral-800 hover:bg-slate-700'
   }
 }
 
@@ -137,7 +137,11 @@ const sections = [
     indices: [0, 1, 26, 27, 28, 29, 30, 31],
     system: true,
   },
-  { name: 'Values', classes: 'dark:text-red-300 text-red-700', indices: [2, 3, 4, 5, 6, 7] },
+  {
+    name: 'Values',
+    classes: 'dark:text-red-300 text-red-700',
+    indices: [2, 3, 4, 5, 6, 7],
+  },
   {
     name: 'Temporary',
     classes: 'dark:text-cyan-300 text-cyan-700',
@@ -164,7 +168,7 @@ watch(
     if (!value) {
       lastRegisters = null
     }
-  }
+  },
 )
 
 watch(
@@ -173,13 +177,13 @@ watch(
     if (!!old) {
       lastRegisters = old
     }
-  }
+  },
 )
 
 function register(
   name: string,
   id: number,
-  get: (registers: Registers) => number | undefined
+  get: (registers: Registers) => number | undefined,
 ): RegisterValue {
   const lastState = lastRegisters
   const currentState = consoleData.registers
@@ -203,8 +207,8 @@ const mappedSections = computed((): RegisterSection[] => {
 
     values.push(
       ...section.indices.map((index) =>
-        register(registers[index], index, (r) => r.line[index])
-      )
+        register(registers[index], index, (r) => r.line[index]),
+      ),
     )
 
     return {

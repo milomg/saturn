@@ -1,2 +1,5 @@
 dist
 src-tauri
+target/
+src/utils/mips/wasm/
+pnpm-lock.yaml

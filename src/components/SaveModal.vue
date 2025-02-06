@@ -5,7 +5,9 @@
     >
       <div>Would you like to save changes made to this file?</div>
 
-      <div class="dark:text-neutral-400 text-neutral-600 text-xs font-medium mt-1">
+      <div
+        class="dark:text-neutral-400 text-neutral-600 text-xs font-medium mt-1"
+      >
         You will lose your changes if you chose to not save them.
       </div>
 
@@ -127,6 +129,6 @@ watch(
 
       saveButton.value?.focus()
     }
-  }
+  },
 )
 </script>

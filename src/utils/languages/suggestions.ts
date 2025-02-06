@@ -67,7 +67,7 @@ export class SuggestionsStorage {
 
   cache<T>(
     type: string,
-    build: (values: IterableIterator<Suggestion>) => T
+    build: (values: IterableIterator<Suggestion>) => T,
   ): T {
     const result = this.cacheMap.get(type)
 
@@ -93,14 +93,14 @@ export class SuggestionsStorage {
       l.forEach((s) => {
         mutated = true
         this.map.delete(s.id)
-      })
+      }),
     )
 
     input.forEach((l) =>
       l.forEach((s) => {
         mutated = true
         this.map.set(s.id, s)
-      })
+      }),
     )
 
     if (mutated) {

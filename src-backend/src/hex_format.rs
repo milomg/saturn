@@ -1,37 +1,39 @@
-use std::cmp::min;
 use byteorder::ByteOrder;
 use serde::{Deserialize, Serialize};
+use std::cmp::min;
 
 #[derive(Copy, Clone, Serialize, Deserialize)]
-#[serde(rename_all="snake_case")]
+#[serde(rename_all = "snake_case")]
 pub enum HexEncoding {
     Byte,
     Little32,
-    Big32
+    Big32,
 }
 
 fn read_with_encoding<T: Into<u64>, F: FnMut(&[u8]) -> T>(data: &[u8], mut f: F) -> Vec<u64> {
-    (0 .. data.len()).step_by(4)
+    (0..data.len())
+        .step_by(4)
         .map(|i| {
-            let slice = &data[i .. min(i + 4, data.len())];
+            let slice = &data[i..min(i + 4, data.len())];
 
             if slice.len() < 4 {
                 let mut slice = slice.to_vec();
-                
+
                 slice.extend(std::iter::repeat(0).take(4 - slice.len()));
-                
+
                 f(&slice).into()
             } else {
                 f(slice).into()
             }
-        }).collect()
+        })
+        .collect()
 }
 
 pub fn encode_hex_with_encoding(data: &[u8], encoding: HexEncoding) -> String {
     let result: Vec<u64> = match encoding {
         HexEncoding::Byte => data.iter().cloned().map(|x| x as u64).collect(),
         HexEncoding::Little32 => read_with_encoding(data, byteorder::LittleEndian::read_u32),
-        HexEncoding::Big32 => read_with_encoding(data, byteorder::BigEndian::read_u32)
+        HexEncoding::Big32 => read_with_encoding(data, byteorder::BigEndian::read_u32),
     };
 
     encode_hex(&result)
@@ -42,9 +44,10 @@ pub fn encode_hex(data: &[u64]) -> String {
 
     let items_per_line = 16;
 
-    let body = (0 .. data.len()).step_by(items_per_line)
+    let body = (0..data.len())
+        .step_by(items_per_line)
         .map(|global| {
-            (0 .. items_per_line)
+            (0..items_per_line)
                 .filter_map(|sub| data.get(global + sub))
                 .cloned()
                 .map(|value| {

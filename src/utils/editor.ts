@@ -65,7 +65,7 @@ function merge(last: Frame, next: Frame): MergeResult {
   const leadingSize = Math.max(0, last.index - next.index)
   const collidingSize = Math.max(
     0,
-    Math.min(lastEnd, nextEnd) - Math.max(lastStart, nextStart)
+    Math.min(lastEnd, nextEnd) - Math.max(lastStart, nextStart),
   )
   const leading = next.deleted.slice(0, leadingSize)
   const trailing = next.deleted.slice(leadingSize + collidingSize)
@@ -81,7 +81,7 @@ function merge(last: Frame, next: Frame): MergeResult {
 export type DirtyHandler = (
   line: number,
   deleted: number,
-  insert: string[]
+  insert: string[],
 ) => void
 
 export class Editor {
@@ -99,10 +99,7 @@ export class Editor {
       this.operations.push(this.current)
 
       if (this.operations.length > this.backlog) {
-        this.operations.splice(
-          0,
-          this.operations.length - this.backlog
-        )
+        this.operations.splice(0, this.operations.length - this.backlog)
       }
 
       this.current = null
@@ -200,7 +197,7 @@ export class Editor {
     const deleted = this.data.splice(
       frame.index,
       frame.replaced,
-      ...frame.deleted
+      ...frame.deleted,
     )
     this.onDirty(frame.index, frame.replaced, frame.deleted)
 
@@ -213,7 +210,7 @@ export class Editor {
 
   undoWithReverse(
     step: Step | null,
-    reverseQueue: Step[]
+    reverseQueue: Step[],
   ): SelectionIndex | null {
     if (!step) {
       return null
@@ -238,20 +235,26 @@ export class Editor {
   public redo(): SelectionIndex | null {
     return this.undoWithReverse(
       this.redoOperations.pop() ?? null,
-      this.operations
+      this.operations,
     )
   }
 
-  drop(range: SelectionRange) {
+  drop(range: SelectionRange, inclusive: boolean = false) {
     if (range.startLine == range.endLine) {
-      const text = this.data[range.startLine]
+      if (inclusive) {
+        this.mutate(range.startLine, 1, 0, () => {
+          this.data.splice(range.startLine, 1)
+        })
+      } else {
+        const text = this.data[range.startLine]
 
-      const leading = text.substring(0, range.startIndex)
-      const trailing = text.substring(range.endIndex)
+        const leading = text.substring(0, range.startIndex)
+        const trailing = text.substring(range.endIndex)
 
-      this.mutateLine(range.startLine, () => {
-        this.data[range.startLine] = leading + trailing
-      })
+        this.mutateLine(range.startLine, () => {
+          this.data[range.startLine] = leading + trailing
+        })
+      }
     } else {
       const leading = this.data[range.startLine].substring(0, range.startIndex)
       const trailing = this.data[range.endLine].substring(range.endIndex)
@@ -259,11 +262,21 @@ export class Editor {
       this.mutate(
         range.startLine,
         range.endLine - range.startLine + 1,
-        1,
+        inclusive ? 0 : 1,
         () => {
-          this.data[range.startLine] = leading + trailing
-          this.data.splice(range.startLine + 1, range.endLine - range.startLine)
-        }
+          if (inclusive) {
+            this.data.splice(
+              range.startLine,
+              range.endLine - range.startLine + 1,
+            )
+          } else {
+            this.data[range.startLine] = leading + trailing
+            this.data.splice(
+              range.startLine + 1,
+              range.endLine - range.startLine,
+            )
+          }
+        },
       )
     }
   }
@@ -272,7 +285,7 @@ export class Editor {
     start: number,
     end: number,
     character: string,
-    whitespace: boolean = false
+    whitespace: boolean = false,
   ) {
     const count = end - start + 1
 
@@ -394,10 +407,16 @@ export class Editor {
     return { line: index.line + 1, index: spacing.length }
   }
 
+  dropLines(index: SelectionIndex) {
+    this.mutate(index.line, 1, 0, () => {
+      this.data.splice(index.line, 1)
+    })
+  }
+
   backspace(
     index: SelectionIndex,
     alt: boolean = false,
-    space: number = 1
+    space: number = 1,
   ): SelectionIndex {
     const line = this.data[index.line]
 
@@ -499,10 +518,10 @@ export class Editor {
     public writable?: (
       start: number,
       deleted: number,
-      insert: number
+      insert: number,
     ) => boolean, // end - not inclusive
     public backlog: number = 100,
     public debounce: number = 800,
-    public commitInterval: number = 30
+    public commitInterval: number = 30,
   ) {}
 }

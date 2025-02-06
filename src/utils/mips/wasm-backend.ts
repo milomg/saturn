@@ -10,18 +10,21 @@ import {
   InstructionDetails,
   InstructionLine,
   LastDisplay,
-  MipsBackend, MipsCallbacks,
-  MipsExecution
+  MipsBackend,
+  MipsCallbacks,
+  MipsExecution,
+  Shortcut,
 } from './mips'
 import WasmWorker from './wasm-worker?worker'
 import { ExportRegionsOptions } from '../settings'
 import {
   Message,
   MessageData,
-  MessageEventData, MessageEventOp,
+  MessageEventData,
+  MessageEventOp,
   MessageOp,
   MessageResponse,
-  MessageResponseKind
+  MessageResponseKind,
 } from './wasm-worker-message'
 
 interface RequestResponder {
@@ -43,6 +46,7 @@ interface RequestResponder {
 export class WasmBackend implements MipsBackend {
   worker: Worker
   requestId = 0
+  readyWaitList: (() => void)[] | null = []
 
   callbacks: MipsCallbacks | null = null
 
@@ -68,6 +72,17 @@ export class WasmBackend implements MipsBackend {
     })
   }
 
+  waitReady(): Promise<void> {
+    return new Promise((resolve) => {
+      // I guess this closure is treated as asynchronous.
+      if (this.readyWaitList) {
+        this.readyWaitList.push(resolve)
+      } else {
+        resolve()
+      }
+    })
+  }
+
   handleEvent(data: MessageEventData) {
     if (!this.callbacks) {
       return
@@ -79,6 +94,14 @@ export class WasmBackend implements MipsBackend {
         break
       case MessageEventOp.MidiPlay:
         this.callbacks.midiPlay(data.note)
+        break
+      case MessageEventOp.Ready:
+        if (this.readyWaitList) {
+          this.readyWaitList.forEach((resolve) => resolve())
+
+          this.readyWaitList = null
+        }
+
         break
     }
   }
@@ -111,10 +134,16 @@ export class WasmBackend implements MipsBackend {
     }
   }
 
+  shortcuts(): Promise<Shortcut[]> {
+    return this.sendRequest<Shortcut[]>({
+      op: MessageOp.PlatformShortcuts,
+    })
+  }
+
   async assembleRegions(
     text: string,
     path: string | null,
-    options: ExportRegionsOptions
+    options: ExportRegionsOptions,
   ): Promise<HexBinaryResult> {
     return await this.sendRequest<HexBinaryResult>({
       op: MessageOp.AssembleRegions,
@@ -126,7 +155,7 @@ export class WasmBackend implements MipsBackend {
 
   async assembleText(
     text: string,
-    path: string | null
+    path: string | null,
   ): Promise<AssemblerResult> {
     return await this.sendRequest<AssemblerResult>({
       op: MessageOp.AssembleText,
@@ -137,7 +166,7 @@ export class WasmBackend implements MipsBackend {
 
   async assembleWithBinary(
     text: string,
-    path: string | null
+    path: string | null,
   ): Promise<BinaryResult> {
     const [binary, assemblerResult] = await this.sendRequest<
       [number[] | null, AssemblerResult]
@@ -151,7 +180,7 @@ export class WasmBackend implements MipsBackend {
 
   async decodeInstruction(
     pc: number,
-    instruction: number
+    instruction: number,
   ): Promise<InstructionDetails | null> {
     return await this.sendRequest<InstructionDetails | null>({
       op: MessageOp.DecodeInstruction,
@@ -162,7 +191,7 @@ export class WasmBackend implements MipsBackend {
 
   async disassembleElf(
     named: string,
-    elf: ArrayBuffer
+    elf: ArrayBuffer,
   ): Promise<DisassembleResult> {
     return await this.sendRequest<DisassembleResult>({
       op: MessageOp.Disassemble,
@@ -196,7 +225,7 @@ export class WasmBackend implements MipsBackend {
     text: string,
     path: string | null,
     timeTravel: boolean,
-    profile: ExecutionProfile
+    profile: ExecutionProfile,
   ): Promise<MipsExecution> {
     return new WasmExecution(this, text, path, timeTravel, profile)
   }
@@ -235,24 +264,24 @@ export class WasmExecution implements MipsExecution {
         const result = await this.backend.sendRequest<boolean>({
           op: MessageOp.ConfigureElf,
           bytes,
-          timeTravel: this.timeTravel
+          timeTravel: this.timeTravel,
         })
 
         return result
           ? { status: 'Success', breakpoints: [] }
           : {
-            status: 'Error',
-            message: 'Configured ELF was not valid',
-            body: null,
-            marker: null,
-          }
+              status: 'Error',
+              message: 'Configured ELF was not valid',
+              body: null,
+              marker: null,
+            }
       }
 
       case 'asm': {
         const result = await this.backend.sendRequest<AssemblerResult>({
           op: MessageOp.ConfigureAsm,
           text: this.text,
-          timeTravel: this.timeTravel
+          timeTravel: this.timeTravel,
         })
 
         if (result.status === 'Success') {
@@ -275,7 +304,7 @@ export class WasmExecution implements MipsExecution {
     return this.backend.sendRequest<(number | null)[] | null>({
       op: MessageOp.ReadBytes,
       address,
-      count
+      count,
     })
   }
 
@@ -284,7 +313,7 @@ export class WasmExecution implements MipsExecution {
 
     return this.backend.sendRequest({
       op: MessageOp.SetBreakpoints,
-      breakpoints: new Uint32Array(mappedBreakpoints)
+      breakpoints: new Uint32Array(mappedBreakpoints),
     })
   }
 
@@ -292,7 +321,7 @@ export class WasmExecution implements MipsExecution {
     return this.backend.sendRequest({
       op: MessageOp.WriteBytes,
       address,
-      bytes: new Uint8Array(bytes)
+      bytes: new Uint8Array(bytes),
     })
   }
 
@@ -300,14 +329,14 @@ export class WasmExecution implements MipsExecution {
     return this.backend.sendRequest({
       op: MessageOp.SetRegister,
       register,
-      value
+      value,
     })
   }
 
   postInput(text: string): Promise<void> {
     return this.backend.sendRequest({
       op: MessageOp.PostInput,
-      text
+      text,
     })
   }
 
@@ -315,7 +344,7 @@ export class WasmExecution implements MipsExecution {
     return this.backend.sendRequest({
       op: MessageOp.PostKey,
       key,
-      up
+      up,
     })
   }
 
@@ -327,28 +356,40 @@ export class WasmExecution implements MipsExecution {
     return this.backend.sendRequest({ op: MessageOp.Stop })
   }
 
-  resume(count: number | null, breakpoints: number[] | null): Promise<ExecutionResult | null> {
+  resume(
+    count: number | null,
+    breakpoints: number[] | null,
+  ): Promise<ExecutionResult | null> {
     const mappedBreakpoints = breakpoints
-      ? this.breakpoints?.mapLines(breakpoints) ?? []
+      ? (this.breakpoints?.mapLines(breakpoints) ?? [])
       : []
 
-
-    return this.backend.sendRequest<ExecutionResult | null>({ op: MessageOp.Resume, count, breakpoints: mappedBreakpoints })
+    return this.backend.sendRequest<ExecutionResult | null>({
+      op: MessageOp.Resume,
+      count,
+      breakpoints: mappedBreakpoints,
+    })
   }
 
   rewind(count: number): Promise<ExecutionResult | null> {
     return this.backend.sendRequest<ExecutionResult | null>({
       op: MessageOp.Rewind,
-      count
+      count,
     })
   }
 
-  readDisplay(width: number, height: number, address: number): Promise<Uint8Array | null> {
+  readDisplay(
+    width: number,
+    height: number,
+    address: number,
+    register: number | null,
+  ): Promise<Uint8Array | null> {
     return this.backend.sendRequest<Uint8Array | null>({
       op: MessageOp.ReadDisplay,
       width,
       height,
-      address
+      address,
+      register,
     })
   }
 
@@ -357,6 +398,6 @@ export class WasmExecution implements MipsExecution {
     public text: string,
     public path: string | null,
     public timeTravel: boolean,
-    public profile: ExecutionProfile
-  ) { }
+    public profile: ExecutionProfile,
+  ) {}
 }

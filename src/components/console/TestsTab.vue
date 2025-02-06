@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="text-sm overflow-x-auto flex flex-wrap grow content-start p-4"
-  >
+  <div class="text-sm overflow-x-auto flex flex-wrap grow content-start p-4">
     <div class="text-base font-bold mb-4 flex items-center w-full">
       Tests
 
@@ -11,21 +9,23 @@
       >
         <PlayIcon class="text-green-300 font-bold w-4 h-4 mr-2" />
 
-        <span class="text-sm uppercase font-bold">
-          Run Tests
-        </span>
+        <span class="text-sm uppercase font-bold"> Run Tests </span>
       </button>
     </div>
 
     <div class="w-full">
-      <div v-if="!state.items.length" class="dark:bg-neutral-800 bg-neutral-300 w-full rounded-lg p-4 flex items-center mb-2">
+      <div
+        v-if="!state.items.length"
+        class="dark:bg-neutral-800 bg-neutral-300 w-full rounded-lg p-4 flex items-center mb-2"
+      >
         <ExclamationCircleIcon class="w-6 h-6 mr-4" />
 
         No tests configured.
       </div>
 
       <div
-        v-for="item in state.items" :key="item.name"
+        v-for="item in state.items"
+        :key="item.name"
         class="dark:bg-neutral-800 bg-neutral-300 w-full rounded-lg px-4 py-3 flex items-center mb-2.5"
       >
         <div v-if="item.result === 'Unset'">
@@ -50,18 +50,23 @@
 
 <script setup lang="ts">
 import { PlayIcon } from '@heroicons/vue/24/solid'
-import { EllipsisHorizontalCircleIcon, CheckCircleIcon, XCircleIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
+import {
+  EllipsisHorizontalCircleIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ExclamationCircleIcon,
+} from '@heroicons/vue/24/outline'
 import { onMounted, reactive } from 'vue'
-import { invoke } from '@tauri-apps/api'
+import { invoke } from '@tauri-apps/api/core'
 import { tab } from '../../state/state'
 
 interface TestItem {
-  name: string,
+  name: string
   result: string
 }
 
 const state = reactive({
-  items: [] as TestItem[]
+  items: [] as TestItem[],
 })
 
 onMounted(async () => {

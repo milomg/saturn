@@ -21,7 +21,11 @@
             classes="text-xs w-32"
           />
 
-          <span class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"> Units </span>
+          <span
+            class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"
+          >
+            Units
+          </span>
 
           <NumberField
             v-model="settings.bitmap.unitWidth"
@@ -41,7 +45,11 @@
             classes="text-xs w-32"
           />
 
-          <span class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"> Units </span>
+          <span
+            class="dark:text-neutral-400 text-neutral-600 mx-3 text-xs font-bold"
+          >
+            Units
+          </span>
 
           <NumberField
             v-model="settings.bitmap.unitHeight"
@@ -57,29 +65,35 @@
             v-model="settings.bitmap.address"
             :hex="true"
             :checker="memoryCheck"
-            classes="text-xs w-32"
+            :editable="settings.bitmap.register === undefined"
+            :classes="`text-xs w-32 ${settings.bitmap.register !== undefined ? 'opacity-30' : ''}`"
           />
 
           <button
-            class="rounded px-2 py-1 border border-neutral-700 font-bold text-xs ml-4 dark:active:bg-slate-700 active:bg-slate-300"
+            class="rounded px-2 py-1 border border-neutral-700 font-bold text-xs ml-4 dark:active:bg-slate-700 active:bg-slate-400"
             :class="{
-              'dark:bg-slate-800 bg-slate-200': settings.bitmap.address === gp,
-              'dark:hover:bg-slate-800 bg-slate-200': settings.bitmap.address !== gp,
+              'dark:bg-slate-800 bg-slate-300':
+                settings.bitmap.register !== undefined,
+              'dark:hover:bg-neutral-800':
+                settings.bitmap.register === undefined,
             }"
-            @click="settings.bitmap.address = gp"
+            @click="selectGp"
           >
             $gp
           </button>
         </div>
       </div>
 
-      <div v-if="state.keyboardLive" class="text-gray-500 mt-4 flex items-center">
+      <div
+        v-if="state.keyboardLive"
+        class="text-gray-500 mt-4 flex items-center"
+      >
         <ArrowRightIcon class="w-4 h-4 mr-2" />
 
         Press keys now to create keyboard events.
       </div>
 
-      <div v-else class="text-gray-500 mt-4 flex items-center">
+      <div v-else class="text-neutral-500 mt-4 flex items-center">
         <ArrowRightIcon class="w-4 h-4 mr-2" />
 
         To connect the keyboard, click on the display.
@@ -87,7 +101,7 @@
 
       <div
         v-if="!state.useProtocol"
-        class="text-gray-500 pt-4 flex items-center mt-auto"
+        class="text-neutral-500 pt-4 flex items-center mt-auto"
       >
         <ExclamationCircleIcon class="w-6 h-6 mr-2" />
 
@@ -101,8 +115,8 @@
               href="https://github.com/1whatleytay/saturn"
               class="underline hover:text-gray-300"
             >
-              https://github.com/1whatleytay/saturn
-            </a>.
+              https://github.com/1whatleytay/saturn </a
+            >.
           </div>
         </div>
       </div>
@@ -117,7 +131,6 @@
       @keyup="(e) => handleKey(e, true)"
       class="outline-none overflow-visible focus:ring-4 border border-neutral-700 rounded h-full shrink-0 max-w-3/4 self-end"
       :style="{ width: `${correctedWidth}px` }"
-      :class="{ 'mx-auto sm:mx-0': !state.small, 'mx-auto': state.small }"
     >
       <canvas
         ref="canvas"
@@ -139,14 +152,21 @@ import { backend } from '../../state/backend'
 
 import { settings } from '../../state/state'
 import NumberField from './NumberField.vue'
-import { convertFileSrc } from '@tauri-apps/api/tauri'
 import { displayConfig } from '../../utils/settings'
 import { MipsExecution } from '../../utils/mips/mips'
 
+const gpRegisterNumber = 28
+
+function selectGp() {
+  if (settings.bitmap.register !== undefined) {
+    settings.bitmap.register = undefined
+  } else {
+    settings.bitmap.register = gpRegisterNumber
+  }
+}
+
 const wrapper = ref(null as HTMLElement | null)
 const canvas = ref(null as HTMLCanvasElement | null)
-
-const gp = 0x10008000
 
 const config = computed(() => displayConfig(settings.bitmap))
 
@@ -157,7 +177,7 @@ const state = reactive({
   interval: null as number | null,
   small: false as boolean,
   useProtocol: true,
-  keyboardLive: false
+  keyboardLive: false,
 })
 
 function memoryCheck(value: number): string | null {
@@ -290,9 +310,9 @@ watch(() => consoleData.execution, checkConnected)
 
 async function renderFrameFallback(
   context: CanvasRenderingContext2D,
-  execution: MipsExecution
+  execution: MipsExecution,
 ) {
-  const { width, height, address} = config.value
+  const { width, height, address } = config.value
 
   const memory = await execution.memoryAt(address, width * height * 4)
 
@@ -322,7 +342,7 @@ function renderOrdered(
   context: CanvasRenderingContext2D,
   width: number,
   height: number,
-  memory: Uint8Array
+  memory: Uint8Array,
 ) {
   const data = context.createImageData(width, height)
 
@@ -334,10 +354,15 @@ function renderOrdered(
 }
 
 async function renderFrameProtocol(context: CanvasRenderingContext2D) {
-  const { width, height, address } = config.value
+  const { width, height, address, register } = config.value
 
   if (consoleData.execution) {
-    const memory = await consoleData.execution.readDisplay(width, height, address)
+    const memory = await consoleData.execution.readDisplay(
+      width,
+      height,
+      address,
+      register,
+    )
 
     if (memory) {
       renderOrdered(context, width, height, memory)
@@ -353,12 +378,7 @@ async function renderLastDisplay(context: CanvasRenderingContext2D) {
     return
   }
 
-  renderOrdered(
-    context,
-    last.width,
-    last.height,
-    Uint8Array.from(last.data)
-  )
+  renderOrdered(context, last.width, last.height, Uint8Array.from(last.data))
 }
 
 let inflight = false

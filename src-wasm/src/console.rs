@@ -1,9 +1,9 @@
-use std::sync::Arc;
-use saturn_backend::syscall::ConsoleHandler;
 use crate::EventHandler;
+use saturn_backend::syscall::ConsoleHandler;
+use std::sync::Arc;
 
 pub struct WasmConsole {
-    pub events: Arc<EventHandler>
+    pub events: Arc<EventHandler>,
 }
 
 impl ConsoleHandler for WasmConsole {

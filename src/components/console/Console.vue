@@ -20,10 +20,7 @@
       />
 
       <div class="h-10 flex items-center text-sm font-bold text-neutral-400">
-        <div
-          class="rounded-full py-0.5 px-4 mx-4"
-          :class="[modeClass]"
-        >
+        <div class="rounded-full py-0.5 px-4 mx-4" :class="[modeClass]">
           {{ modeString }}
         </div>
 
@@ -209,13 +206,13 @@ watch(
   () => properties.height,
   (height) => {
     watchHeight(height, !!properties.resizing)
-  }
+  },
 )
 
 watch(
   () => properties.resizing,
   (resizing) => {
     watchHeight(properties.height, !!resizing)
-  }
+  },
 )
 </script>

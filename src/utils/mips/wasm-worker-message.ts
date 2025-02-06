@@ -26,6 +26,7 @@ export enum MessageOp {
   WakeSync,
   Rewind,
   ReadDisplay,
+  PlatformShortcuts,
 }
 
 export interface AssembleRegionsData {
@@ -161,36 +162,47 @@ export interface ReadDisplayData {
   width: number
   height: number
   address: number
+  register: number | null
+}
+
+export interface PlatformShortcutsData {
+  op: MessageOp.PlatformShortcuts
 }
 
 export type MessageData =
-  AssembleRegionsData |
-  AssembleTextData |
-  AssembleBinaryData |
-  DecodeInstructionData |
-  DisassembleData |
-  DetailedDisassembleData |
-  ConfigureDisplayData |
-  LastDisplayData |
-  ConfigureElfData |
-  ConfigureAsmData |
-  ResumeData |
-  StopData |
-  PauseData |
-  LastPcData |
-  ReadBytesData |
-  WriteBytesData |
-  SetRegisterData |
-  SetBreakpointsData |
-  PostInputData |
-  PostKeyData |
-  WakeSyncData |
-  RewindData |
-  ReadDisplayData
+  | AssembleRegionsData
+  | AssembleTextData
+  | AssembleBinaryData
+  | DecodeInstructionData
+  | DisassembleData
+  | DetailedDisassembleData
+  | ConfigureDisplayData
+  | LastDisplayData
+  | ConfigureElfData
+  | ConfigureAsmData
+  | ResumeData
+  | StopData
+  | PauseData
+  | LastPcData
+  | ReadBytesData
+  | WriteBytesData
+  | SetRegisterData
+  | SetBreakpointsData
+  | PostInputData
+  | PostKeyData
+  | WakeSyncData
+  | RewindData
+  | ReadDisplayData
+  | PlatformShortcutsData
 
 export enum MessageEventOp {
   ConsoleWrite,
   MidiPlay,
+  Ready,
+}
+
+export interface MessageEventReady {
+  op: MessageEventOp.Ready
 }
 
 export interface MessageEventConsoleWrite {
@@ -205,8 +217,9 @@ export interface MessageEventMidiPlay {
 }
 
 export type MessageEventData =
-  MessageEventConsoleWrite |
-  MessageEventMidiPlay
+  | MessageEventConsoleWrite
+  | MessageEventMidiPlay
+  | MessageEventReady
 
 export interface Message {
   id: number
@@ -236,6 +249,7 @@ export interface MessageResponseFailure {
   error: unknown
 }
 
-export type MessageResponse = MessageResponseSuccess
+export type MessageResponse =
+  | MessageResponseSuccess
   | MessageResponseFailure
   | MessageResponseEvent

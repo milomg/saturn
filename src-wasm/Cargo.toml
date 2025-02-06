@@ -13,22 +13,23 @@ default = ["console_error_panic_hook"]
 wasm-opt = ['-O4', '-g']
 
 [dependencies]
-serde = "1.0.197"
-serde_json = "1.0.114"
-futures = "0.3.29"
-wasm-bindgen = "0.2.91"
-wasm-bindgen-futures = "0.4.41"
-serde-wasm-bindgen = "0.6.4"
-async-trait = "0.1.82"
+serde = "1.0"
+serde_json = "1.0"
+futures = "0.3.31"
+wasm-bindgen = "0.2.100"
+wasm-bindgen-futures = "0.4.50"
+serde-wasm-bindgen = "0.6.5"
+async-trait = "0.1.85"
 send_wrapper = "0.6.0"
-js-sys = "0.3.70"
+js-sys = "0.3.77"
 gloo-timers = "0.3.0"
+num = "0.4.3"
 
-log = "0.4.22"
+log = "0.4.25"
 wasm-logger = "0.2.0"
 console_error_panic_hook = { version = "0.1.7", optional = true }
 
-getrandom = { version = "0.2.12", features = ["js"] }
+getrandom = { version = "0.2.15", features = ["js"] }
 
 saturn_backend = { path = "../src-backend" }
 titan = { git = "https://github.com/1whatleytay/titan.git", branch = "main" }

@@ -11,7 +11,7 @@ export function consumeDirection(
   index: number,
   direction: number,
   spaced: boolean = true,
-  hard: Set<string> = hardCharacters
+  hard: Set<string> = hardCharacters,
 ): number {
   const directionOffset = direction < 0 ? 1 : 0
   const cursor = index - directionOffset
@@ -49,7 +49,7 @@ export function consumeDirection(
 export function consumeBackwards(
   line: string,
   index: number,
-  hard: Set<string> = hardCharacters
+  hard: Set<string> = hardCharacters,
 ): number {
   return consumeDirection(line, index, -1, true, hard)
 }
@@ -57,7 +57,7 @@ export function consumeBackwards(
 export function consumeForwards(
   line: string,
   index: number,
-  hard: Set<string> = hardCharacters
+  hard: Set<string> = hardCharacters,
 ): number {
   return consumeDirection(line, index, +1, true, hard)
 }
@@ -66,7 +66,7 @@ export function consumeSpace(
   line: string,
   index: number,
   direction: number,
-  max: number
+  max: number,
 ): number {
   const directionOffset = direction < 0 ? 1 : 0
   const cursor = index - directionOffset

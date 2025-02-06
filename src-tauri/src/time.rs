@@ -1,12 +1,14 @@
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
-use saturn_backend::syscall::TimeHandler;
-use tokio::time::sleep;
 use async_trait::async_trait;
+use saturn_backend::syscall::TimeHandler;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use tokio::time::sleep;
 
-pub struct TokioTimeHandler { }
+pub struct TokioTimeHandler {}
 
 impl TokioTimeHandler {
-    pub fn new() -> Self { Self { } }
+    pub fn new() -> Self {
+        Self {}
+    }
 }
 
 #[async_trait]

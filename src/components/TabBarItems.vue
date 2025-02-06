@@ -33,7 +33,8 @@
       @click="rewind()"
       :class="{
         'dark:text-gray-300 text-gray-700 cursor-default': !allowRewind,
-        'dark:text-teal-300 text-teal-700 dark:hover:bg-slate-800 hover:bg-slate-300': allowRewind,
+        'dark:text-teal-300 text-teal-700 dark:hover:bg-slate-800 hover:bg-slate-300':
+          allowRewind,
       }"
       :disabled="!allowRewind"
       title="Step Back"
@@ -47,7 +48,8 @@
       @click="step()"
       :class="{
         'dark:text-gray-300 text-gray-700 cursor-default': !allowResume,
-        'dark:text-teal-300 text-teal-700 dark:hover:bg-slate-800 hover:bg-slate-300': allowResume,
+        'dark:text-teal-300 text-teal-700 dark:hover:bg-slate-800 hover:bg-slate-300':
+          allowResume,
       }"
       :disabled="!allowResume"
       title="Step"
@@ -58,8 +60,10 @@
     <button
       class="w-10 h-10 shrink-0 flex items-center justify-center font-black"
       :class="{
-        'dark:text-gray-300 text-gray-700 cursor-default dark:bg-neutral-800 bg-neutral-400': !allowResume,
-        'dark:text-green-300 text-green-700 dark:hover:bg-slate-800 hover:bg-slate-300': allowResume,
+        'dark:text-gray-300 text-gray-700 cursor-default dark:bg-neutral-800 bg-neutral-400':
+          !allowResume,
+        'dark:text-green-300 text-green-700 dark:hover:bg-slate-800 hover:bg-slate-300':
+          allowResume,
       }"
       @click="resume()"
       :disabled="!allowResume"
@@ -80,7 +84,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { consoleData } from '../state/console-data'
-import { build, pause, resume, step, rewind, stop, allowResume, allowRewind } from '../utils/debug'
+import {
+  build,
+  pause,
+  resume,
+  step,
+  rewind,
+  stop,
+  allowResume,
+  allowRewind,
+} from '../utils/debug'
 import { tab } from '../state/state'
 
 import {

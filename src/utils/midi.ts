@@ -1,9 +1,8 @@
-import { tauri } from '@tauri-apps/api'
+import { core } from '@tauri-apps/api'
 
 import * as MIDI from 'midicube'
-import { convertFileSrc } from '@tauri-apps/api/tauri'
+import { convertFileSrc } from '@tauri-apps/api/core'
 import { backend } from '../state/backend'
-
 ;(window as any).MIDI = MIDI
 
 const loadedInstruments = new Map<string, Promise<boolean>>()
@@ -18,7 +17,9 @@ export interface MidiNote {
 }
 
 function loadInstrument(instrument: string): void {
-  const soundfontUrl = convertFileSrc('', 'midi')
+  const soundfontUrl = window.__TAURI_INTERNALS__
+    ? convertFileSrc('', 'midi')
+    : 'https://gleitz.github.io/midi-js-soundfonts/FatBoy/'
 
   loadedInstruments.set(
     instrument,
@@ -47,7 +48,11 @@ export async function playNote(note: MidiNote) {
     !(await loadedInstruments.get(note.name))
   ) {
     loadInstrument(note.name)
-    return await wake()
+    if (note.sync) {
+      await loadedInstruments.get(note.name)
+    } else {
+      return await wake()
+    }
   }
 
   if (note.duration > 0) {

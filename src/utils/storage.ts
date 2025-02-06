@@ -28,7 +28,7 @@ type ShiftCallback = (line: number, deleted: number, insert: string[]) => void
 export function useStorage(
   error: HighlightsInterface,
   tab: () => EditorTab | null,
-  dirty: ShiftCallback = () => {}
+  dirty: ShiftCallback = () => {},
 ): StorageResult {
   const storage = reactive({
     editor: createEditor(),
@@ -47,14 +47,17 @@ export function useStorage(
     suggestions.update(
       line,
       deleted,
-      result.map((x) => x.suggestions)
+      result.map((x) => x.suggestions),
     )
   }
 
   async function checkSyntax() {
     const current = tab()
 
-    const result = await backend.assembleText(collectLines(current?.lines ?? []), current?.path ?? null)
+    const result = await backend.assembleText(
+      collectLines(current?.lines ?? []),
+      current?.path ?? null,
+    )
 
     if (result.status === 'Error' && result.marker) {
       const tokens = storage.highlights[result.marker.line]
@@ -63,7 +66,7 @@ export function useStorage(
         result.marker.line,
         tokens,
         result.marker.offset,
-        result.message
+        result.message,
       )
     } else {
       error.dismissHighlight()
@@ -133,7 +136,7 @@ export function useStorage(
       current?.lines ?? ['Nothing yet.'],
       current?.cursor ?? { line: 0, index: 0 },
       handleDirty,
-      current?.writable ?? false ? undefined : () => false // weird
+      (current?.writable ?? false) ? undefined : () => false, // weird
     )
   }
 
@@ -167,7 +170,7 @@ export function useStorage(
     () => tab(),
     (tab) => {
       highlightAll(tab)
-    }
+    },
   )
 
   return {

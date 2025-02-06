@@ -6,9 +6,11 @@ use std::sync::{Arc, Mutex};
 
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use tauri::api::http::{Client, ClientBuilder, HttpRequestBuilder, StatusCode};
-use tauri::api::path::app_local_data_dir;
-use tauri::{AppHandle, Manager, PathResolver, Wry};
+use tauri::http::StatusCode;
+use tauri::path::{BaseDirectory, PathResolver};
+use tauri::Emitter;
+use tauri::{AppHandle, Manager, Wry};
+use tauri_plugin_http::reqwest;
 
 #[derive(Clone, Serialize)]
 struct ConsoleEvent {
@@ -28,8 +30,10 @@ pub enum MidiProviderContainer {
     Provider(Arc<MidiDefaultProvider>),
 }
 
-async fn load_default_provider(resolver: PathResolver) -> Option<MidiDefaultProvider> {
-    let resource = resolver.resolve_resource("resources/midi-default.json")?;
+async fn load_default_provider(resolver: &PathResolver<Wry>) -> Option<MidiDefaultProvider> {
+    let resource = resolver
+        .resolve("resources/midi-default.json", BaseDirectory::Resource)
+        .ok()?;
 
     let buffer = tokio::fs::read_to_string(resource).await.ok()?;
     let data = serde_json::from_str(&buffer).ok()?;
@@ -50,9 +54,7 @@ async fn grab_default_provider(app: &AppHandle<Wry>) -> Option<Arc<MidiDefaultPr
         }
     }
 
-    let provider = load_default_provider(app.path_resolver())
-        .await
-        .map(Arc::new);
+    let provider = load_default_provider(app.path()).await.map(Arc::new);
 
     let mut container = state.lock().ok()?;
 
@@ -71,21 +73,18 @@ async fn grab_default_provider(app: &AppHandle<Wry>) -> Option<Arc<MidiDefaultPr
 }
 
 async fn download_file(
-    client: &Client,
     base_url: &str,
     file: String,
     sha256: Option<&str>,
 ) -> Option<(String, Vec<u8>)> {
     let path = format!("{}{}", base_url, file);
-    let request = HttpRequestBuilder::new("GET", &path).ok()?;
-
-    let response = client.send(request).await.ok()?;
+    let response = reqwest::get(&path).await.ok()?;
 
     if response.status() != StatusCode::OK {
         return None;
     }
 
-    let bytes = response.bytes().await.ok()?.data;
+    let bytes = response.bytes().await.ok()?;
 
     if let Some(sha256) = sha256 {
         let mut hasher = Sha256::new();
@@ -93,7 +92,7 @@ async fn download_file(
         let result = hasher.finalize();
 
         let Ok(expected) = hex::decode(sha256) else {
-            return None
+            return None;
         };
 
         if expected != result[..] {
@@ -107,7 +106,7 @@ async fn download_file(
         }
     }
 
-    Some((file, bytes))
+    Some((file, bytes.to_vec()))
 }
 
 async fn download_files<F>(
@@ -121,7 +120,6 @@ where
 {
     let count = AtomicUsize::new(0);
 
-    let client = ClientBuilder::new().build().ok()?;
     let result = futures::future::try_join_all(files.iter().map(|file| async {
         let hash = if let Some(map) = sha256 {
             Some(map.get(file).map(|x| x.as_str()).ok_or(())?)
@@ -129,7 +127,7 @@ where
             None
         };
 
-        let result = download_file(&client, url, file.clone(), hash).await;
+        let result = download_file(url, file.clone(), hash).await;
 
         if result.is_some() {
             count.fetch_add(1, Ordering::Acquire);
@@ -199,7 +197,7 @@ pub async fn install_instruments(
     let download_uuid = uuid::Uuid::new_v4().to_string();
 
     let handler = |count: usize| {
-        app.emit_all(
+        app.emit(
             "post-console-event",
             ConsoleEvent {
                 uuid: Some(download_uuid.clone()),
@@ -220,13 +218,13 @@ pub async fn install_instruments(
 
     let data = request_providers(&provider.providers, &files, handler, &provider.hashes).await?;
 
-    let mut directory = app_local_data_dir(&app.config())?;
+    let mut directory = app.path().app_local_data_dir().ok()?;
     directory.push("midi/");
     fs::create_dir_all(&directory).ok()?;
 
     let write_uuid = uuid::Uuid::new_v4().to_string();
 
-    app.emit_all(
+    app.emit(
         "post-console-event",
         ConsoleEvent {
             uuid: Some(write_uuid.clone()),
@@ -243,7 +241,7 @@ pub async fn install_instruments(
     }))
     .await;
 
-    app.emit_all(
+    app.emit(
         "post-console-event",
         ConsoleEvent {
             uuid: Some(write_uuid),
@@ -264,7 +262,7 @@ pub async fn midi_install(
     let console = install_instruments(provider_url, instruments, &app).await;
 
     if console.is_none() {
-        app.emit_all(
+        app.emit(
             "post-console-event",
             ConsoleEvent {
                 uuid: None,

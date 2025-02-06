@@ -1,13 +1,13 @@
 use crate::midi::install_instruments;
+use saturn_backend::midi::instruments::to_instrument;
+use saturn_backend::midi::note::MidiNote;
 use saturn_backend::syscall::{MidiHandler, MidiRequest};
 use std::collections::HashSet;
 use std::future::Future;
 use std::pin::Pin;
 use std::sync::{Arc, Mutex};
-use tauri::api::path::app_local_data_dir;
+use tauri::Emitter;
 use tauri::{AppHandle, Manager, Wry};
-use saturn_backend::midi::instruments::to_instrument;
-use saturn_backend::midi::note::MidiNote;
 
 #[derive(Clone)]
 pub struct ForwardMidi {
@@ -22,11 +22,13 @@ impl ForwardMidi {
             installed: Arc::new(Mutex::new(HashSet::new())),
         }
     }
-    
+
     async fn install_async(&self, instrument: u32) -> bool {
-        let Some(name) = to_instrument(instrument as usize) else { return false };
+        let Some(name) = to_instrument(instrument as usize) else {
+            return false;
+        };
         let instruments = Some(vec![name.into()]);
-        
+
         let result = install_instruments(None, instruments, &self.app)
             .await
             .is_some();
@@ -41,11 +43,12 @@ impl ForwardMidi {
 
 impl MidiHandler for ForwardMidi {
     fn play(&mut self, request: &MidiRequest, sync: bool) {
-        let Some(name) = to_instrument(request.instrument as usize) else { return };
+        let Some(name) = to_instrument(request.instrument as usize) else {
+            return;
+        };
 
-        self
-            .app
-            .emit_all(
+        self.app
+            .emit(
                 "play-midi",
                 MidiNote {
                     sync,
@@ -74,10 +77,12 @@ impl MidiHandler for ForwardMidi {
             return true;
         }
 
-        let Some(name) = to_instrument(instrument as usize) else { return false };
+        let Some(name) = to_instrument(instrument as usize) else {
+            return false;
+        };
 
-        let Some(mut directory) = app_local_data_dir(&self.app.config()) else {
-            return false
+        let Ok(mut directory) = self.app.path().app_local_data_dir() else {
+            return false;
         };
 
         directory.push(format!("midi/{}-mp3.js", name));

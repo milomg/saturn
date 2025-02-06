@@ -16,13 +16,13 @@ export interface HighlightsInterface<Message = DefaultMessage> {
     line: number,
     tokens: Token[],
     index: number,
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ): void
   putHighlight(
     line: number,
     tokenIndex: number,
     tokens: Token[],
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ): void
   dismissHighlight(): void
   shiftHighlight(line: number, deleted: number, replaced: number): void
@@ -38,7 +38,7 @@ export type HighlightsResult<Message = DefaultMessage> =
   }
 
 export function useHighlights<Message = DefaultMessage>(
-  widthQuery: (text: string) => number
+  widthQuery: (text: string) => number,
 ): HighlightsResult<Message> {
   const state = reactive({
     highlight: null as Highlights<Message> | null,
@@ -48,7 +48,7 @@ export function useHighlights<Message = DefaultMessage>(
     line: number,
     tokenIndex: number,
     tokens: Token[],
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ) {
     const token = tokens[tokenIndex]
 
@@ -58,10 +58,10 @@ export function useHighlights<Message = DefaultMessage>(
       tokens
         .slice(0, tokenIndex)
         .map((x) => x.text)
-        .join('') + leading
+        .join('') + leading,
     )
     const size = widthQuery(
-      token.text.substring(leading.length, token.text.length - trailing.length)
+      token.text.substring(leading.length, token.text.length - trailing.length),
     )
 
     state.highlight = { line, message, offset, size }
@@ -71,7 +71,7 @@ export function useHighlights<Message = DefaultMessage>(
     line: number,
     tokens: Token[],
     index: number,
-    message: UnwrapRef<Message>
+    message: UnwrapRef<Message>,
   ) {
     const tokenIndex = findTokenIndex(tokens, index + 1)
 

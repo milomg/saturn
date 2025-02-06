@@ -5,17 +5,10 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    vue(),
-    wasm(),
-    topLevelAwait()
-  ],
+  plugins: [vue()],
 
   worker: {
-    plugins: () => [
-      wasm(),
-      topLevelAwait()
-    ]
+    plugins: () => [wasm(), topLevelAwait()],
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
@@ -36,5 +29,12 @@ export default defineConfig({
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+  },
+
+  // for some reason esbuild is running in the worker before the top level await plugin... we ignore the warning that it generates
+  esbuild: {
+    supported: {
+      'top-level-await': true,
+    },
   },
 })

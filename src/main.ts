@@ -12,10 +12,11 @@ createApp(App).mount('#app')
 
 setupWindow()
 
-if (window.__TAURI__) {
+if (window.__TAURI_INTERNALS__) {
   // Needs backend tying.
-  setupShortcuts().then(() => {})
   setupEvents().then(() => {})
 }
 
-setupBackend().then(() => {})
+setupBackend().then((backend) => {
+  setupShortcuts(backend).then(() => {})
+})

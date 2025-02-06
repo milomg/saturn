@@ -44,7 +44,7 @@ const props = withDefaults(
     editable: true,
     cleanOnly: true,
     bytes: 4,
-  }
+  },
 )
 
 const emit = defineEmits(['update:modelValue'])
@@ -76,14 +76,14 @@ watch(
       state.expected = value
       state.value = formatHex(props.modelValue, props.hex, props.signed)
     }
-  }
+  },
 )
 
 watch(
   () => [props.hex, props.signed],
   (value) => {
     state.value = formatHex(props.modelValue, value[0], value[1])
-  }
+  },
 )
 
 function parse(leading: string): number | null {
@@ -127,13 +127,13 @@ function formatHex(value: number, hex: boolean, signed: boolean): string {
     return `0x${value.toString(16)}`
   }
 
-  const ext = (~0 << (props.bytes * 8))
+  const ext = ~0 << (props.bytes * 8)
 
   if (signed) {
     const sign = (value & (0x80000000 >> ((4 - props.bytes) * 8))) != 0
 
     if (sign && props.bytes < 4) {
-      value |= ext;
+      value |= ext
     }
 
     return (value >> 0).toString()
@@ -172,6 +172,6 @@ watch(
     } else {
       state.error = 'This field only accepts numerical values'
     }
-  }
+  },
 )
 </script>

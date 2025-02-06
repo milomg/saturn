@@ -13,6 +13,7 @@ body {
   @apply overflow-auto;
 
   @apply dark:text-slate-100 text-slate-900;
+  @apply dark:!bg-neutral-900 !bg-neutral-200;
 }
 
 #app {
@@ -20,9 +21,9 @@ body {
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
 }
 .no-scrollbar::-webkit-scrollbar {
-  display: none;  /* Safari and Chrome */
+  display: none; /* Safari and Chrome */
 }

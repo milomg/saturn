@@ -1,7 +1,7 @@
 <template>
   <div
     ref="scroll"
-    class="font-mono text-sm flex-auto flex-grow overflow-auto flex bg-neutral-200 dark:bg-neutral-900 pt-2"
+    class="font-mono text-sm flex-auto flex-grow overflow-auto flex pt-2"
     @scroll="handleScroll"
     @resize="updateBounds"
   >
@@ -23,7 +23,7 @@
           class="rounded-full bg-red-700 w-3 h-3 mr-auto ml-3"
           :class="{
             'opacity-100 group-hover:opacity-100': hasBreakpoint(getIndex(i)),
-            'opacity-0 group-hover:opacity-30': !hasBreakpoint(getIndex(i))
+            'opacity-0 group-hover:opacity-30': !hasBreakpoint(getIndex(i)),
           }"
         />
 
@@ -93,7 +93,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 
 import { consoleData } from '../state/console-data'
 import { setBreakpoint } from '../utils/debug'
@@ -115,7 +123,7 @@ import {
   range,
   storage,
   tab,
-  tabBody
+  tabBody,
 } from '../state/state'
 
 import Cursor from './Cursor.vue'
@@ -154,7 +162,8 @@ function lineStyling(i: number): Record<string, boolean> {
   const isStopped = index === stoppedIndex.value
 
   return {
-    'dark:bg-breakpoint-neutral bg-breakpoint-neutral-light': breakpoint && !isStopped,
+    'dark:bg-breakpoint-neutral bg-breakpoint-neutral-light':
+      breakpoint && !isStopped,
     'dark:bg-breakpoint-stopped bg-breakpoint-stopped-light': isStopped,
     'bg-yellow-500 bg-opacity-5':
       !breakpoint && !isStopped && !(tab()?.writable ?? true),
@@ -196,7 +205,7 @@ watch(
   () => tabBody.value,
   () => {
     updateBounds()
-  }
+  },
 )
 
 function handleScroll() {
@@ -366,7 +375,7 @@ const updateAndShow = async (value: number) => {
 
 watch(
   () => position.value.offsetX,
-  () => updateAndShow(position.value.offsetY)
+  () => updateAndShow(position.value.offsetY),
 )
 watch(() => position.value.offsetY, updateAndShow)
 
@@ -378,7 +387,7 @@ watch(
 
       makeVisible(start)
     }
-  }
+  },
 )
 
 watch(
@@ -388,6 +397,6 @@ watch(
     await nextTick()
 
     handleScroll()
-  }
+  },
 )
 </script>

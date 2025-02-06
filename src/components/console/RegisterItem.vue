@@ -16,7 +16,7 @@
               text-sm
               ${props.marked ? 'text-orange-200' : 'text-gray-100'}`"
       :model-value="props.value"
-      @update:model-value="value => emit('set', value)"
+      @update:model-value="(value) => emit('set', value)"
       :checker="checker"
       :editable="props.editable"
       :hex="props.format === RegisterFormat.Hexadecimal"
@@ -30,19 +30,22 @@ import { RegisterFormat } from '../../utils/settings'
 
 import NumberField from './NumberField.vue'
 
-const props = withDefaults(defineProps<{
-  editable?: boolean,
-  name: string,
-  format?: RegisterFormat,
-  value?: number,
-  marked?: boolean,
-  classes?: string
-}>(), {
-  editable: true,
-  format: RegisterFormat.Hexadecimal,
-  marked: false,
-  classes: ''
-})
+const props = withDefaults(
+  defineProps<{
+    editable?: boolean
+    name: string
+    format?: RegisterFormat
+    value?: number
+    marked?: boolean
+    classes?: string
+  }>(),
+  {
+    editable: true,
+    format: RegisterFormat.Hexadecimal,
+    marked: false,
+    classes: '',
+  },
+)
 
 const emit = defineEmits(['set'])
 

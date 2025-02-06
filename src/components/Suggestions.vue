@@ -18,7 +18,10 @@
         v-for="(suggestion, index) in suggestions.state.results"
         :key="index"
         class="w-full h-6 rounded px-2 flex items-center cursor-pointer transition-colors duration-150"
-        :class="{ 'dark:bg-neutral-700 bg-neutral-300': index === suggestions.state.index }"
+        :class="{
+          'dark:bg-neutral-700 bg-neutral-300':
+            index === suggestions.state.index,
+        }"
         @click.stop="suggestions.state.index = index"
         @dblclick.stop="merge(index)"
       >
@@ -32,7 +35,7 @@
               {{
                 suggestion.replace.substring(
                   suggestion.range.start,
-                  suggestion.range.end + 1
+                  suggestion.range.end + 1,
                 )
               }}
             </span>
@@ -79,7 +82,7 @@ const props = withDefaults(
   defineProps<{
     lineHeight?: number
   }>(),
-  { lineHeight: 24 }
+  { lineHeight: 24 },
 )
 
 const suggestionsScroll = ref(0)
@@ -122,7 +125,7 @@ watch(
   () => suggestions.state.results,
   () => {
     scrollSuggestionsTo(0)
-  }
+  },
 )
 
 watch(
@@ -144,6 +147,6 @@ watch(
     } else if (bottom > end) {
       scrollSuggestionsTo(bottom - parentHeight + 16)
     }
-  }
+  },
 )
 </script>

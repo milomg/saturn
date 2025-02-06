@@ -77,15 +77,15 @@ export interface TabsInterface {
     named: string,
     content: string[],
     path?: string,
-    profile?: ExecutionProfile
+    profile?: ExecutionProfile,
   ): void
-  loadElf(named: string, elf: ArrayBuffer): Promise<void>
+  loadElf(named: string, elf: ArrayBufferLike): Promise<void>
 }
 
 export type TabsResult = TabsInterface & {
   tabsState: Tabs
   tabBody: ComputedRef<string[]>
-  saveModal: SaveModalResult,
+  saveModal: SaveModalResult
   showSettings: Ref<boolean>
 }
 
@@ -152,7 +152,9 @@ export function useTabs(): TabsResult {
         try {
           data = await accessReadText(tab.path)
         } catch (e) {
-          console.error(`Could not resume tab ${tab.path ?? 'Untitled'} (${tab.uuid}) with error`)
+          console.error(
+            `Could not resume tab ${tab.path ?? 'Untitled'} (${tab.uuid}) with error`,
+          )
           console.error(e)
 
           // Discard tab.
@@ -189,9 +191,8 @@ export function useTabs(): TabsResult {
       editor.selected = hasSelected ? state.selected : editor.tabs[0].uuid
     }
 
-    await accessSync(editor.tabs
-      .map(x => x.path)
-      .filter((x): x is string => x !== null)
+    await accessSync(
+      editor.tabs.map((x) => x.path).filter((x): x is string => x !== null),
     )
   }
 
@@ -199,7 +200,7 @@ export function useTabs(): TabsResult {
     const values = localStorage.getItem(backupNameKey)
 
     if (values) {
-      const list = JSON.stringify(values)
+      const list = JSON.parse(values)
 
       for (const item of list) {
         localStorage.removeItem(item)
@@ -294,7 +295,7 @@ export function useTabs(): TabsResult {
 
   const saveModal = useSaveModal(
     (tab) => saveTab(tab, PromptType.PromptWhenNeeded),
-    (tab) => discardTab(tab.uuid)
+    (tab) => discardTab(tab.uuid),
   )
 
   const showSettings = ref(false)
@@ -326,7 +327,7 @@ export function useTabs(): TabsResult {
     content: string[],
     path: string | null = null,
     profile: ExecutionProfile | null = defaultAssemblyProfile(),
-    writable: boolean = true
+    writable: boolean = true,
   ) {
     const id = uuid()
 
@@ -375,6 +376,6 @@ export function useTabs(): TabsResult {
     createTab,
     loadElf,
     saveModal,
-    showSettings
+    showSettings,
   }
 }
