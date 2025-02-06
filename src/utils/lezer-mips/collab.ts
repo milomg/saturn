@@ -55,11 +55,15 @@ const syncPlugin = (ytext: Y.Text) =>
     },
   )
 
-export const hostYTab = (tab: EditorTab) => {
+const createExtensions = (id: string) => {
   const ydoc = new Y.Doc()
   const ytext = ydoc.getText('codemirror')
-  const provider = new WebrtcProvider(tab.uuid, ydoc, {
-    signaling: ['ws://localhost:4444'],
+  const provider = new WebrtcProvider(id, ydoc, {
+    signaling: [
+      'wss://y-webrtc-1ndx.onrender.com/',
+      'wss://y-webrtc.fly.dev',
+      'wss://y-webrtc-server.onrender.com/',
+    ],
   })
   provider.awareness.setLocalStateField('user', {
     name: myname,
@@ -67,6 +71,18 @@ export const hostYTab = (tab: EditorTab) => {
     colorLight: userColor.light,
   })
   const undoManager = new Y.UndoManager(ytext)
+
+  return {
+    extensions: [
+      yCollab(ytext, provider.awareness, { undoManager }),
+      syncPlugin(ytext),
+    ],
+    ytext,
+  }
+}
+
+export const hostYTab = (tab: EditorTab) => {
+  const { extensions, ytext } = createExtensions(tab.uuid)
 
   if (ytext.length === 0) {
     ytext.insert(0, tab.doc)
@@ -74,34 +90,18 @@ export const hostYTab = (tab: EditorTab) => {
 
   console.log(tab.uuid)
 
-  return collabCompartment.reconfigure([
-    yCollab(ytext, provider.awareness, { undoManager }),
-    syncPlugin(ytext),
-  ])
+  return collabCompartment.reconfigure(extensions)
 }
 
 export const joinYTab = (editor: Tabs, join: string): EditorTab => {
-  const ydoc = new Y.Doc()
-  const ytext = ydoc.getText('codemirror')
-  const provider = new WebrtcProvider(join, ydoc, {
-    signaling: ['ws://localhost:4444'],
-  })
-  provider.awareness.setLocalStateField('user', {
-    name: myname,
-    color: userColor.color,
-    colorLight: userColor.light,
-  })
-  const undoManager = new Y.UndoManager(ytext)
+  const { extensions, ytext } = createExtensions(join)
 
   const content = ytext.toString()
   const named = '(remote tab)'
 
   const id = join
 
-  const state = createState(editor, id, content, true, [
-    yCollab(ytext, provider.awareness, { undoManager }),
-    syncPlugin(ytext),
-  ])
+  const state = createState(editor, id, content, true, extensions)
 
   const tab: EditorTab = {
     uuid: id,
