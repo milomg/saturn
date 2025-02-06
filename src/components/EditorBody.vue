@@ -67,7 +67,7 @@ onMounted(() => {
     () => view.requestMeasure(),
   )
 
-  window.host = () => {
+  ;(window as any).host = () => {
     view.dispatch({ effects: [hostYTab(tab()!)] })
   }
   // https://gist.github.com/shimondoodkin/1081133
