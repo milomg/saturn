@@ -1,6 +1,68 @@
 import { hasActionKey } from '../query/shortcut-key'
-import { Accelerator, closeCurrentTab, newTab, toggleConsole, toggleSettings } from './events'
-import { build, pause, resume, step, stop } from '../debug'
+import {
+  Accelerator,
+  closeCurrentTab,
+  newTab,
+  openFile,
+  saveAs,
+  saveCurrentTab,
+  toggleConsole,
+  toggleSettings,
+} from './events'
+import { build, pause, postBuildMessage, resume, step, stop } from '../debug'
+import { tab } from '../../state/state'
+import {
+  accessWriteBinary,
+  selectSaveDestination,
+} from '../query/access-manager/access-manager-web'
+import { consoleData, ConsoleType, pushConsole } from '../../state/console-data'
+import { backend } from '../../state/backend'
+import { BinaryResult } from '../mips/mips'
+
+// 'export'
+export async function exportBinary() {
+  const current = tab()
+
+  if (!current) {
+    return
+  }
+
+  let binary: Uint8Array | null
+  let result: BinaryResult | null = null
+
+  if (current.profile && current.profile.kind === 'elf') {
+    binary = Uint8Array.from(window.atob(current.profile.elf), (c) =>
+      c.charCodeAt(0),
+    )
+  } else {
+    result = await backend.assembleWithBinary(
+      current.doc.toString(),
+      current.path,
+    )
+
+    binary = result.binary
+  }
+
+  let destination: string | null = null
+
+  if (binary !== null) {
+    const dest = await selectSaveDestination()
+    if (!dest) {
+      return
+    }
+    await accessWriteBinary(dest.path, binary)
+  }
+
+  consoleData.showConsole = true
+
+  if (result !== null) {
+    postBuildMessage(result.result)
+  }
+
+  if (destination !== null) {
+    pushConsole(`ELF file written to ${destination}`, ConsoleType.Info)
+  }
+}
 
 function command(key: string, shift?: boolean): Accelerator {
   return {
@@ -14,10 +76,10 @@ function command(key: string, shift?: boolean): Accelerator {
 // do we want to rebind?
 const bindings: [Accelerator, () => void][] = [
   [command('N'), newTab],
-  // [command('O'), openTab], // tauri required
+  [command('O'), openFile],
   [command('W'), closeCurrentTab],
-  // [command('S'), saveCurrentTab], // tauri required
-  // [command('S', true), saveAs], // tauri required
+  [command('S'), saveCurrentTab],
+  [command('S', true), saveAs], // tauri required
   // [command('F'), () => {}], // not listened to, handled by editor
   [command('B'), build],
   [command('K'), resume],

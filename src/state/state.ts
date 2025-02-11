@@ -25,4 +25,8 @@ export const { storage } = storageResult
 
 export const showExportRegionsDialog = ref(false)
 
+export const showFileSaveDialog = ref(false)
+
+export const showFileOpenDialog = ref(false)
+
 export const buildLines = ref(null as InstructionLine[] | null)

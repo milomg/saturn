@@ -24,7 +24,7 @@ import {
 import { suggestionsContext } from './lezer-mips/suggestions'
 import { keymap } from '@codemirror/view'
 import { indentWithTab } from '@codemirror/commands'
-import { saveTab } from './events/tauri-shortcuts'
+import { saveTab } from './events/events'
 
 export type CursorState = SelectionIndex & {
   highlight: SelectionIndex | null
@@ -307,7 +307,7 @@ export function useTabs(): TabsResult {
   }
 
   restore().then(() => {})
-  window.setInterval(backup, 30000)
+  window.setInterval(backup, 1000)
   watch(() => editor.tabs.length, backup)
 
   const tab = computed(() => {
