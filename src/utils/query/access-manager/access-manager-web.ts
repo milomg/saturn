@@ -1,6 +1,8 @@
 import { showFileOpenDialog, showFileSaveDialog } from '../../../state/state'
 import { AccessFile } from '.'
+import Worker from './file-worker?worker'
 
+const worker = new Worker()
 const storage = navigator.storage.getDirectory()
 
 let showFileSaveResolve: ((t: string) => void) | null = null
@@ -36,23 +38,16 @@ export async function accessWriteText(
   path: string,
   content: string,
 ): Promise<void> {
-  const astorage = await storage
-  const file = await astorage.getFileHandle(path, { create: true })
-  const writable = await file.createWritable()
-  const value = content
-  await writable.write(value)
-  await writable.close()
+  const textEncoder = new TextEncoder()
+  const encoded = textEncoder.encode(content)
+  await accessWriteBinary(path, encoded)
 }
 
 export async function accessWriteBinary(
   path: string,
   content: Uint8Array,
 ): Promise<void> {
-  const astorage = await storage
-  const file = await astorage.getFileHandle(path, { create: true })
-  const writable = await file.createWritable()
-  await writable.write(content)
-  await writable.close()
+  worker.postMessage({ path, content })
 }
 
 export async function selectOpenFile(): Promise<AccessFile<
