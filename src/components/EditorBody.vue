@@ -79,8 +79,10 @@ onMounted(() => {
         if (!e.relatedTarget) return
 
         var editableFix = document.createElement('input')
-        editableFix.style =
-          'width:1px;height:1px;border:none;margin:0;padding:0;'
+        editableFix.setAttribute(
+          'style',
+          'width:1px;height:1px;border:none;margin:0;padding:0;',
+        )
         document.body.appendChild(editableFix)
         editableFix.setSelectionRange(0, 0)
         editableFix.blur()
